@@ -46,6 +46,16 @@ if ($hassiteconfig) {
         )
     );
 
+    $ADMIN->add(
+        'reports',
+        new admin_externalpage(
+            'cltr_database_reset',
+            get_string('metric_reset', 'cltr_database'),
+            new moodle_url('/admin/tool/cloudmetrics/collector/database/reset.php'),
+            'moodle/site:config'
+        )
+    );
+
     if ($ADMIN->fulltree) {
         $settings->add(
             new admin_setting_configduration(

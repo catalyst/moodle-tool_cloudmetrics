@@ -41,6 +41,7 @@ $PAGE->set_url($url);
 
 $metricname = optional_param('metric', 'onlineusers', PARAM_ALPHANUMEXT);
 $tochart = new moodle_url('/admin/tool/cloudmetrics/collector/database/chart.php', ['metric' => $metricname]);
+$toreset = new moodle_url('/admin/tool/cloudmetrics/collector/database/reset.php', ['metric' => $metricname]);
 
 $metrics = manager::get_metrics(true);
 $collector = new collector();
@@ -103,6 +104,7 @@ $context['dataperiod'] = get_string('data_period', 'tool_cloudmetrics',
             ['startdate' => $startdate ?? 0, 'enddate' => $enddate ?? 0]);
 $context['emptydb'] = $emptydb ?? false;
 $context['linktochart'] = $tochart;
+$context['linktoreset'] = $toreset;
 $context['metriclabel'] = $metrics[$metricname]->get_label();
 $context['isdifferentfreq'] = $isdifferentfreq ?? null;
 

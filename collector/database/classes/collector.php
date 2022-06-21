@@ -48,10 +48,17 @@ class collector extends base {
      *
      * @param string $metricname Metric name to remove.
      */
-    public function delete_metrics(string $metricname) {
+    public function delete_metrics(string $metricname, $starttime = null, $endtime = null) {
         global $DB;
-
-        $DB->delete_records(lib::TABLE, ['name' => $metricname]);
+        $select = 'name = :metricname';
+        $params = ['metricname' => $metricname];
+        // If no starttime and endtime passed all metrics are removed.
+        if (!is_null($starttime) && !is_null($endtime)) {
+            $select .= ' AND time >= :starttime AND time <= :endtime';
+            $params['starttime'] = $starttime;
+            $params['endtime'] = $endtime;
+        }
+        $DB->delete_records_select(lib::TABLE, $select, $params);
     }
 
     /**

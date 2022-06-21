@@ -80,6 +80,17 @@ $string['data_period'] = 'Current information shows data can be retrieved from {
 $string['different_freq'] = 'Caution - frequency has been changed, new data will complete currently present but no data will be added between
 {$a->backfilledfrom} and {$a->backfilledto}.';
 $string['period_select'] = 'Select period to retrieve data from: ';
+$string['period_select_delete'] = 'Select metric to reset or delete: ';
+$string['reset'] = 'Reset';
+$string['delete'] = 'Delete';
+$string['period_delete'] = 'Are you sure you want to delete data from {$a->startdate} to {$a->enddate} for {$a->metric} metric ?';
+$string['period_reset'] = 'Are you sure you want to completely erase data for {$a} metric ?';
+$string['resetordelete'] = 'Reset or delete';
+$string['resetordelete_help'] = '* <strong>Reset</strong> : Erase all data for given metric
+* <strong>Delete</strong> : Erase metric data selected for given dates';
+$string['deleteheader'] = 'Reset or delete metric data';
+$string['properly_reset'] = 'Metric {$a} has properly been reset';
+$string['properly_deleted'] = 'Metric {$a->name} has properly been deleted from {$a->startdate} to {$a->enddate}';
 $string['return_to_backfill'] = 'Backfill {$a} period';
 $string['return_to_chart'] = 'Return to {$a} chart';
 $string['same_freq'] = 'Backfilling to a further date in the past will complete already present data.';

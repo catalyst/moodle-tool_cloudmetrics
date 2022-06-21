@@ -42,4 +42,13 @@ class renderer extends \plugin_renderer_base {
     public function render_backfill_page($data) {
         return $this->render_from_template('tool_cloudmetrics/backfill_page', $data);
     }
+
+    /**
+     * Render the reset page.
+     *
+     * @param array $data
+     */
+    public function render_reset_page($data) {
+        return $this->render_from_template('tool_cloudmetrics/reset_page', $data);
+    }
 }

@@ -150,6 +150,13 @@ abstract class base {
     }
 
     /**
+     * Unsets the range for which a backfilled metric has retrieved data.
+     */
+    public function unset_range_retrieved() {
+        unset_config($this->get_name() . '_range', 'tool_cloudmetrics');
+    }
+
+    /**
      * The latest time for which a metric item was generated for.
      *
      * @return int

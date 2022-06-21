@@ -63,7 +63,6 @@
 <p>
     {{dataindb}}
     <br>
-    <br>
     {{^isdifferentfreq}}
         {{#str}} same_freq, tool_cloudmetrics {{/str}}
     {{/isdifferentfreq}}
@@ -71,3 +70,8 @@
         {{cautiondata}}
     {{/isdifferentfreq}}
 </p>
+<br>
+    <a href="{{linktoreset}}">
+        {{#str}} deleteheader, tool_cloudmetrics {{/str}}
+    </a>
+<br>
