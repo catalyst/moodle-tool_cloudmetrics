@@ -59,6 +59,11 @@ class mock_receiver {
 class helper_collect_metrics_task extends collect_metrics_task {
 
     /**
+     * @var object mock variable
+     */
+    public $mock;
+
+    /**
      * Constructer for helper_collect_metrics_task
      *
      * @param  mock_receiver $mock
@@ -109,7 +114,7 @@ class tool_cloudmetrics_collect_metrics_test extends \advanced_testcase {
      * @covers \tool_cloudmetrics\task\collect_metrics_task
      * @throws Exception
      */
-    public function test_execute(string $timestr, array $meta, array $expected) {
+    public function test_execute(string $timestr, array $meta, array $expected): void {
         $tz = \core_date::get_server_timezone_object();
         $this->disable_metrics($expected);
         foreach ($meta as $metric => $data) {
@@ -166,6 +171,7 @@ class tool_cloudmetrics_collect_metrics_test extends \advanced_testcase {
                     'online_users_metric' => [manager::FREQ_5MIN, 'midnight +75 minutes'],
                     'active_users_metric' => [manager::FREQ_HOUR, 'midnight'],
                     'daily_users_metric' => [manager::FREQ_DAY, 'midnight'],
+                    'yearly_active_users_metric' => [manager::FREQ_DAY, 'midnight'],
                 ],
                 ['activeusers', 'newusers'],
             ],
@@ -176,6 +182,7 @@ class tool_cloudmetrics_collect_metrics_test extends \advanced_testcase {
                     'online_users_metric' => [manager::FREQ_DAY, '2020-03-01T00:00:00'],
                     'active_users_metric' => [manager::FREQ_MONTH, '2020-03-01T00:00:00'],
                     'daily_users_metric' => [manager::FREQ_DAY, '2020-03-01T00:00:00'],
+                    'yearly_active_users_metric' => [manager::FREQ_DAY, '2020-03-01T00:00:00'],
                 ],
                 [],
             ],
@@ -186,8 +193,9 @@ class tool_cloudmetrics_collect_metrics_test extends \advanced_testcase {
                     'online_users_metric' => [manager::FREQ_DAY, '2020-02-01T00:00:00'],
                     'active_users_metric' => [manager::FREQ_MONTH, '2020-02-01T00:00:00'],
                     'daily_users_metric' => [manager::FREQ_DAY, '2020-02-01T00:00:00'],
+                    'yearly_active_users_metric' => [manager::FREQ_DAY, '2020-02-01T00:00:00'],
                 ],
-                ['activeusers', 'dailyusers', 'newusers', 'onlineusers'],
+                ['activeusers', 'dailyusers', 'newusers', 'onlineusers', 'yearlyactiveusers'],
             ],
             [
                 '2020-02-02T00:02:00',
@@ -196,13 +204,14 @@ class tool_cloudmetrics_collect_metrics_test extends \advanced_testcase {
                     'online_users_metric' => [manager::FREQ_DAY, '2020-02-01T00:00:00'],
                     'active_users_metric' => [manager::FREQ_MONTH, '2020-02-01T00:00:00'],
                     'daily_users_metric' => [manager::FREQ_DAY, '2020-02-01T00:00:00'],
+                    'yearly_active_users_metric' => [manager::FREQ_DAY, '2020-02-01T00:00:00'],
                 ],
-                ['dailyusers', 'newusers', 'onlineusers'],
+                ['dailyusers', 'newusers', 'onlineusers', 'yearlyactiveusers'],
             ],
             [
                 '2020-02-02T00:03:00',
                 ['new_users_metric' => [manager::FREQ_5MIN, null]],
-                ['activeusers', 'dailyusers', 'newusers', 'onlineusers'],
+                ['activeusers', 'dailyusers', 'newusers', 'onlineusers', 'yearlyactiveusers'],
             ],
         ];
     }
