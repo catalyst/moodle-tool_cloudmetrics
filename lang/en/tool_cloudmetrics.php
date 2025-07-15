@@ -75,6 +75,8 @@ $string['newusers'] = 'New users';
 $string['newusers_desc'] = 'Users who have signed up recently.';
 $string['dailyusers'] = 'Daily users';
 $string['dailyusers_desc'] = 'Unique users over a day (fixed frequency).';
+$string['yearlyactiveusers'] = 'Yearly active users';
+$string['yearlyactiveusers_desc'] = 'Users that have been active within the past 365 days from today.';
 
 // User selection labels.
 $string['data_empty'] = 'Your database for this metric is empty.';
