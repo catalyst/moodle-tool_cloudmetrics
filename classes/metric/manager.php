@@ -84,6 +84,7 @@ class manager {
         'newusers' => self::FREQ_DAY,
         'onlineusers' => self::FREQ_5MIN,
         'dailyusers' => self::FREQ_DAY,
+        'yearlyactiveusers' => self::FREQ_DAY,
     ];
 
     /**
@@ -99,6 +100,7 @@ class manager {
             'newusers' => new new_users_metric(),
             'onlineusers' => new online_users_metric(),
             'dailyusers' => new daily_users_metric(),
+            'yearlyactiveusers' => new yearly_active_users_metric(),
         ];
 
         // Find metrics from plugins.
