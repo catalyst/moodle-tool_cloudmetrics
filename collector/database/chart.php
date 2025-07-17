@@ -67,9 +67,16 @@ foreach ($metrics as $m) {
         $displayedmetrics[] = $m->get_name();
         $displayed = true;
     }
-
-    $checkboxes[] = ['checkbox' => html_writer::checkbox($m->get_name(), 1, $displayed, $m->get_label(),
-        ['onchange' => 'this.form.submit()'])];
+    $checkbox = html_writer::checkbox($m->get_name(), 1, $displayed, '',
+        ['id' => $m->get_name(), 'onchange' => 'this.form.submit()']);
+    $label = html_writer::tag('label', $m->get_label(), ['for' => $m->get_name(), 'style' => 'display:inline-block; margin: 0;']);
+    $color = html_writer::tag('span', '',
+        ['style' => 'display: inline-block; width: 2.5em; height: 1em; background-color: ' . $m->get_colour() . '; margin: 0 6px; vertical-align: middle;']);
+    $checkboxes[] = [
+        'checkbox' => html_writer::tag('div', $checkbox . $color . $label, [
+            'style' => 'display: inline-flex; align-items: center; margin-right: 16px;',
+        ]),
+    ];
 
     if (!in_array($m->group, $groups) && !empty($m->group)) {
         $groups += [$m->group => get_string($m->group, 'tool_cloudmetrics')];
@@ -304,7 +311,7 @@ $context['backfillurl'] = $backfillurl;
 $context['checkboxes'] = $checkboxes;
 $context['metriclabel'] = $context['metriclabel'] ?? get_string('multiplemetrics', 'cltr_database');
 $context['frequency'] = html_writer::empty_tag('input',
-    array('type' => 'hidden', 'name' => 'graphfrequency', 'value' => $displayfrequency));
+    ['type' => 'hidden', 'name' => 'graphfrequency', 'value' => $displayfrequency]);
 $renderer = $PAGE->get_renderer('tool_cloudmetrics');
 
 echo $OUTPUT->header();
