@@ -132,48 +132,27 @@ class yearly_active_users_metric extends builtin_user_base {
         $finishtime = ($finishtime === -1) ? null : $finishtime;
         $finishtime = $finishtime ?? time();
         $starttime = $finishtime - $backwardperiod;
-        // Back to last year from start time.
-        $lastyear = $starttime - YEARSECS;
         // Get aggregation interval.
         $frequency = $this->get_frequency();
         $interval = lib::FREQ_TIMES[$frequency];
         if ($finishtime < $starttime) {
             return [];
         }
-        $sql = 'SELECT floor(timecreated / :interval ) * :intervaldup AS timestamp,
-                        userid
+        $sql = 'SELECT COUNT(DISTINCT userid)
                   FROM {logstore_standard_log}
-                 WHERE timecreated >= :lastyear
-                   AND timecreated <= :finishtime
-              GROUP BY timestamp, userid
-              ORDER BY timestamp DESC';
-        $results = $DB->get_recordset_sql(
-            $sql,
-            ['interval' => $interval, 'intervaldup' => $interval, 'lastyear' => $lastyear, 'finishtime' => $finishtime]
-        );
-        $buffer = [];
-
-        foreach ($results as $record) {
-            $buffer[] = $record;
-        }
-        $results->close();
-
+                 WHERE timecreated >= :from
+                   AND timecreated <= :to';
         // Variables for updating progress.
         $count = 0;
         $total = ($finishtime - $starttime) / $interval;
         // Build a metric for each day from starttime to finishtime.
         while ($starttime <= $finishtime) {
-            $distinctusers = [];
             $lastyear = $starttime - YEARSECS;
-            foreach ($buffer as $r) {
-                // Count active users in a 12 months period.
-                if ($r->timestamp >= $lastyear &&
-                    $r->timestamp <= $starttime &&
-                    !array_key_exists($r->userid, $distinctusers)) {
-                    $distinctusers[$r->userid] = true;
-                }
-            }
-            $metricitems[] = new metric_item($this->get_name(), $starttime, count($distinctusers), $this);
+            $activeusers = $DB->count_records_sql(
+                $sql,
+                ['from' => $lastyear, 'to' => $starttime]
+            );
+            $metricitems[] = new metric_item($this->get_name(), $starttime, $activeusers, $this);
             $starttime = $starttime + $interval;
             $count++;
             if ($progress) {
