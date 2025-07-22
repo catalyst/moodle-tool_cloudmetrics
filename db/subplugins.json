@@ -1,4 +1,7 @@
 {
+    "subplugintypes": {
+        "cltr": "collector"
+    },
     "plugintypes": {
         "cltr": "admin\/tool\/cloudmetrics\/collector"
     }
