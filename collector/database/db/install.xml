@@ -1,4 +1,4 @@
-<XMLDB xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" PATH="admin/tool/cloudmetrics/collector/database/db" VERSION="20220824" COMMENT="XMLDB file for Moodle admin/tool/excimer" xsi:noNamespaceSchemaLocation="../../../../lib/xmldb/xmldb.xsd">
+<XMLDB xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" PATH="admin/tool/cloudmetrics/collector/database/db" VERSION="20220824" COMMENT="XMLDB file for Moodle admin/tool/excimer" xsi:noNamespaceSchemaLocation="../../../../../../lib/xmldb/xmldb.xsd">
     <TABLES>
         <TABLE NAME="cltr_database_metrics" COMMENT="Local store for metrics data.">
             <FIELDS>
