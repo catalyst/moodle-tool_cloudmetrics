@@ -34,7 +34,8 @@ $string['privacy:metadata'] = 'No personal information is stored';
 // Settings.
 $string['metric_expiry'] = 'Time to keep data';
 $string['metric_expiry_desc'] = 'Length of time to keep data before deleting. If set to 0 data will never expire.';
-
+$string['metric_auto_backfill'] = 'Auto backfill';
+$string['metric_auto_backfill_desc'] = 'Enable or disable auto backfill function.';
 // Chart display.
 $string['metric_display'] = 'Cloudmetrics Charts';
 $string['metric_backfill'] = 'Cloudmetrics Backfill';
@@ -46,6 +47,7 @@ $string['select_group'] = 'Display metrics by group.';
 
 // Scheduled tasks.
 $string['metrics_cleanup_task'] = 'Cleanup metrics task';
+$string['metrics_autobackfill_task'] = 'Auto back-fill task';
 
 // Time format.
 $string['strftimedatetime'] = '%d %h %Y, %H:%M';
