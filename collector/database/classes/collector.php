@@ -195,4 +195,14 @@ class collector extends base {
         $plugininfo = \core_plugin_manager::instance()->get_plugin_info('cltr_database');
         return $plugininfo->is_enabled();
     }
+
+    /**
+     * Abilitity for auto backfilling.
+     *
+     * @return bool
+     * @throws \dml_exception
+     */
+    public function is_auto_backfill(): bool {
+        return lib::get_metric_auto_backfill();
+    }
 }
