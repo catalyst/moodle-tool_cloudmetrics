@@ -98,6 +98,14 @@ class yearly_active_users_metric extends builtin_user_base {
     }
 
     /**
+     * Metric's ability to be backfilled automatically.
+     *
+     * @return bool
+     */
+    public function is_autobackfill(): bool {
+        return true;
+    }
+    /**
      * Generates the metric items from the source data.
      *
      * Uses $starttime to $finishtime to draw from the source data.

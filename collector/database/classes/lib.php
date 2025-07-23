@@ -32,6 +32,16 @@ class lib {
     const TABLE = 'cltr_database_metrics';
 
     /**
+     * Returns if a collector supports is auto backfilling.
+     *
+     * @return bool
+     * @throws \dml_exception
+     */
+    public static function get_metric_auto_backfill(): bool {
+        return (bool) get_config('cltr_database', 'metric_auto_backfill');
+    }
+
+    /**
      * Returns the expiry time for metric data in seconds.
      *
      * @return int

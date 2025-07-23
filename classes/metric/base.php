@@ -203,6 +203,15 @@ abstract class base {
     }
 
     /**
+     * Metric's ability to be backfilled automatically.
+     *
+     * @return bool
+     */
+    public function is_autobackfill() {
+        return false;
+    }
+
+    /**
      * Returns records for backfilled metric.
      *
      * @param int $backwardperiod Time from which sample is to be retrieved.
