@@ -100,4 +100,31 @@ class manager {
             }
         }
     }
+
+    /**
+     * Backfill an array of metrics to all backfillable collectors.
+     *
+     * @param array $items An array of metric_item.
+     */
+    public static function backfill_metrics(array $items) {
+        $plugins = cltr::get_enabled_plugin_instances();
+        if (!$plugins) {
+            mtrace('No collectors to send metrics to!');
+            return;
+        }
+        if (!$items) {
+            mtrace('No metrics to send at the moment');
+            return;
+        }
+        foreach ($plugins as $plugin) {
+            $collector = $plugin->get_collector();
+            if (!$collector->supports_backfillable_metrics()) {
+                mtrace("The '{$plugin->name}' collector does not support backfillable metrics");
+                return;
+            } else {
+                $collector->record_metrics($items);
+                mtrace("Recorded " . count($items) . " metrics to '{$plugin->name}' collector");
+            }
+        }
+    }
 }

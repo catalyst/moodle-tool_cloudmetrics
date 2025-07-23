@@ -71,5 +71,11 @@ function xmldb_tool_cloudmetrics_upgrade($oldversion) {
         }
         upgrade_plugin_savepoint(true, 2022081600, 'tool', 'cloudmetrics');
     }
+
+    if ($oldversion < 2025072300) {
+        $backfilltask = new \tool_cloudmetrics\task\autobackfill_metrics_task();
+        \core\task\manager::queue_adhoc_task($backfilltask);
+        upgrade_plugin_savepoint(true, 2025072300, 'tool', 'cloudmetrics');
+    }
     return true;
 }

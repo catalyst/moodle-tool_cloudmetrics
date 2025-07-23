@@ -55,5 +55,13 @@ if ($hassiteconfig) {
                 0
             )
         );
+        $settings->add(
+            new admin_setting_configcheckbox(
+                'cltr_database/metric_auto_backfill',
+                get_string('metric_auto_backfill', 'cltr_database'),
+                get_string('metric_auto_backfill_desc', 'cltr_database'),
+                1
+            )
+        );
     }
 }

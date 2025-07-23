@@ -73,4 +73,13 @@ abstract class base {
     public function supports_backfillable_metrics(): bool {
         return false;
     }
+
+    /**
+     * Abilitity for auto backfilling.
+     *
+     * @return bool
+     */
+    public function is_auto_backfill(): bool {
+        return false;
+    }
 }
