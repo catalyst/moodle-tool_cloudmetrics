@@ -41,6 +41,8 @@ class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
      * Set up before each test
      */
     protected function setUp(): void {
+        global $DB;
+        $DB->delete_records(lib::TABLE);
         parent::setUp();
         $this->resetAfterTest();
     }
