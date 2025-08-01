@@ -106,13 +106,17 @@ class online_users_metric extends builtin_user_base {
         ];
 
         $interval = $secondsinterval[$frequency];
-        $sql = 'SELECT floor(timecreated / :interval ) * :intervaldup AS time,
-                       COUNT(DISTINCT userid) as value
-                  FROM {logstore_standard_log}
-                 WHERE timecreated >= :starttime
-                   AND timecreated <= :finishtime
-              GROUP BY 1
-              ORDER BY 1 ASC';
+        $sql = 'WITH user_data AS (
+                  SELECT floor(timecreated / :interval ) * :intervaldup AS time, userid
+                    FROM {logstore_standard_log}
+                   WHERE timecreated >= :starttime
+                     AND timecreated <= :finishtime
+                )
+
+                SELECT user_data.time as time, COUNT(DISTINCT(user_data.userid)) as value
+                  FROM user_data
+              GROUP BY user_data.time
+              ORDER BY user_data.time ASC';
         $rs = $DB->get_recordset_sql($sql,
                 ['interval' => $interval, 'intervaldup' => $interval, 'starttime' => $starttime, 'finishtime' => $finishtime]);
         $metricitems = [];
