@@ -62,7 +62,7 @@ list($options, $unrecognized) = cli_get_params(
         'm' => 'metric',
         'n' => 'number',
         'r' => 'remove',
-        'f' => 'frequency'
+        'f' => 'frequency',
     ]
 );
 

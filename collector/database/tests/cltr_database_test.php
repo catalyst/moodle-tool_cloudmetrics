@@ -274,7 +274,7 @@ class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
      *
      * @return array
      */
-    public function expiry_provider() {
+    public function expiry_provider(): array {
         return [
             [20, 10, 10 * DAYSECS, 20, 10],
             [20, -2, 10 * DAYSECS, 20, 9],
