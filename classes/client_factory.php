@@ -24,7 +24,7 @@
  */
 
 namespace tool_cloudmetrics;
-use \Aws\AwsClient;
+use Aws\AwsClient;
 
 /**
  * AWS Client factory. Retrieves a client with moodle specific HTTP configuration.

@@ -20,6 +20,8 @@ namespace tool_cloudmetrics;
  * A table to manage collector plugins.
  *
  * @package   tool_cloudmetrics
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright Catalyst IT
  */
 class admin_setting_manage_collectors extends \admin_setting {
 

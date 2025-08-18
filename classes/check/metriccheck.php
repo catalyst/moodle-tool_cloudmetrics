@@ -77,7 +77,7 @@ class metriccheck extends check {
      * Return result
      * @return result
      */
-    public function get_result() : result {
+    public function get_result(): result {
         if (!$this->metric->is_enabled()) {
             return new result(result::INFO, get_string('metric_not_enabled',
                 'tool_cloudmetrics', $this->metric->get_label()));

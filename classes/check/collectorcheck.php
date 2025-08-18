@@ -46,7 +46,7 @@ class collectorcheck extends check {
      * Return result
      * @return result
      */
-    public function get_result() : result {
+    public function get_result(): result {
         global $CFG;
 
         $failures = false;

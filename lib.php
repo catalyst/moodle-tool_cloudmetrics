@@ -25,7 +25,7 @@
 
 use tool_cloudmetrics\metric\active_users_metric;
 use tool_cloudmetrics\metric\manager;
-use \core\output\inplace_editable;
+use core\output\inplace_editable;
 
 /**
  * Update the frequency config for metrics.

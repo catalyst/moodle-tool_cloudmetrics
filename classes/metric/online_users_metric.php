@@ -78,7 +78,7 @@ class online_users_metric extends builtin_user_base {
      *
      * @return array
      */
-    public function generate_metric_items($backwardperiod, $finishtime = null, \progress_bar $progress = null): array {
+    public function generate_metric_items($backwardperiod, $finishtime = null, ?\progress_bar $progress = null): array {
         global $DB;
 
         // Get start time from period selection.
@@ -102,7 +102,7 @@ class online_users_metric extends builtin_user_base {
             manager::FREQ_12HOUR => HOURSECS * 12,
             manager::FREQ_DAY => DAYSECS,
             manager::FREQ_WEEK => WEEKSECS,
-            manager::FREQ_MONTH => WEEKSECS * 4
+            manager::FREQ_MONTH => WEEKSECS * 4,
         ];
 
         $interval = $secondsinterval[$frequency];

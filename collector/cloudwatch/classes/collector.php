@@ -50,7 +50,7 @@ class collector extends base {
             if (!empty($awskey)) {
                 $clientconfig['credentials'] = [
                     'key' => $awskey,
-                    'secret' => get_config('cltr_cloudwatch', 'aws_secret')
+                    'secret' => get_config('cltr_cloudwatch', 'aws_secret'),
                 ];
             }
 
