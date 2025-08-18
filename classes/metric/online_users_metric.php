@@ -111,6 +111,7 @@ class online_users_metric extends builtin_user_base {
                     FROM {logstore_standard_log}
                    WHERE timecreated >= :starttime
                      AND timecreated <= :finishtime
+                     AND action = "loggedin"
                 )
 
                 SELECT user_data.time as time, COUNT(DISTINCT(user_data.userid)) as value

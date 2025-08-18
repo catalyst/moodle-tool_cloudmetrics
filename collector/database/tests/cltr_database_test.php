@@ -184,7 +184,7 @@ class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
             $dataobjects[] = [
                 'eventname' => '\core\event\user_created',
                 'component' => 'core',
-                'action' => 'created',
+                'action' => 'loggedin',
                 'target' => 'user',
                 'crud' => 'r',
                 'edulevel' => 0,
@@ -193,7 +193,7 @@ class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
                 'contextinstanceid' => 0,
                 'userid' => $i,
                 'anonymous' => 0,
-                'timecreated' => $i
+                'timecreated' => $i,
             ];
         }
         set_config('enabled_stores', 'logstore_standard', 'tool_log');

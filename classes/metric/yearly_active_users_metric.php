@@ -116,10 +116,10 @@ class yearly_active_users_metric extends builtin_user_base {
      */
     public function generate_metric_item(int $starttime, int $finishtime): metric_item {
         global $DB;
-        $lastyear = $finishtime - (60 * 60 * 24 * 365);
+        $lastyear = $finishtime - YEARSECS;
         $users = $DB->count_records_select(
             'user',
-            'confirmed = 1 AND (lastlogin > ? OR currentlogin > ?)',
+            'confirmed = 1 AND (lastlogin >= ? OR currentlogin >= ?)',
             [$lastyear, $lastyear]
         );
         return new metric_item($this->get_name(), $finishtime, $users, $this);
@@ -146,10 +146,11 @@ class yearly_active_users_metric extends builtin_user_base {
         if ($finishtime < $starttime) {
             return [];
         }
-        $sql = 'SELECT COUNT(DISTINCT userid)
+        $sql = "SELECT COUNT(DISTINCT userid)
                   FROM {logstore_standard_log}
                  WHERE timecreated >= :from
-                   AND timecreated <= :to';
+                   AND timecreated <= :to
+                   AND action = 'loggedin'";
         // Variables for updating progress.
         $count = 0;
         $total = ($finishtime - $starttime) / $interval;
