@@ -27,6 +27,9 @@
  * Function to install tool_cloudmetrics.
  */
 function xmldb_tool_cloudmetrics_install() {
+    if (PHPUNIT_TEST) {
+        return;
+    }
     $backfilltask = new \tool_cloudmetrics\task\autobackfill_metrics_task();
     \core\task\manager::queue_adhoc_task($backfilltask);
 }
