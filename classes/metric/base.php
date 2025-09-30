@@ -212,15 +212,25 @@ abstract class base {
     }
 
     /**
+     * Whether backfilled data should be sent to the collector incrementally.
+     * Slow queries should make use of this to persist metrics as they are calculated.
+     *
+     * @return bool
+     */
+    public function is_backfill_incremental(): bool {
+        return false;
+    }
+
+    /**
      * Returns records for backfilled metric.
      *
      * @param int $backwardperiod Time from which sample is to be retrieved.
      * @param int $finishtime If data is being completed argument is passed here.
      *
-     * @return array|null
+     * @return \Iterator
      */
-    public function generate_metric_items(int $backwardperiod, int $finishtime = null): ?array {
-        return null;
+    public function generate_metric_items(int $backwardperiod, int $finishtime = null): \Iterator {
+        return new \EmptyIterator();
     }
 
     /**

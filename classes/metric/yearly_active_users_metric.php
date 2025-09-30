@@ -105,6 +105,17 @@ class yearly_active_users_metric extends builtin_user_base {
     public function is_autobackfill(): bool {
         return true;
     }
+
+    /**
+     * Whether backfilled data should be sent to the collector incrementally.
+     * Slow queries should make use of this to persist metrics as they are calculated.
+     *
+     * @return bool
+     */
+    public function is_backfill_incremental(): bool {
+        return true;
+    }
+
     /**
      * Generates the metric items from the source data.
      *
@@ -132,37 +143,45 @@ class yearly_active_users_metric extends builtin_user_base {
      * @param int|null $finishtime If data is being completed argument is passed here.
      * @param progress_bar|null $progress
      *
-     * @return array
+     * @return \Iterator
      */
-    public function generate_metric_items(int $backwardperiod, ?int $finishtime = null, ?progress_bar $progress = null): array {
+    public function generate_metric_items(int $backwardperiod, ?int $finishtime = null, ?progress_bar $progress = null): \Iterator {
         global $DB;
-        $metricitems = [];
+
         $finishtime = ($finishtime === -1) ? null : $finishtime;
         $finishtime = $finishtime ?? time();
         $starttime = $finishtime - $backwardperiod;
         // Get aggregation interval.
         $frequency = $this->get_frequency();
         $interval = lib::FREQ_TIMES[$frequency];
+
         if ($finishtime < $starttime) {
-            return [];
+            return new \EmptyIterator();
         }
+
+        $this->maxtimestamp = $finishtime;
+        $this->interval = $frequency;
+
         $sql = "SELECT COUNT(DISTINCT userid)
                   FROM {logstore_standard_log}
                  WHERE timecreated >= :from
                    AND timecreated <= :to
                    AND action = 'loggedin'";
+
         // Variables for updating progress.
         $count = 0;
+        $time = $finishtime;
         $total = ($finishtime - $starttime) / $interval;
-        // Build a metric for each day from starttime to finishtime.
-        while ($starttime <= $finishtime) {
-            $lastyear = $starttime - YEARSECS;
+        // Build a metric for each day from finishtime to starttime, processing the newest first.
+        while ($time >= $starttime) {
+            $lastyear = $time - YEARSECS;
             $activeusers = $DB->count_records_sql(
                 $sql,
-                ['from' => $lastyear, 'to' => $starttime]
+                ['from' => $lastyear, 'to' => $time]
             );
-            $metricitems[] = new metric_item($this->get_name(), $starttime, $activeusers, $this);
-            $starttime = $starttime + $interval;
+            $this->mintimestamp = $time;
+            yield new metric_item($this->get_name(), $time, $activeusers, $this);
+            $time -= $interval;
             $count++;
             if ($progress) {
                 $progress->update(
@@ -172,10 +191,6 @@ class yearly_active_users_metric extends builtin_user_base {
                 );
             }
         }
-        $this->mintimestamp = !empty($metricitems) ? $metricitems[0]->time : null;
-        $this->maxtimestamp = !empty($metricitems) ? end($metricitems)->time : null;
-        $this->interval = $frequency;
-        return $metricitems;
     }
 
     /**

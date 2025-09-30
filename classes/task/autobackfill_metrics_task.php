@@ -70,10 +70,23 @@ class autobackfill_metrics_task extends \core\task\adhoc_task {
                 userdate($nowts, '%e %b %Y, %H:%M'),
                 userdate(($nowts - $collectingperiod), '%e %b %Y, %H:%M')
             ));
-            $items = $metrictype->generate_metric_items($collectingperiod, $nowts);
-            mtrace(sprintf('Generated %s %s metrics', count($items),  $metrictype->get_name()));
-            $this->backfill_metrics($items);
-            $total += count($items);
+            $metrics = $metrictype->generate_metric_items($collectingperiod, $nowts);
+            if ($metrictype->is_backfill_incremental()) {
+                // We have a slow query so want to send metrics to the collector immediately.
+                $count = 0;
+                foreach ($metrics as $metric) {
+                    $this->backfill_metrics([$metric]);
+                    $count++;
+                }
+            } else {
+                // Process the metrics as a batch.
+                $metrics = iterator_to_array($metrics);
+                $this->backfill_metrics($metrics);
+                $count = count($metrics);
+            }
+
+            mtrace(sprintf('Generated %s %s metrics', $count,  $metrictype->get_name()));
+            $total += $count;
         }
         mtrace('Backfilled totally '.$total.' metrics');
     }

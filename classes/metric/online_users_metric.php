@@ -76,9 +76,9 @@ class online_users_metric extends builtin_user_base {
      * @param int $finishtime If data is being completed argument is passed here.
      * @param \progress_bar|null $progress
      *
-     * @return array
+     * @return \Iterator
      */
-    public function generate_metric_items($backwardperiod, $finishtime = null, ?\progress_bar $progress = null): array {
+    public function generate_metric_items($backwardperiod, $finishtime = null, ?\progress_bar $progress = null): \Iterator {
         global $DB;
 
         // Get start time from period selection.
@@ -90,7 +90,7 @@ class online_users_metric extends builtin_user_base {
         [$mintmptmp, $maxtmpstmp, $freqretrieved] = $this->get_range_retrieved();
 
         if ($finishtime < $starttime) {
-            return [];
+            return new \EmptyIterator();
         }
         $secondsinterval = [
             manager::FREQ_MIN => MINSECS,
@@ -117,38 +117,39 @@ class online_users_metric extends builtin_user_base {
                 SELECT user_data.time as time, COUNT(DISTINCT(user_data.userid)) as value
                   FROM user_data
               GROUP BY user_data.time
-              ORDER BY user_data.time ASC";
+              ORDER BY user_data.time DESC";
         $rs = $DB->get_recordset_sql($sql,
                 ['interval' => $interval, 'intervaldup' => $interval, 'starttime' => $starttime, 'finishtime' => $finishtime]);
-        $metricitems = [];
+
+        $this->interval = $frequency;
         $count = 0;
         foreach ($rs as $r) {
-            if ($count !== 0 && $metricitems[$count - 1]->time + $interval !== (int)$r->time) {
+            $time = (int)$r->time;
+            if (!isset($this->maxtimestamp)) {
+                $this->maxtimestamp = $time;
+            }
+
+            if (isset($this->mintimestamp) && $this->mintimestamp - $interval !== $time) {
                 // Code to add times where no user have been concurrently active.
-                for ($i = $metricitems[$count - 1]->time + $interval; $i <= $r->time; $i += $interval) {
-                    if ($i === (int)$r->time) {
-                        $metricitems[] = new metric_item($this->get_name(), $r->time, $r->value, $this);
+                for ($i = $this->mintimestamp - $interval; $i >= $time; $i -= $interval) {
+                    if ($i === $time) {
+                        yield new metric_item($this->get_name(), $time, $r->value, $this);
                     } else {
-                        $metricitems[] = new metric_item($this->get_name(), $i, 0, $this);
+                        yield new metric_item($this->get_name(), $i, 0, $this);
                         $count++;
                     }
                 }
             } else {
-                $metricitems[] = new metric_item($this->get_name(), $r->time, $r->value, $this);
+                yield new metric_item($this->get_name(), $r->time, $r->value, $this);
             }
             if ($progress) {
                 $progress->update($count, $backwardperiod / $interval,
                     get_string('backfillgenerating', 'tool_cloudmetrics', $this->get_label()));
             }
             $count++;
+            $this->mintimestamp = $time;
         }
         $rs->close();
-
-        $this->mintimestamp = !empty($metricitems) ? $metricitems[0]->time : null;
-        $this->maxtimestamp = !empty($metricitems) ? end($metricitems)->time : null;
-        $this->interval = $frequency;
-
-        return $metricitems;
 
     }
 
