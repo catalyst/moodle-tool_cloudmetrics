@@ -31,5 +31,5 @@ function xmldb_tool_cloudmetrics_install() {
         return;
     }
     $backfilltask = new \tool_cloudmetrics\task\autobackfill_metrics_task();
-    \core\task\manager::queue_adhoc_task($backfilltask);
+    \core\task\manager::queue_adhoc_task($backfilltask, true);
 }

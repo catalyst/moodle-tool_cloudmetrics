@@ -23,7 +23,6 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-define('NO_OUTPUT_BUFFERING', true);
 require_once(__DIR__.'/../../../../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 
@@ -103,16 +102,19 @@ $context['metriclabel'] = $metrics[$metricname]->get_label();
 $context['isdifferentfreq'] = $isdifferentfreq ?? null;
 
 $renderer = $PAGE->get_renderer('tool_cloudmetrics');
-$progressbar = new progress_bar();
+
+if ($fromform = $mform->get_data()) {
+    $backfilltask = new \tool_cloudmetrics\task\autobackfill_metrics_task();
+    $backfilltask->set_custom_data([
+        'metric' => $metricname,
+        'period' => $fromform->periodretrieval,
+    ]);
+    \core\task\manager::queue_adhoc_task($backfilltask, true);
+
+    \core\notification::info(get_string('metrics_backfill_queued', 'cltr_database', $metricname));
+    redirect($tochart);
+}
 
 echo $OUTPUT->header();
 echo $renderer->render_backfill_page($context);
-if ($fromform = $mform->get_data()) {
-    \core\session\manager::write_close(); // Unlock session while backfilling.
-    $progressbar->create();
-    $periodretrieval = $fromform->periodretrieval;
-    $metricitems = $metrics[$metricname]->generate_metric_items($periodretrieval, $mintmptmp, $progressbar);
-    $collector->record_saved_metrics($metrics[$metricname], iterator_to_array($metricitems), $progressbar);
-    $progressbar->update_full(100, get_string('backfillcomplete', 'tool_cloudmetrics', $metrics[$metricname]->get_label()));
-}
 echo $OUTPUT->footer();
