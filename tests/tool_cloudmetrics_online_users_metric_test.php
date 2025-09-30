@@ -77,11 +77,11 @@ final class tool_cloudmetrics_online_users_metric_test extends \advanced_testcas
         // Get metrics with finish time less than start time. Should be empty.
         $backperiod = 86400;
         $finish = time() - 17200;
-        $metrics = $onlinemetric->generate_metric_items($backperiod, $finish);
+        $metrics = iterator_to_array($onlinemetric->generate_metric_items($backperiod, $finish));
         $this->assertEmpty($metrics);
 
         // Get metrics for previous 24 hr period. Should be empty.
-        $metrics = $onlinemetric->generate_metric_items($backperiod);
+        $metrics = iterator_to_array($onlinemetric->generate_metric_items($backperiod));
         $this->assertEmpty($metrics);
 
         // Frequency periods.
@@ -90,14 +90,14 @@ final class tool_cloudmetrics_online_users_metric_test extends \advanced_testcas
 
         // Get metrics for previous year with frequency 60 seconds.
         $onlinemetric->set_frequency(1);
-        $metrics = $onlinemetric->generate_metric_items(31556926);
-        $count = (end($metrics)->time - $metrics[0]->time) / $freq1 + 1;
+        $metrics = iterator_to_array($onlinemetric->generate_metric_items(31556926));
+        $count = ($metrics[0]->time - end($metrics)->time) / $freq1 + 1;
         $this->assertCount($count, $metrics);
 
         // Get metrics for previous year with frequency 300 seconds.
         $onlinemetric->set_frequency(2);
-        $metrics = $onlinemetric->generate_metric_items(31556926);
-        $count = (end($metrics)->time - $metrics[0]->time) / $freq2 + 1;
+        $metrics = iterator_to_array($onlinemetric->generate_metric_items(31556926));
+        $count = ($metrics[0]->time - end($metrics)->time) / $freq2 + 1;
         $this->assertCount($count, $metrics);
     }
 }

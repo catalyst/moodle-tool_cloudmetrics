@@ -202,7 +202,8 @@ class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
         $DB->insert_records('logstore_standard_log', $dataobjects);
         $rec = $DB->get_records('logstore_standard_log');
         $this->assertEquals(100, count($rec));
-        $collector->record_saved_metrics($onlinemetric, $onlinemetric->generate_metric_items(1590465600, 1590580800));
+        $metrics = iterator_to_array($onlinemetric->generate_metric_items(1590465600, 1590580800));
+        $collector->record_saved_metrics($onlinemetric, $metrics);
         $rec = $DB->get_records(lib::TABLE);
         $count = 0;
         foreach ($rec as $r) {

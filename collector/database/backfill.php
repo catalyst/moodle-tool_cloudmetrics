@@ -112,7 +112,7 @@ if ($fromform = $mform->get_data()) {
     $progressbar->create();
     $periodretrieval = $fromform->periodretrieval;
     $metricitems = $metrics[$metricname]->generate_metric_items($periodretrieval, $mintmptmp, $progressbar);
-    $collector->record_saved_metrics($metrics[$metricname], $metricitems, $progressbar);
+    $collector->record_saved_metrics($metrics[$metricname], iterator_to_array($metricitems), $progressbar);
     $progressbar->update_full(100, get_string('backfillcomplete', 'tool_cloudmetrics', $metrics[$metricname]->get_label()));
 }
 echo $OUTPUT->footer();

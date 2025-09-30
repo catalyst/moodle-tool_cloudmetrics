@@ -34,5 +34,6 @@ $metric = new \tool_cloudmetrics\metric\test_metric();
 $metric->name = 'activeusers';
 
 for ($x = 0; $x <= 100; ++$x) {
-    $collector->record_metrics($metric->generate_metric_items(0, 0));
+    $metrics = iterator_to_array($metric->generate_metric_items(0, 0));
+    $collector->record_metrics($metrics);
 }
