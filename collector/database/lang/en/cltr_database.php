@@ -48,6 +48,7 @@ $string['select_group'] = 'Display metrics by group.';
 // Scheduled tasks.
 $string['metrics_cleanup_task'] = 'Cleanup metrics task';
 $string['metrics_autobackfill_task'] = 'Auto back-fill task';
+$string['metrics_backfill_queued'] = 'Backfill adhoc task queued for {$a}.';
 
 // Time format.
 $string['strftimedatetime'] = '%d %h %Y, %H:%M';

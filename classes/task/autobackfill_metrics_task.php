@@ -16,8 +16,8 @@
 
 namespace tool_cloudmetrics\task;
 
-use tool_cloudmetrics\collector;
 use tool_cloudmetrics\metric;
+use tool_cloudmetrics\plugininfo\cltr;
 
 /**
  * Auto back fills all data for each metric automatically everytime plugin installed or upgraded.
@@ -29,6 +29,9 @@ use tool_cloudmetrics\metric;
  */
 class autobackfill_metrics_task extends \core\task\adhoc_task {
 
+    /** @var array Enabled plugins */
+    private array $plugins;
+
     /**
      * Get task name
      */
@@ -39,18 +42,52 @@ class autobackfill_metrics_task extends \core\task\adhoc_task {
     /**
      * Will backfill the metrics using collectors.
      *
-     * @param array $items
+     * @param \tool_cloudmetrics\metric\base $metricclass Class representing metric.
+     * @param array $metricitems Array of metric items.
      */
-    public function backfill_metrics(array $items) {
-        collector\manager::backfill_metrics($items);
+    public function backfill_metrics(\tool_cloudmetrics\metric\base $metricclass, array $metricitems) {
+        if (!$metricitems) {
+            mtrace('No metrics to send at the moment');
+            return;
+        }
+        foreach ($this->plugins as $plugin) {
+            $collector = $plugin->get_collector();
+            if ($collector->supports_backfillable_metrics()) {
+                $collector->record_saved_metrics($metricclass, $metricitems);
+                mtrace(sprintf("Recorded %s '%s' metrics to %s", count($metricitems), $metricclass->get_name(), $plugin->name));
+            }
+        }
     }
+
     /**
      *  Execute task
      */
     public function execute() {
+        $this->plugins = cltr::get_enabled_plugin_instances();
+        if (!$this->plugins) {
+            mtrace('No collectors to send metrics to!');
+            return;
+        }
+
+        $customdata = $this->get_custom_data();
         $nowts = time();
-        $collectingperiod = YEARSECS;
+        $collectingperiod = $customdata->period ?? YEARSECS;
+        $autobackfill = !isset($customdata->metric);
         $metrictypes = metric\manager::get_metrics(true);
+
+        // Filter to a specific metric.
+        if (isset($customdata->metric)) {
+            $metric = $customdata->metric;
+            if (!array_key_exists($metric, $metrictypes)) {
+                mtrace("{$metric} is an invalid metric type");
+                return;
+            }
+
+            $metrictypes = [
+                $metric => $metrictypes[$metric],
+            ];
+        }
+
         $total = 0;
         foreach ($metrictypes as $metrictype) {
             if (!$metrictype->is_ready()) {
@@ -60,28 +97,51 @@ class autobackfill_metrics_task extends \core\task\adhoc_task {
                 mtrace("The '{$metrictype->get_name()}' metric does not support backfilling data");
                 continue;
             }
-            if (!$metrictype->is_autobackfill()) {
+            if ($autobackfill && !$metrictype->is_autobackfill()) {
                 mtrace("The '{$metrictype->get_name()}' metric does not support auto backfilling");
                 continue;
             }
+
+            $starttime = $nowts - $collectingperiod;
+            $finishtime = $nowts;
+
+            // Check if data has already been backfilled.
+            [$backfillmin, $backfillmax, $backfillinterval] = $metrictype->get_range_retrieved();
+            if ($backfillinterval === $metrictype->get_frequency() && $backfillmin > 0) {
+                // If a backfill range exists for this frequency, we only need to backfill older data.
+                $finishtime = $backfillmin;
+            }
+
+            if ($finishtime < $starttime) {
+                mtrace(sprintf(
+                    "The '%s' metric has already been backfilled to %s",
+                    $metrictype->get_name(),
+                    userdate($finishtime, '%e %b %Y, %H:%M')
+                ));
+                continue;
+            }
+
             mtrace(sprintf(
                 'Generating metrics for %s from %s to %s',
                 $metrictype->get_name(),
-                userdate($nowts, '%e %b %Y, %H:%M'),
-                userdate(($nowts - $collectingperiod), '%e %b %Y, %H:%M')
+                userdate($finishtime, '%e %b %Y, %H:%M'),
+                userdate($starttime, '%e %b %Y, %H:%M')
             ));
-            $metrics = $metrictype->generate_metric_items($collectingperiod, $nowts);
+
+            $metrics = $metrictype->generate_metric_items($collectingperiod, $finishtime);
             if ($metrictype->is_backfill_incremental()) {
                 // We have a slow query so want to send metrics to the collector immediately.
                 $count = 0;
                 foreach ($metrics as $metric) {
-                    $this->backfill_metrics([$metric]);
+                    $this->backfill_metrics($metrictype, [$metric]);
                     $count++;
                 }
             } else {
                 // Process the metrics as a batch.
                 $metrics = iterator_to_array($metrics);
-                $this->backfill_metrics($metrics);
+                if ($metrics) {
+                    $this->backfill_metrics($metrictype, $metrics);
+                }
                 $count = count($metrics);
             }
 
