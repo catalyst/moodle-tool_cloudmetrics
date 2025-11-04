@@ -150,7 +150,7 @@ class yearly_active_users_metric extends builtin_user_base {
 
         $finishtime = ($finishtime === -1) ? null : $finishtime;
         $finishtime = $finishtime ?? time();
-        $starttime = $finishtime - $backwardperiod;
+        $starttime = time() - $backwardperiod;
         // Get aggregation interval.
         $frequency = $this->get_frequency();
         $interval = lib::FREQ_TIMES[$frequency];
