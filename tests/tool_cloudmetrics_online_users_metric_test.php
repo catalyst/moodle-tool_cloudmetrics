@@ -16,6 +16,7 @@
 
 namespace tool_cloudmetrics;
 
+use PHPUnit\Framework\Attributes\CoversMethod;
 use tool_cloudmetrics\metric\online_users_metric;
 
 /**
@@ -25,6 +26,7 @@ use tool_cloudmetrics\metric\online_users_metric;
  * @copyright 2025, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[CoversMethod(online_users_metric::class, 'generate_metric_items')]
 final class tool_cloudmetrics_online_users_metric_test extends \advanced_testcase {
 
     /**
@@ -38,7 +40,6 @@ final class tool_cloudmetrics_online_users_metric_test extends \advanced_testcas
     /**
      * Tests generate metric items
      *
-     * @covers \tool_cloudmetrics\metric\generate_metric_items
      */
     public function test_generate_metric_items(): void {
         global $DB;
