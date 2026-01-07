@@ -163,7 +163,7 @@ class collector extends base {
      * @param array $metricitems Array of metric items.
      * @param \progress_bar|null $progress
      */
-    public function record_saved_metrics(\tool_cloudmetrics\metric\base $metricclass, array $metricitems = [], \progress_bar $progress = null) {
+    public function record_saved_metrics(\tool_cloudmetrics\metric\base $metricclass, array $metricitems = [], ?\progress_bar $progress = null) {
         global $DB;
         $transaction = $DB->start_delegated_transaction();
         if (count($metricitems) != 0 && !$metricclass->sameconfig) {

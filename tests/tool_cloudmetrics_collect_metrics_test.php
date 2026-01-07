@@ -27,6 +27,7 @@ namespace tool_cloudmetrics;
 
 use DateTime;
 use Exception;
+use PHPUnit\Framework\Attributes\DataProvider;
 use tool_cloudmetrics\metric\manager;
 use tool_cloudmetrics\task\collect_metrics_task;
 
@@ -105,13 +106,13 @@ class tool_cloudmetrics_collect_metrics_test extends \advanced_testcase {
     /**
      * Test the execute method.
      *
-     * @dataProvider execute_provider
      * @param string $timestr The 'current' time to be used.
      * @param array $meta List of [<frequency>, <last_generate_time>].
      * @param array $expected The metrics that are expected to be in the result set.
      * @covers \tool_cloudmetrics\task\collect_metrics_task
      * @throws Exception
      */
+    #[DataProvider('execute_provider')]
     public function test_execute(string $timestr, array $meta, array $expected): void {
         $tz = \core_date::get_server_timezone_object();
         $this->disable_metrics($expected);

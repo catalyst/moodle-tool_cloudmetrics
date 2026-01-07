@@ -16,6 +16,8 @@
 
 namespace tool_cloudmetrics;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+
 /**
  * Unit tests for lib class.
  *
@@ -70,12 +72,12 @@ class tool_cloudmetrics_lib_test  extends \advanced_testcase {
     /**
      * Tests lib::get_previous_time()
      *
-     * @dataProvider data_for_get_previous_time
      * @param string $ref
      * @param int $freq
      * @param string $expected
      * @throws \Exception
      */
+    #[DataProvider('data_for_get_previous_time')]
     public function test_get_previous_time(string $ref, int $freq, string $expected) {
         $tz = \core_date::get_server_timezone_object();
 
@@ -90,7 +92,7 @@ class tool_cloudmetrics_lib_test  extends \advanced_testcase {
      *
      * @return array[]
      */
-    public function data_for_get_previous_time(): array {
+    public static function data_for_get_previous_time(): array {
         return [
             ['10:05',  metric\manager::FREQ_MIN, '10:04'],
             ['10:07',  metric\manager::FREQ_5MIN, '10:02'],
@@ -108,12 +110,12 @@ class tool_cloudmetrics_lib_test  extends \advanced_testcase {
     /**
      * Tests lib::get_next_time()
      *
-     * @dataProvider data_for_get_next_time
      * @param string $ref
      * @param int $freq
      * @param string $expected
      * @throws \Exception
      */
+    #[DataProvider('data_for_get_next_time')]
     public function test_get_next_time(string $ref, int $freq, string $expected) {
         $tz = \core_date::get_server_timezone_object();
 
@@ -128,7 +130,7 @@ class tool_cloudmetrics_lib_test  extends \advanced_testcase {
      *
      * @return array[]
      */
-    public function data_for_get_next_time(): array {
+    public static function data_for_get_next_time(): array {
         return [
             ['10:05',  metric\manager::FREQ_MIN, '10:06'],
             ['10:07',  metric\manager::FREQ_5MIN, '10:12'],
@@ -146,12 +148,12 @@ class tool_cloudmetrics_lib_test  extends \advanced_testcase {
     /**
      * Tests lib::get_next_time()
      *
-     * @dataProvider data_for_get_last_whole_tick
      * @param string $ref
      * @param int $freq
      * @param string $expected
      * @throws \Exception
      */
+    #[DataProvider('data_for_get_last_whole_tick')]
     public function test_get_last_whole_tick(string $ref, int $freq, string $expected) {
         $tz = \core_date::get_server_timezone_object();
 
@@ -166,7 +168,7 @@ class tool_cloudmetrics_lib_test  extends \advanced_testcase {
      *
      * @return array[]
      */
-    public function data_for_get_last_whole_tick(): array {
+    public static function data_for_get_last_whole_tick(): array {
         return [
             ['10:06',  metric\manager::FREQ_MIN, '10:06'],
             ['10:07',  metric\manager::FREQ_5MIN, '10:05'],

@@ -16,6 +16,7 @@
 
 namespace tool_cloudmetrics;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use tool_cloudmetrics\metric\metric_item;
 use tool_cloudmetrics\metric\new_users_metric;
 use tool_cloudmetrics\metric\active_users_metric;
@@ -73,12 +74,12 @@ final class tool_cloudmetrics_users_test extends \advanced_testcase {
     /**
      * Tests generate_metric_items() for the builtin user metrics.
      *
-     * @dataProvider data_for_test_generate_metrics
      * @param string $metricname The name of the metric to be tested.
      * @param int $frequency The frequency setting as a metric\manager::FREQ_ value.
      * @param array $expected List of metric items that expect to be generated.
      * @throws \dml_exception
      */
+    #[DataProvider('data_for_test_generate_metrics')]
     public function test_generate_metrics(string $metricname, int $frequency, array $expected): void {
         global $DB;
 
@@ -106,11 +107,11 @@ final class tool_cloudmetrics_users_test extends \advanced_testcase {
     /**
      * Tests test_generate_yearly_active_users_metric() for the builtin user metrics.
      *
-     * @dataProvider data_for_test_generate_yearly_active_users_metric
      * @param string $metricname The name of the metric to be tested.
      * @param array $expected List of metric items that expect to be generated.
      * @throws \dml_exception
      */
+    #[DataProvider('data_for_test_generate_yearly_active_users_metric')]
     public function test_generate_yearly_active_users_metric(string $metricname, array $expected): void {
         global $DB;
 
@@ -134,7 +135,7 @@ final class tool_cloudmetrics_users_test extends \advanced_testcase {
      *
      * @return array[]
      */
-    public function data_for_test_generate_metrics(): array {
+    public static function data_for_test_generate_metrics(): array {
         $newusersmetric = new new_users_metric();
         $activeusersmetric = new active_users_metric();
         $onlineusersmetric = new online_users_metric();
@@ -171,7 +172,7 @@ final class tool_cloudmetrics_users_test extends \advanced_testcase {
      *
      * @return array[]
      */
-    public function data_for_test_generate_yearly_active_users_metric(): array {
+    public static function data_for_test_generate_yearly_active_users_metric(): array {
         $yearlyactiveusers = new yearly_active_users_metric();
 
         return [

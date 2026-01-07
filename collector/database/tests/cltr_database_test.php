@@ -20,6 +20,9 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ . "/../../../tests/metric_testcase.php"); // This is needed. File will not be automatically included.
 
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\CoversMethod;
+use PHPUnit\Framework\Attributes\DataProvider;
 use tool_cloudmetrics\metric\manager;
 use tool_cloudmetrics\metric\online_users_metric;
 use tool_cloudmetrics\metric\active_users_metric;
@@ -32,6 +35,13 @@ use tool_cloudmetrics\metric\active_users_metric;
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[
+    CoversClass(\cltr_database\collector::class),
+    CoversMethod(\cltr_database\collector::class, 'record_saved_metrics'),
+    CoversMethod(\cltr_database\lib::class, 'get_midnight_of'),
+    CoversMethod(\cltr_database\lib::class, 'period_from_interval'),
+    CoversClass(\cltr_database\task\metrics_cleanup_task::class),
+]
 class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
 
     /** @var int Hours in a day*/
@@ -50,11 +60,10 @@ class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
     /**
      * Test get_midnight_of.
      *
-     * @dataProvider midnight_provider
-     * @covers \cltr_database\lib::get_midnight_of
      * @param string $datestr
      * @param string  $expected   The expected result of the transformation
      */
+    #[DataProvider('midnight_provider')]
     public function test_midnight(string $datestr, string $expected) {
         $tz = \core_date::get_server_timezone_object();
         $time = lib::get_midnight_of($datestr, $tz);
@@ -69,7 +78,7 @@ class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
      *
      * @return \string[][]
      */
-    public function midnight_provider(): array {
+    public static function midnight_provider(): array {
         return [
             ['today -5 hours', 'yesterday'],
             ['today +20 hours', 'today'],
@@ -86,11 +95,10 @@ class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
     /**
      * Tests get_midnight_of's ability to handle timestamps.
      *
-     * @dataProvider midnight_provider
-     * @covers \cltr_database\lib::get_midnight_of
      * @param string $datestr
      * @param string $expected
      */
+    #[DataProvider('midnight_provider')]
     public function test_midnight_timestamp(string $datestr, string $expected) {
         $tz = \core_date::get_server_timezone_object();
         $ti = new \DateTimeImmutable($datestr, $tz);
@@ -103,7 +111,6 @@ class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
     /**
      * Tests the database collector
      *
-     * @covers \cltr_database\collector
      */
     public function test_collector() {
         global $DB;
@@ -157,7 +164,6 @@ class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
     /**
      * Test backfillable metric, here the 'active' metric.
      *
-     * @covers \cltr_database\collector::record_saved_metrics
      */
     public function test_backfillable_metric() {
         global $DB;
@@ -218,8 +224,6 @@ class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
     /**
      * Test expiry metric_expiry task is working properly
      *
-     * @dataProvider expiry_provider
-     * @covers \cltr_database\task\metrics_cleanup_task
      * @param int $daysago
      * @param int $houradjustment
      * @param int $expiry
@@ -227,6 +231,7 @@ class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
      * @param int $numexpected
      * @throws \dml_exception
      */
+    #[DataProvider('expiry_provider')]
     public function test_expiry(int $daysago, int $houradjustment, int $expiry, int $numrecords, int $numexpected) {
         global $DB;
 
@@ -275,7 +280,7 @@ class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
      *
      * @return array
      */
-    public function expiry_provider(): array {
+    public static function expiry_provider(): array {
         return [
             [20, 10, 10 * DAYSECS, 20, 10],
             [20, -2, 10 * DAYSECS, 20, 9],
@@ -286,11 +291,10 @@ class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
     /**
      * Tests lib::period_from_inerval().
      *
-     * @dataProvider period_from_interval_provider
-     * @covers \cltr_database\lib::period_from_interval
      * @param int $freq
      * @param int $expected
      */
+    #[DataProvider('period_from_interval_provider')]
     public function test_period_from_interval(int $freq, int $expected) {
         $metric = new \tool_cloudmetrics\metric\online_users_metric();
         $metric->set_frequency($freq);
@@ -302,7 +306,7 @@ class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
      *
      * @return array[]
      */
-    public function period_from_interval_provider(): array {
+    public static function period_from_interval_provider(): array {
         return [
             [ manager::FREQ_MIN, DAYSECS * 7],
             [ manager::FREQ_5MIN, DAYSECS * 7],
