@@ -43,7 +43,7 @@ abstract class base {
      * @param \progress_bar|null $progress
      * @return mixed
      */
-    public function record_metrics(array $metrics, \progress_bar $progress = null) {
+    public function record_metrics(array $metrics, ?\progress_bar $progress = null) {
         $count = 0;
         foreach ($metrics as $metric) {
             $this->record_metric($metric);

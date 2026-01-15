@@ -225,11 +225,11 @@ abstract class base {
      * Returns records for backfilled metric.
      *
      * @param int $backwardperiod Time from which sample is to be retrieved.
-     * @param int $finishtime If data is being completed argument is passed here.
+     * @param int|null $finishtime If data is being completed argument is passed here.
      *
      * @return \Iterator
      */
-    public function generate_metric_items(int $backwardperiod, int $finishtime = null): \Iterator {
+    public function generate_metric_items(int $backwardperiod, ?int $finishtime = null): \Iterator {
         return new \EmptyIterator();
     }
 
