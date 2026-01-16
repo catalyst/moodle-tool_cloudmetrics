@@ -42,8 +42,7 @@ use tool_cloudmetrics\metric\active_users_metric;
     CoversMethod(\cltr_database\lib::class, 'period_from_interval'),
     CoversClass(\cltr_database\task\metrics_cleanup_task::class),
 ]
-class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
-
+final class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
     /** @var int Hours in a day*/
     const DAYHOURS = 24;
 

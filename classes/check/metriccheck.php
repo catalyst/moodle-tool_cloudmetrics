@@ -31,7 +31,6 @@ use tool_cloudmetrics\metric\metric_item;
  * @copyright Catalyst IT
  */
 class metriccheck extends check {
-
     /** @var base $metric to be checked*/
     private $metric;
 
@@ -70,7 +69,8 @@ class metriccheck extends check {
     public function get_action_link(): ?\action_link {
         return new \action_link(
             new \moodle_url('/admin/tool/cloudmetrics/collector/database/chart.php', [$this->metric->get_name() => 1]),
-            get_string('view_chart', 'tool_cloudmetrics', $this->metric->get_label()));
+            get_string('view_chart', 'tool_cloudmetrics', $this->metric->get_label())
+        );
     }
 
     /**
@@ -79,8 +79,10 @@ class metriccheck extends check {
      */
     public function get_result(): result {
         if (!$this->metric->is_enabled()) {
-            return new result(result::INFO, get_string('metric_not_enabled',
-                'tool_cloudmetrics', $this->metric->get_label()));
+            return new result(
+                result::INFO,
+                get_string('metric_not_enabled', 'tool_cloudmetrics', $this->metric->get_label())
+            );
         }
 
         $options = manager::get_frequency_labels();

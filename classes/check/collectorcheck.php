@@ -30,7 +30,6 @@ use tool_cloudmetrics\plugininfo\cltr;
  * @copyright Catalyst IT
  */
 class collectorcheck extends check {
-
     /**
      * A link to a place to action this
      *
@@ -39,7 +38,8 @@ class collectorcheck extends check {
     public function get_action_link(): ?\action_link {
         return new \action_link(
             new \moodle_url('/admin/category.php?category=tool_cloudmetrics_reports'),
-            get_string('managelink', 'tool_cloudmetrics'));
+            get_string('managelink', 'tool_cloudmetrics')
+        );
     }
 
     /**
@@ -67,13 +67,19 @@ class collectorcheck extends check {
 
             // If the status is negative then it has been correctly working for some time.
             if ($status < 0) {
-                $messages[] = get_string('collector_passed', 'tool_cloudmetrics',
-                    ['name' => $name, 'time' => userdate((int)(-$status), '%e %b %Y, %H:%M')]);
+                $messages[] = get_string(
+                    'collector_passed',
+                    'tool_cloudmetrics',
+                    ['name' => $name, 'time' => userdate((int)(-$status), '%e %b %Y, %H:%M')]
+                );
                 continue;
             }
             $failures = true;
-            $messages[] = get_string('collector_failed', 'tool_cloudmetrics',
-                ['name' => $name, 'time' => userdate((int) $status, '%e %b %Y, %H:%M')]);
+            $messages[] = get_string(
+                'collector_failed',
+                'tool_cloudmetrics',
+                ['name' => $name, 'time' => userdate((int) $status, '%e %b %Y, %H:%M')]
+            );
         }
 
         $failuretype = result::OK;
@@ -85,8 +91,5 @@ class collectorcheck extends check {
         }
         // This result contains the enumerated detail of each test.
         return new result($failuretype, implode('<br>', $messages));
-
     }
-
-
 }

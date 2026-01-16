@@ -27,7 +27,6 @@ use tool_cloudmetrics\metric\manager;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class lib {
-
     /** @var array A mapping of FREQ_ constants to actual times in seconds. */
     public const FREQ_TIMES = [
         manager::FREQ_MIN => MINSECS,

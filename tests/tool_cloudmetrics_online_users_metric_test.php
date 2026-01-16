@@ -28,7 +28,6 @@ use tool_cloudmetrics\metric\online_users_metric;
  */
 #[CoversMethod(online_users_metric::class, 'generate_metric_items')]
 final class tool_cloudmetrics_online_users_metric_test extends \advanced_testcase {
-
     /**
      * Set up before each test
      */

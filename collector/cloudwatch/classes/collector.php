@@ -78,7 +78,7 @@ class collector extends base {
      * @param \progress_bar|null $progress
      * @return mixed
      */
-    public function record_metrics(array $items, \progress_bar $progress = null) {
+    public function record_metrics(array $items, ?\progress_bar $progress = null) {
         $metricdata = [];
         foreach ($items as $item) {
             $metricdata[] = $this->make_metric_data_entry($item);

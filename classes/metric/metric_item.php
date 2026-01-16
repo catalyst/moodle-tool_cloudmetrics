@@ -25,7 +25,6 @@ namespace tool_cloudmetrics\metric;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class metric_item {
-
     /** @var string Metric type name.*/
     public $name;
     /** @var int Time of the metric. This should be the time of the original recording of the source data. */

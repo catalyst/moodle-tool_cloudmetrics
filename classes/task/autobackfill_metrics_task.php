@@ -28,7 +28,6 @@ use tool_cloudmetrics\plugininfo\cltr;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class autobackfill_metrics_task extends \core\task\adhoc_task {
-
     /** @var array Enabled plugins */
     private array $plugins;
 
@@ -145,9 +144,9 @@ class autobackfill_metrics_task extends \core\task\adhoc_task {
                 $count = count($metrics);
             }
 
-            mtrace(sprintf('Generated %s %s metrics', $count,  $metrictype->get_name()));
+            mtrace(sprintf('Generated %s %s metrics', $count, $metrictype->get_name()));
             $total += $count;
         }
-        mtrace('Backfilled totally '.$total.' metrics');
+        mtrace('Backfilled totally ' . $total . ' metrics');
     }
 }
