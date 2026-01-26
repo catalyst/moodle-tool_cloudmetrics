@@ -29,7 +29,7 @@ use tool_cloudmetrics\lib;
 use tool_cloudmetrics\metric;
 use tool_cloudmetrics\metric\manager;
 
-require_once(__DIR__.'/../../../../../config.php');
+require_once(__DIR__ . '/../../../../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 
 admin_externalpage_setup('cltr_database_chart');
@@ -67,11 +67,21 @@ foreach ($metrics as $m) {
         $displayedmetrics[] = $m->get_name();
         $displayed = true;
     }
-    $checkbox = html_writer::checkbox($m->get_name(), 1, $displayed, '',
-        ['id' => $m->get_name(), 'onchange' => 'this.form.submit()']);
+    $checkbox = html_writer::checkbox(
+        $m->get_name(),
+        1,
+        $displayed,
+        '',
+        ['id' => $m->get_name(), 'onchange' => 'this.form.submit()']
+    );
     $label = html_writer::tag('label', $m->get_label(), ['for' => $m->get_name(), 'style' => 'display:inline-block; margin: 0;']);
-    $color = html_writer::tag('span', '',
-        ['style' => 'display: inline-block; width: 2.5em; height: 1em; background-color: ' . $m->get_colour() . '; margin: 0 6px; vertical-align: middle;']);
+    $color = html_writer::tag(
+        'span',
+        '',
+        ['style' => 'display: inline-block; width: 2.5em; height: 1em; background-color: '
+            . $m->get_colour()
+            . '; margin: 0 6px; vertical-align: middle;']
+    );
     $checkboxes[] = [
         'checkbox' => html_writer::tag('div', $checkbox . $color . $label, [
             'style' => 'display: inline-flex; align-items: center; margin-right: 16px;',
@@ -85,8 +95,15 @@ foreach ($metrics as $m) {
 
 if (empty($displayedmetrics)) {
     $displayedmetrics[] = reset($metrics)->get_name();
-    $checkboxes[0] = ['checkbox' => html_writer::checkbox(reset($metrics)->get_name(), 1, true, reset($metrics)->get_label(),
-        ['onchange' => 'this.form.submit()'])];
+    $checkboxes[0] = [
+        'checkbox' => html_writer::checkbox(
+            reset($metrics)->get_name(),
+            1,
+            true,
+            reset($metrics)->get_label(),
+            ['onchange' => 'this.form.submit()']
+        ),
+    ];
 }
 
 if ($graphperiodsec === -1) {
@@ -278,15 +295,16 @@ if (count($displayedmetrics) == 1) {
     // Calculate threshold for displaying aggregation or not.
     if (count($diffs) > 0) {
         $avgdiff = array_sum($diffs) / count($diffs);
-        // If the ratio between the average(MAX-MIN) and the number of total data points is below 0.25 only display the default aggregate.
+        // If the ratio between the average(MAX-MIN) and the number of total data points is below 0.25
+        // only display the default aggregate.
         if ($avgdiff / $count < 0.25) {
             $displayaggregates = false;
         }
     }
-    $minseries = new chart_series('Minimum '.$metriclabels[$displayedmetrics[0]], $mins);
+    $minseries = new chart_series('Minimum ' . $metriclabels[$displayedmetrics[0]], $mins);
     $color = $metrics[$displayedmetrics[0]]->get_colour();
     $minseries->set_color($metrics[$displayedmetrics[0]]->get_colour());
-    $maxseries = new chart_series('Maximum '.$metriclabels[$displayedmetrics[0]], $maxs);
+    $maxseries = new chart_series('Maximum ' . $metriclabels[$displayedmetrics[0]], $maxs);
     $maxseries->set_color($metrics[$displayedmetrics[0]]->get_colour());
     if ($displayaggregates || ($metrics[$displayedmetrics[0]]->aggregatedefault == 'AVG')) {
         $chart->add_series($chartseries);
@@ -300,7 +318,7 @@ if (count($displayedmetrics) == 1) {
     $context['backfillable'] = $metrics[$displayedmetrics[0]]->is_backfillable();
     $context['metriclabel'] = $metrics[$displayedmetrics[0]]->get_label();
     $context['metricdescription'] = $metrics[$displayedmetrics[0]]->get_description();
-    $context['metriclabeltolower'] = strtolower( $metrics[$displayedmetrics[0]]->get_label());
+    $context['metriclabeltolower'] = strtolower($metrics[$displayedmetrics[0]]->get_label());
 }
 
 $context['chart'] = $OUTPUT->render($chart);
@@ -310,8 +328,10 @@ $context['freqselect'] = $OUTPUT->render($freqselect);
 $context['backfillurl'] = $backfillurl;
 $context['checkboxes'] = $checkboxes;
 $context['metriclabel'] = $context['metriclabel'] ?? get_string('multiplemetrics', 'cltr_database');
-$context['frequency'] = html_writer::empty_tag('input',
-    ['type' => 'hidden', 'name' => 'graphfrequency', 'value' => $displayfrequency]);
+$context['frequency'] = html_writer::empty_tag(
+    'input',
+    ['type' => 'hidden', 'name' => 'graphfrequency', 'value' => $displayfrequency]
+);
 $renderer = $PAGE->get_renderer('tool_cloudmetrics');
 
 echo $OUTPUT->header();
@@ -319,10 +339,19 @@ echo $renderer->render_chart_page($context);
 if ($count == 0) {
     echo $OUTPUT->notification(get_string('norecords', 'cltr_database', $maxrecords), 'info');
 } else {
-    echo $OUTPUT->notification(get_string('displaying_records', 'cltr_database', ['count' => $count, 'freq' => $freqoptions[$displayfrequency]]), 'info');
+    echo $OUTPUT->notification(
+        get_string('displaying_records', 'cltr_database', ['count' => $count, 'freq' => $freqoptions[$displayfrequency]]),
+        'info'
+    );
     if ($displayfrequency != $selectedfrequency) {
-        echo $OUTPUT->notification(get_string('different_frequency', 'cltr_database',
-            ['from' => $freqoptions[$selectedfrequency], 'to' => $freqoptions[$displayfrequency]]), 'info');
+        echo $OUTPUT->notification(
+            get_string(
+                'different_frequency',
+                'cltr_database',
+                ['from' => $freqoptions[$selectedfrequency], 'to' => $freqoptions[$displayfrequency]]
+            ),
+            'info'
+        );
     }
     if ($count === $maxrecords) {
         echo $OUTPUT->notification(get_string('maxrecords', 'cltr_database', $maxrecords), 'info');

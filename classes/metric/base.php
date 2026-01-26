@@ -25,7 +25,6 @@ namespace tool_cloudmetrics\metric;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class base {
-
     /** @var string $aggregate_default Value to display if MIN, MAX and AVG are too close */
     public $aggregatedefault = 'MAX';
 
@@ -225,11 +224,11 @@ abstract class base {
      * Returns records for backfilled metric.
      *
      * @param int $backwardperiod Time from which sample is to be retrieved.
-     * @param int $finishtime If data is being completed argument is passed here.
+     * @param int|null $finishtime If data is being completed argument is passed here.
      *
      * @return \Iterator
      */
-    public function generate_metric_items(int $backwardperiod, int $finishtime = null): \Iterator {
+    public function generate_metric_items(int $backwardperiod, ?int $finishtime = null): \Iterator {
         return new \EmptyIterator();
     }
 

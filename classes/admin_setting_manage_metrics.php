@@ -28,7 +28,6 @@ use core\output\inplace_editable;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class admin_setting_manage_metrics extends \admin_setting {
-
     /**
      * Calls parent::__construct with specific arguments
      */
@@ -75,7 +74,7 @@ class admin_setting_manage_metrics extends \admin_setting {
      * @param string $query
      * @return string highlight
      */
-    public function output_html($data, $query='') {
+    public function output_html($data, $query = '') {
         global $OUTPUT;
 
         $metrics = manager::get_metrics(false);
@@ -84,36 +83,45 @@ class admin_setting_manage_metrics extends \admin_setting {
             return $metric1->group <=> $metric2->group;
         });
 
-        $txt = get_strings(array('plugin', 'settings', 'name', 'group', 'description', 'enable', 'disable', 'default', 'show', 'actions', 'report'));
+        $txt = get_strings(['plugin', 'settings', 'name', 'group', 'description', 'enable', 'disable', 'default', 'show', 'actions', 'report']);
         $txt->frequency = get_string('frequency', 'tool_cloudmetrics');
         $txt->colour = get_string('colour', 'tool_cloudmetrics');
         $table = new \html_table();
-        $table->head  = array($txt->plugin, $txt->name, $txt->group, $txt->description, $txt->frequency, $txt->actions, get_string('backfillable', 'tool_cloudmetrics'));
-        $table->align = array('left', 'left', 'left', 'left');
+        $table->head  = [$txt->plugin, $txt->name, $txt->group, $txt->description, $txt->frequency, $txt->actions, get_string('backfillable', 'tool_cloudmetrics')];
+        $table->align = ['left', 'left', 'left', 'left'];
         $table->attributes['class'] = 'manageformattable generaltable admintable w-auto';
-        $table->data  = array();
+        $table->data  = [];
 
         foreach ($metrics as $metric) {
-            $url = new \moodle_url('/admin/tool/cloudmetrics/metrics.php',
-                array('sesskey' => sesskey(), 'name' => $metric->get_name()));
+            $url = new \moodle_url(
+                '/admin/tool/cloudmetrics/metrics.php',
+                ['sesskey' => sesskey(), 'name' => $metric->get_name()]
+            );
             $displayname = $metric->get_label();
             $description = $metric->get_description();
             $group = !empty($metric->group) ? get_string($metric->group, 'tool_cloudmetrics') : '';
 
             // Colour.
             $colour = $metric->get_colour();
-            $swatch = \html_writer::span('', 'rounded',
-                    ['style' => "height: 1em; width: 1em; background-color: $colour; display: inline-block"]);
+            $swatch = \html_writer::span(
+                '',
+                'rounded',
+                ['style' => "height: 1em; width: 1em; background-color: $colour; display: inline-block"]
+            );
 
             // Enable/disable link.
             if ($metric->is_enabled()) {
                 $class = '';
-                $hideshow = \html_writer::link($url->out(false, array('action' => 'disable')),
-                    $OUTPUT->pix_icon('t/hide', $txt->disable, 'moodle', array('class' => 'iconsmall')));
+                $hideshow = \html_writer::link(
+                    $url->out(false, ['action' => 'disable']),
+                    $OUTPUT->pix_icon('t/hide', $txt->disable, 'moodle', ['class' => 'iconsmall'])
+                );
             } else {
                 $class = 'dimmed_text';
-                $hideshow = \html_writer::link($url->out(false, array('action' => 'enable')),
-                    $OUTPUT->pix_icon('t/show', $txt->enable, 'moodle', array('class' => 'iconsmall')));
+                $hideshow = \html_writer::link(
+                    $url->out(false, ['action' => 'enable']),
+                    $OUTPUT->pix_icon('t/show', $txt->enable, 'moodle', ['class' => 'iconsmall'])
+                );
             }
 
             // Settings link.
@@ -142,7 +150,10 @@ class admin_setting_manage_metrics extends \admin_setting {
                 $attributes
             );
 
-            $backfillurl = new \moodle_url('/admin/tool/cloudmetrics/collector/database/backfill.php', ['metric' => $metric->get_name()]);
+            $backfillurl = new \moodle_url(
+                '/admin/tool/cloudmetrics/collector/database/backfill.php',
+                ['metric' => $metric->get_name()]
+            );
             // Metric backfill support and if so - link.
             if ($metric->is_backfillable()) {
                 $class = '';

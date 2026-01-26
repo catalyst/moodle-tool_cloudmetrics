@@ -27,7 +27,6 @@ use tool_cloudmetrics\metric\metric_item;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class base {
-
     /**
      * Records a single metric.
      *
@@ -43,13 +42,16 @@ abstract class base {
      * @param \progress_bar|null $progress
      * @return mixed
      */
-    public function record_metrics(array $metrics, \progress_bar $progress = null) {
+    public function record_metrics(array $metrics, ?\progress_bar $progress = null) {
         $count = 0;
         foreach ($metrics as $metric) {
             $this->record_metric($metric);
             if ($progress) {
-                $progress->update($count, count($metrics),
-                    get_string('backfillsaving', 'tool_cloudmetrics', $metric->name));
+                $progress->update(
+                    $count,
+                    count($metrics),
+                    get_string('backfillsaving', 'tool_cloudmetrics', $metric->name)
+                );
                 $count++;
             }
         }

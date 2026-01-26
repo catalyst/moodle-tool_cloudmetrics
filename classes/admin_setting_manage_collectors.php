@@ -24,7 +24,6 @@ namespace tool_cloudmetrics;
  * @copyright Catalyst IT
  */
 class admin_setting_manage_collectors extends \admin_setting {
-
     /**
      * Calls parent::__construct with specific arguments
      */
@@ -74,8 +73,10 @@ class admin_setting_manage_collectors extends \admin_setting {
         }
         $formats = \core_plugin_manager::instance()->get_plugins_of_type('cltr');
         foreach ($formats as $format) {
-            if (strpos($format->component, $query) !== false ||
-                strpos(\core_text::strtolower($format->displayname), $query) !== false) {
+            if (
+                strpos($format->component, $query) !== false ||
+                strpos(\core_text::strtolower($format->displayname), $query) !== false
+            ) {
                 return true;
             }
         }
@@ -89,36 +90,42 @@ class admin_setting_manage_collectors extends \admin_setting {
      * @param string $query
      * @return string highlight
      */
-    public function output_html($data, $query='') {
+    public function output_html($data, $query = '') {
         global $OUTPUT;
 
         $formats = \core_plugin_manager::instance()->get_plugins_of_type('cltr');
 
-        $txt = get_strings(array('settings', 'name', 'enable', 'disable', 'default', 'actions'));
+        $txt = get_strings(['settings', 'name', 'enable', 'disable', 'default', 'actions']);
         $txt->uninstall = get_string('uninstallplugin', 'core_admin');
 
         $table = new \html_table();
-        $table->head  = array($txt->name, $txt->uninstall, $txt->actions);
-        $table->align = array('left', 'center', 'center', 'center', 'center');
+        $table->head  = [$txt->name, $txt->uninstall, $txt->actions];
+        $table->align = ['left', 'center', 'center', 'center', 'center'];
         $table->attributes['class'] = 'manageformattable generaltable admintable w-auto';
-        $table->data  = array();
+        $table->data  = [];
 
         foreach ($formats as $format) {
             $status = $format->get_status();
-            $url = new \moodle_url('/admin/tool/cloudmetrics/collectors.php',
-                array('sesskey' => sesskey(), 'name' => $format->name));
+            $url = new \moodle_url(
+                '/admin/tool/cloudmetrics/collectors.php',
+                ['sesskey' => sesskey(), 'name' => $format->name]
+            );
 
             // Enable/disable link.
             if ($format->is_enabled()) {
                 $class = '';
                 $strformatname = $format->displayname;
-                $hideshow = \html_writer::link($url->out(false, array('action' => 'disable')),
-                    $OUTPUT->pix_icon('t/hide', $txt->disable, 'moodle', array('class' => 'iconsmall')));
+                $hideshow = \html_writer::link(
+                    $url->out(false, ['action' => 'disable']),
+                    $OUTPUT->pix_icon('t/hide', $txt->disable, 'moodle', ['class' => 'iconsmall'])
+                );
             } else {
                 $class = 'dimmed_text';
                 $strformatname = $format->displayname;
-                $hideshow = \html_writer::link($url->out(false, array('action' => 'enable')),
-                    $OUTPUT->pix_icon('t/show', $txt->enable, 'moodle', array('class' => 'iconsmall')));
+                $hideshow = \html_writer::link(
+                    $url->out(false, ['action' => 'enable']),
+                    $OUTPUT->pix_icon('t/show', $txt->enable, 'moodle', ['class' => 'iconsmall'])
+                );
             }
 
             // Uninstall link.
@@ -128,8 +135,10 @@ class admin_setting_manage_collectors extends \admin_setting {
                     $uninstall = get_string('status_missing', 'core_plugin');
                 } else if ($status === \core_plugin_manager::PLUGIN_STATUS_NEW) {
                     $uninstall = get_string('status_new', 'core_plugin');
-                } else if ($uninstallurl =
-                    \core_plugin_manager::instance()->get_uninstall_url('cltr_' . $format->name, 'tool_cloudmetrics')) {
+                } else if (
+                    $uninstallurl =
+                    \core_plugin_manager::instance()->get_uninstall_url('cltr_' . $format->name, 'tool_cloudmetrics')
+                ) {
                     $uninstall = \html_writer::link($uninstallurl, $txt->uninstall);
                 }
             }
@@ -147,7 +156,7 @@ class admin_setting_manage_collectors extends \admin_setting {
                 $attributes
             );
 
-            $row = new \html_table_row(array($strformatname, $uninstall, $hideshow . $settingslink));
+            $row = new \html_table_row([$strformatname, $uninstall, $hideshow . $settingslink]);
             if ($class) {
                 $row->attributes['class'] = $class;
             }

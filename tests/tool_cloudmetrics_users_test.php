@@ -16,6 +16,7 @@
 
 namespace tool_cloudmetrics;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use tool_cloudmetrics\metric\metric_item;
 use tool_cloudmetrics\metric\new_users_metric;
 use tool_cloudmetrics\metric\active_users_metric;
@@ -31,7 +32,6 @@ use tool_cloudmetrics\metric\yearly_active_users_metric;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class tool_cloudmetrics_users_test extends \advanced_testcase {
-
     /**
      * Set up before each test
      */
@@ -58,27 +58,27 @@ final class tool_cloudmetrics_users_test extends \advanced_testcase {
 
     /** @var array[] Sample active user DB data to be used in tests. */
     public const ACTIVE_USER_DATA = [
-        ['username' => 'a', 'confirmed' => 1 , 'lastlogin' => self::SECOND_IN_DAY + 1000],
-        ['username' => 'b', 'confirmed' => 1 , 'lastlogin' => (self::SECOND_IN_DAY * 2) + 1000],
-        ['username' => 'c', 'confirmed' => 1 , 'lastlogin' => (self::SECOND_IN_DAY * 2) + 2000],
-        ['username' => 'd', 'confirmed' => 1 , 'lastlogin' => (self::SECOND_IN_DAY * 2) + 3000],
-        ['username' => 'e', 'confirmed' => 1 , 'lastlogin' => (self::SECOND_IN_DAY * 3) + 1000],
-        ['username' => 'f', 'confirmed' => 1 , 'lastlogin' => (self::SECOND_IN_DAY * 3) + 2000],
-        ['username' => 'g', 'confirmed' => 1 , 'lastlogin' => (self::SECOND_IN_DAY * 4) + 1000],
-        ['username' => 'h', 'confirmed' => 1 , 'lastlogin' => (self::SECOND_IN_DAY * 4) + 2000],
-        ['username' => 'i', 'confirmed' => 1 , 'lastlogin' => (self::SECOND_IN_DAY * 5) + 1000],
-        ['username' => 'j', 'confirmed' => 1 , 'lastlogin' => (self::SECOND_IN_DAY * 5) + 2000],
+        ['username' => 'a', 'confirmed' => 1, 'lastlogin' => self::SECOND_IN_DAY + 1000],
+        ['username' => 'b', 'confirmed' => 1, 'lastlogin' => (self::SECOND_IN_DAY * 2) + 1000],
+        ['username' => 'c', 'confirmed' => 1, 'lastlogin' => (self::SECOND_IN_DAY * 2) + 2000],
+        ['username' => 'd', 'confirmed' => 1, 'lastlogin' => (self::SECOND_IN_DAY * 2) + 3000],
+        ['username' => 'e', 'confirmed' => 1, 'lastlogin' => (self::SECOND_IN_DAY * 3) + 1000],
+        ['username' => 'f', 'confirmed' => 1, 'lastlogin' => (self::SECOND_IN_DAY * 3) + 2000],
+        ['username' => 'g', 'confirmed' => 1, 'lastlogin' => (self::SECOND_IN_DAY * 4) + 1000],
+        ['username' => 'h', 'confirmed' => 1, 'lastlogin' => (self::SECOND_IN_DAY * 4) + 2000],
+        ['username' => 'i', 'confirmed' => 1, 'lastlogin' => (self::SECOND_IN_DAY * 5) + 1000],
+        ['username' => 'j', 'confirmed' => 1, 'lastlogin' => (self::SECOND_IN_DAY * 5) + 2000],
     ];
 
     /**
      * Tests generate_metric_items() for the builtin user metrics.
      *
-     * @dataProvider data_for_test_generate_metrics
      * @param string $metricname The name of the metric to be tested.
      * @param int $frequency The frequency setting as a metric\manager::FREQ_ value.
      * @param array $expected List of metric items that expect to be generated.
      * @throws \dml_exception
      */
+    #[DataProvider('data_for_test_generate_metrics')]
     public function test_generate_metrics(string $metricname, int $frequency, array $expected): void {
         global $DB;
 
@@ -106,11 +106,11 @@ final class tool_cloudmetrics_users_test extends \advanced_testcase {
     /**
      * Tests test_generate_yearly_active_users_metric() for the builtin user metrics.
      *
-     * @dataProvider data_for_test_generate_yearly_active_users_metric
      * @param string $metricname The name of the metric to be tested.
      * @param array $expected List of metric items that expect to be generated.
      * @throws \dml_exception
      */
+    #[DataProvider('data_for_test_generate_yearly_active_users_metric')]
     public function test_generate_yearly_active_users_metric(string $metricname, array $expected): void {
         global $DB;
 
@@ -127,14 +127,13 @@ final class tool_cloudmetrics_users_test extends \advanced_testcase {
             $time = lib::get_next_time($time, metric\manager::FREQ_DAY);
         }
         $this->assertEquals($expected, $items);
-
     }
     /**
      * Data provider for test_generate_metrics.
      *
      * @return array[]
      */
-    public function data_for_test_generate_metrics(): array {
+    public static function data_for_test_generate_metrics(): array {
         $newusersmetric = new new_users_metric();
         $activeusersmetric = new active_users_metric();
         $onlineusersmetric = new online_users_metric();
@@ -171,12 +170,12 @@ final class tool_cloudmetrics_users_test extends \advanced_testcase {
      *
      * @return array[]
      */
-    public function data_for_test_generate_yearly_active_users_metric(): array {
+    public static function data_for_test_generate_yearly_active_users_metric(): array {
         $yearlyactiveusers = new yearly_active_users_metric();
 
         return [
              ['yearlyactiveusers', [
-                new metric_item('yearlyactiveusers', self::SECOND_IN_DAY * 366 , 10, $yearlyactiveusers),
+                new metric_item('yearlyactiveusers', self::SECOND_IN_DAY * 366, 10, $yearlyactiveusers),
                 new metric_item('yearlyactiveusers', self::SECOND_IN_DAY * 367, 9, $yearlyactiveusers),
                 new metric_item('yearlyactiveusers', self::SECOND_IN_DAY * 368, 6, $yearlyactiveusers),
                 new metric_item('yearlyactiveusers', self::SECOND_IN_DAY * 369, 4, $yearlyactiveusers),

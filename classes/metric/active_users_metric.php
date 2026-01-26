@@ -25,7 +25,6 @@ namespace tool_cloudmetrics\metric;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class active_users_metric extends builtin_user_base {
-
     /** @var string The DB field the metric accesses. */
     protected $dbfield = 'lastlogin';
 

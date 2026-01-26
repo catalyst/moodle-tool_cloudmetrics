@@ -28,7 +28,6 @@ use tool_cloudmetrics\plugininfo\cltr;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class manager {
-
     /** @var string status prefix */
     const STATUS_PREFIX = 'collector_status:';
 

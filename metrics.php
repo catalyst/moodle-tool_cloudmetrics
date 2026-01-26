@@ -26,7 +26,7 @@
 use tool_cloudmetrics\metric\manager;
 
 require_once('../../../config.php');
-require_once($CFG->libdir.'/adminlib.php');
+require_once($CFG->libdir . '/adminlib.php');
 
 $action = required_param('action', PARAM_ALPHANUMEXT);
 $name   = required_param('name', PARAM_ALPHANUMEXT);
