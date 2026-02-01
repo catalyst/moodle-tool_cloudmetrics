@@ -16,8 +16,9 @@
 
 namespace tool_cloudmetrics\collector;
 
-use tool_cloudmetrics\metric\metric_item;
+use core\exception\moodle_exception;
 use tool_cloudmetrics\plugininfo\cltr;
+use tool_cloudmetrics\collector\base as collectorbase;
 
 /**
  * Manager class for collectors.
@@ -42,6 +43,22 @@ class manager {
     }
 
     /**
+     * Get an instance of a collector.
+     *
+     * @param $name
+     *
+     * @return \tool_cloudmetrics\collector\base
+     * @throws moodle_exception Thrown if collector is not installed.
+     */
+    public static function get_collector($name): collectorbase {
+        $classname = '\\cltr_' . $name . '\collector';
+        if (!class_exists($classname)) {
+            throw new moodle_exception('Class ' . $classname . ' does not exist');
+        }
+        return new $classname();
+    }
+
+    /**
      * Sends an array of metrics to all enabled collectors.
      *
      * @param array $items An array of metric_item.
@@ -61,7 +78,7 @@ class manager {
         foreach ($plugins as $plugin) {
             $collector = $plugin->get_collector();
 
-            // If the status is empty then we don't know. If it it positive then
+            // If the status is empty then we don't know. If it is positive then
             // it is a timestamp of when it originally failed. If it is negative
             // then it is a timestamp of when it originally worked.
             $key = self::STATUS_PREFIX . $plugin->name;

@@ -34,11 +34,11 @@ class lib {
         manager::FREQ_5MIN => MINSECS * 5,
         manager::FREQ_15MIN => MINSECS * 15,
         manager::FREQ_30MIN => MINSECS * 30,
-        manager::FREQ_HOUR => MINSECS * 60,
-        manager::FREQ_3HOUR => MINSECS * 180,
-        manager::FREQ_12HOUR => MINSECS * 720,
-        manager::FREQ_DAY => MINSECS * 1440,
-        manager::FREQ_WEEK => MINSECS * 10080,
+        manager::FREQ_HOUR => HOURSECS,
+        manager::FREQ_3HOUR => HOURSECS * 3,
+        manager::FREQ_12HOUR => HOURSECS * 12,
+        manager::FREQ_DAY => DAYSECS,
+        manager::FREQ_WEEK => WEEKSECS,
     ];
 
     /**

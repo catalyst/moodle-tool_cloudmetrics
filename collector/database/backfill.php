@@ -23,7 +23,7 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(__DIR__.'/../../../../../config.php');
+require_once(__DIR__ . '/../../../../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 
 use tool_cloudmetrics\metric\manager;
@@ -69,23 +69,33 @@ $periods = [
     YEARSECS * 2  => get_string('two_year', 'tool_cloudmetrics'),
 ];
 
-// Gets already saved data range and interval.
-[$mintmptmp, $maxtmpstmp, $freqretrieved] = $metrics[$metricname]->get_range_retrieved();
-if ($mintmptmp != -1) {
-    $backfilledfrom = userdate($mintmptmp, get_string('strftimedatetime', 'cltr_database'), $CFG->timezone);
-    $backfilledto = userdate($maxtmpstmp, get_string('strftimedatetime', 'cltr_database'), $CFG->timezone);
-    $backfilledinterval = (int)$freqretrieved;
-    if ($backfilledinterval !== $metrics[$metricname]->get_frequency()) {
-        $isdifferentfreq = true;
-        $context['cautiondata'] = get_string('different_freq', 'tool_cloudmetrics',
-            ['backfilledfrom' => $backfilledfrom, 'backfilledto' => $backfilledto]);;
+if ($collector->is_readable()) {
+    // Get some information about existing data.
+    $range = $collector->get_metric_range($metricname);
+    $freqretrieved = $collector->get_last_backfilled_frequency($metricname);
+    if (!empty($range)) {
+        ['mintime' => $mintmptmp, 'maxtime' => $maxtmpstmp] = $range;
+        $backfilledfrom = userdate($mintmptmp, get_string('strftimedatetime', 'cltr_database'), $CFG->timezone);
+        $backfilledto = userdate($maxtmpstmp, get_string('strftimedatetime', 'cltr_database'), $CFG->timezone);
+        $backfilledinterval = (int)$freqretrieved;
+        if ($backfilledinterval !== $metrics[$metricname]->get_frequency()) {
+            $isdifferentfreq = true;
+            $context['cautiondata'] = get_string(
+                'different_freq',
+                'tool_cloudmetrics',
+                ['backfilledfrom' => $backfilledfrom, 'backfilledto' => $backfilledto]
+            );
+        } else {
+            $isdifferentfreq = false;
+        }
+        $context['dataindb'] = get_string(
+            'data_in_db',
+            'tool_cloudmetrics',
+            ['dbstart' => $backfilledfrom, 'dbend' => $backfilledto]
+        );
     } else {
-        $isdifferentfreq = false;
+        $emptydb = get_string('data_empty', 'tool_cloudmetrics');
     }
-    $context['dataindb'] = get_string('data_in_db', 'tool_cloudmetrics',
-            ['dbstart' => $backfilledfrom, 'dbend' => $backfilledto]);
-} else {
-    $emptydb = get_string('data_empty', 'tool_cloudmetrics');
 }
 // Gets available data to backfill.
 $daterange = $metrics[$metricname]->get_range_log_available();
@@ -94,8 +104,11 @@ $enddate = userdate($daterange->max, get_string('strftimedatetime', 'cltr_databa
 $mform = new metric_backfill_form(null, [$daterange, $periods, $metricname]);
 $context['form'] = $mform->render();
 
-$context['dataperiod'] = get_string('data_period', 'tool_cloudmetrics',
-            ['startdate' => $startdate ?? 0, 'enddate' => $enddate ?? 0]);
+$context['dataperiod'] = get_string(
+    'data_period',
+    'tool_cloudmetrics',
+    ['startdate' => $startdate ?? 0, 'enddate' => $enddate ?? 0]
+);
 $context['emptydb'] = $emptydb ?? false;
 $context['linktochart'] = $tochart;
 $context['metriclabel'] = $metrics[$metricname]->get_label();

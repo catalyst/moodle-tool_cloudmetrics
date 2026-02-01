@@ -17,6 +17,7 @@
 namespace tool_cloudmetrics;
 
 use tool_cloudmetrics\metric\online_users_metric;
+use tool_cloudmetrics\metric\manager;
 
 /**
  * Unit test for online users metric.
@@ -24,9 +25,9 @@ use tool_cloudmetrics\metric\online_users_metric;
  * @package   tool_cloudmetrics
  * @copyright 2025, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @covers    \tool_cloudmetrics\metric\online_users_metric
  */
 final class tool_cloudmetrics_online_users_metric_test extends \advanced_testcase {
-
     /**
      * Set up before each test
      */
@@ -37,8 +38,6 @@ final class tool_cloudmetrics_online_users_metric_test extends \advanced_testcas
 
     /**
      * Tests generate metric items
-     *
-     * @covers \tool_cloudmetrics\metric\generate_metric_items
      */
     public function test_generate_metric_items(): void {
         global $DB;
@@ -85,17 +84,17 @@ final class tool_cloudmetrics_online_users_metric_test extends \advanced_testcas
         $this->assertEmpty($metrics);
 
         // Frequency periods.
-        $freq1 = 60;
-        $freq2 = 300;
+        $freq1 = \tool_cloudmetrics\lib::FREQ_TIMES[manager::FREQ_MIN];
+        $freq2 = \tool_cloudmetrics\lib::FREQ_TIMES[manager::FREQ_5MIN];
 
         // Get metrics for previous year with frequency 60 seconds.
-        $onlinemetric->set_frequency(1);
+        $onlinemetric->set_frequency(manager::FREQ_MIN);
         $metrics = iterator_to_array($onlinemetric->generate_metric_items(31556926));
         $count = ($metrics[0]->time - end($metrics)->time) / $freq1 + 1;
         $this->assertCount($count, $metrics);
 
         // Get metrics for previous year with frequency 300 seconds.
-        $onlinemetric->set_frequency(2);
+        $onlinemetric->set_frequency(manager::FREQ_5MIN);
         $metrics = iterator_to_array($onlinemetric->generate_metric_items(31556926));
         $count = ($metrics[0]->time - end($metrics)->time) / $freq2 + 1;
         $this->assertCount($count, $metrics);

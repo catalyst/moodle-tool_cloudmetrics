@@ -26,6 +26,7 @@
 use tool_cloudmetrics\metric\active_users_metric;
 use tool_cloudmetrics\metric\manager;
 use core\output\inplace_editable;
+use core_external\external_api;
 
 /**
  * Update the frequency config for metrics.
@@ -43,7 +44,7 @@ use core\output\inplace_editable;
  */
 function tool_cloudmetrics_inplace_editable(string $itemtype, int $itemid, string $newvalue) {
     if ($itemtype == 'metrics_freq') {
-        \external_api::validate_context(\context_system::instance());
+        external_api::validate_context(\context_system::instance());
         require_capability('moodle/site:config', \context_system::instance());
         $metrics = manager::get_metrics(false);
         $metric = null;

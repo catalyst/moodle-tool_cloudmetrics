@@ -86,7 +86,7 @@ class collector extends base {
         if ($since) {
             $starting = " AND time > " . (time() - $since);
         }
-        list ($clause, $params) = $DB->get_in_or_equal($metricnames);
+        [$clause, $params] = $DB->get_in_or_equal($metricnames);
         $sql = "SELECT id, name, date, time, value
                   FROM {cltr_database_metrics}
                  WHERE name $clause
@@ -129,7 +129,7 @@ class collector extends base {
         } else {
             $incrementstart = "FLOOR(time/$aggregate) * $aggregate AS increment_start";
         }
-        list ($clause, $params) = $DB->get_in_or_equal($metricnames);
+        [$clause, $params] = $DB->get_in_or_equal($metricnames);
         if (count($metricnames) == 1) {
             $sql = "SELECT AVG(" . $DB->sql_cast_char2int('value', true) . ") AS \"$metricnames[0]\",
                 MIN(" . $DB->sql_cast_char2int('value', true) . ") AS min,
@@ -157,21 +157,19 @@ class collector extends base {
     }
 
     /**
-     * Records retrieved data in collector.
+     * Records a number of metrics.
      *
-     * @param \tool_cloudmetrics\metric\base $metricclass Class representing metric.
-     * @param array $metricitems Array of metric items.
+     * @param array $metrics
      * @param \progress_bar|null $progress
+     * @return mixed
      */
-    public function record_saved_metrics(\tool_cloudmetrics\metric\base $metricclass, array $metricitems = [], \progress_bar $progress = null) {
+    public function record_metrics(array $metrics, ?\progress_bar $progress = null) {
         global $DB;
-        $transaction = $DB->start_delegated_transaction();
-        if (count($metricitems) != 0 && !$metricclass->sameconfig) {
-            $this->record_metrics($metricitems, $progress);
+        if (count($metrics) != 0) {
+            $transaction = $DB->start_delegated_transaction();
+            parent::record_metrics($metrics, $progress);
+            $transaction->allow_commit();
         }
-        $transaction->allow_commit();
-        // Sets what data has been sent to collector.
-        $metricclass->set_data_sent_config();
     }
 
     /**
@@ -204,5 +202,55 @@ class collector extends base {
      */
     public function is_auto_backfill(): bool {
         return lib::get_metric_auto_backfill();
+    }
+
+    /**
+     * Can we retrieve saved metrics from this collector?
+     *
+     * @return bool
+     */
+    public function is_readable(): bool {
+        return true;
+    }
+
+    /**
+     * Gets the range of the currently stored metric data.
+     *
+     * @param string $metricname
+     * @return ?array An array of start and end, or null if no data is found.
+     * @throws \dml_exception
+     */
+    public function get_metric_range(string $metricname): ?array {
+        global $DB;
+        $sql = "SELECT MIN(time) AS mintime, MAX(time) AS maxtime FROM {cltr_database_metrics} WHERE name = :metricname";
+        $params = ['metricname' => $metricname];
+        $record = $DB->get_record_sql($sql, $params);
+        // Only need to test one, because they are either both null or both not null.
+        if ($record->mintime === null) {
+            return null;
+        }
+        return (array) $record;
+    }
+
+    /**
+     * Gets the last backfilled frequency set via set_last_backfilled_frequency.
+     * Note: This value does not necessarily reflect the actual frequency of the stored data.
+     *
+     * @param string $metricname
+     * @return int|false
+     */
+    public function get_last_backfilled_frequency(string $metricname) {
+        return get_config('cltr_database', $metricname . '_lastfreq');
+    }
+
+    /**
+     * Sets the last backfilled frequency.
+     * Note: This value does not necessarily reflect the actual frequency of the stored data.
+     *
+     * @param string $metricname
+     * @param int $frequency
+     */
+    public function set_last_backfilled_frequency(string $metricname, int $frequency): void {
+        set_config($metricname . '_lastfreq', $frequency, 'cltr_database');
     }
 }

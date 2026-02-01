@@ -16,6 +16,7 @@
 
 namespace tool_cloudmetrics;
 
+use tool_cloudmetrics\lib;
 use tool_cloudmetrics\metric\base;
 use tool_cloudmetrics\metric\metric_item;
 
@@ -28,7 +29,6 @@ use tool_cloudmetrics\metric\metric_item;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class metric_testcase extends \advanced_testcase {
-
     /**
      * Returns a test stub for a metric that gives items, cycling through
      * the array of values, repeating when it gets to the end.
@@ -55,11 +55,41 @@ class metric_testcase extends \advanced_testcase {
             ->willReturn($isready);
 
         $stub->method('generate_metric_item')
-            ->willReturnCallback(function($start, $finish) use ($stub, $infinate) {
+            ->willReturnCallback(function ($start, $finish) use ($stub, $infinate) {
                 $value = $infinate->current();
                 $infinate->next();
                 $item = new metric_item('mock', $finish, $value, $stub);
                 return $item;
+            });
+
+        return $stub;
+    }
+
+    /**
+     * Returns a test stub that does all of the above plus is able to give items from the past.
+     *
+     * @param array $cycle A cycle of values to be repeated infinitely.
+     * @param int $frequency A frequency value as defined in manager class.
+     * @param bool $isready Whether the mock object is available for use.
+     */
+    protected function get_backfillable_metric_stub(array $cycle, int $frequency, bool $isready = true) {
+        $stub = $this->get_metric_stub($cycle, $isready);
+
+        $stub->method('get_frequency')
+            ->willReturn($frequency);
+        $stub->method('is_backfillable')
+            ->willReturn(true);
+        $stub->method('is_autobackfill')
+            ->willReturn(true);
+
+        $stub->method('generate_metric_items')
+            ->willReturnCallback(function ($backtime, $finish) use ($stub, $frequency) {
+                $start = $finish - $backtime;
+                $items = [];
+                for ($time = $start; $time <= $finish; $time = lib::get_next_time($time, $frequency)) {
+                    $items[] = $stub->generate_metric_item(0, $time);
+                }
+                return new \ArrayIterator($items);
             });
 
         return $stub;

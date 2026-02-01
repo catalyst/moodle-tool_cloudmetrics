@@ -37,10 +37,6 @@ class test_metric extends base {
     public $variance = 10;
     /** @var int The frequency of the metric's sampling. */
     public $frequency = manager::FREQ_MIN;
-    /** @var bool Is the metric switched on. */
-    public $enabled = false;
-    /** @var bool Is the metric ready. */
-    public $isready = true;
 
     /**
      * The metric's name.
@@ -115,30 +111,21 @@ class test_metric extends base {
     }
 
     /**
-     * Is the metric switched on?
+     * Metric's ability to be backfilled.
      *
      * @return bool
      */
-    public function is_enabled(): bool {
-        return $this->enabled;
+    public function is_backfillable(): bool {
+        return true;
     }
 
     /**
-     * Sets the enabled status.
-     *
-     * @param bool $enabled
-     */
-    public function set_enabled(bool $enabled) {
-        $this->enabled = $enabled;
-    }
-
-    /**
-     * Is the metric ready?
+     * Metric's ability to be backfilled automatically.
      *
      * @return bool
      */
-    public function is_ready(): bool {
-        return $this->isready;
+    public function is_autobackfill() {
+        return true;
     }
 
     /**
@@ -152,5 +139,15 @@ class test_metric extends base {
         $item = new metric_item($this->get_name(), $finishtime, $this->value, $this);
         $this->value += rand(-$this->variance, $this->variance);
         return $item;
+    }
+
+    public function generate_metric_items(int $backwardperiod, int $finishtime = null): \Iterator {
+        $finishtime = $finishtime ?? time();
+        $start = time() - $backwardperiod;
+        $items = [];
+        for ($time = $start; $time <= $finishtime; $time = lib::get_next_time($time, $this->get_frequency())) {
+            $items[] = $this->generate_metric_item(lib::get_previous_time($time, $this->get_frequency()), $time);
+        }
+        return new \ArrayIterator($items);
     }
 }

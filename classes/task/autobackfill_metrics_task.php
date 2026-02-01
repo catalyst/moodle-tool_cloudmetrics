@@ -17,6 +17,7 @@
 namespace tool_cloudmetrics\task;
 
 use tool_cloudmetrics\metric;
+use tool_cloudmetrics\collector\manager;
 use tool_cloudmetrics\plugininfo\cltr;
 
 /**
@@ -28,9 +29,11 @@ use tool_cloudmetrics\plugininfo\cltr;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class autobackfill_metrics_task extends \core\task\adhoc_task {
-
     /** @var array Enabled plugins */
     private array $plugins;
+
+    /** @var \tool_cloudmetrics\collector\base|null */
+    private ?\tool_cloudmetrics\collector\base $collector  = null;
 
     /**
      * Get task name
@@ -50,11 +53,19 @@ class autobackfill_metrics_task extends \core\task\adhoc_task {
             mtrace('No metrics to send at the moment');
             return;
         }
-        foreach ($this->plugins as $plugin) {
-            $collector = $plugin->get_collector();
-            if ($collector->supports_backfillable_metrics()) {
-                $collector->record_saved_metrics($metricclass, $metricitems);
-                mtrace(sprintf("Recorded %s '%s' metrics to %s", count($metricitems), $metricclass->get_name(), $plugin->name));
+        if (!empty($this->collector)) {
+            $this->collector->record_metrics($metricitems);
+            mtrace(sprintf("Recorded %s '%s' metrics", count($metricitems), $metricclass->get_name()));
+        } else {
+            foreach ($this->plugins as $plugin) {
+                $collector = $plugin->get_collector();
+                if ($collector->supports_backfillable_metrics()) {
+                    $collector->record_metrics($metricitems);
+                    if ($collector->is_readable()) {
+                        $collector->set_last_backfilled_frequency($metricclass->get_name(), $metricclass->get_frequency());
+                    }
+                    mtrace(sprintf("Recorded %s '%s' metrics to %s", count($metricitems), $metricclass->get_name(), $plugin->name));
+                }
             }
         }
     }
@@ -70,6 +81,28 @@ class autobackfill_metrics_task extends \core\task\adhoc_task {
         }
 
         $customdata = $this->get_custom_data();
+        $collector = null;
+        if (isset($customdata->collector)) {
+            $collector = manager::get_collector($customdata->collector);
+            if (!$collector->supports_backfillable_metrics()) {
+                mtrace('No backfillable collectors to send metrics to!');
+                return;
+            }
+            $this->collector = $collector;
+        } else {
+            $proceedwithbackfill = false;
+            foreach ($this->plugins as $plugin) {
+                $collector = $plugin->get_collector();
+                if ($collector->supports_backfillable_metrics()) {
+                    $proceedwithbackfill = true;
+                }
+            }
+            if (!$proceedwithbackfill) {
+                mtrace('No backfillable collectors to send metrics to!');
+                return;
+            }
+        }
+
         $nowts = time();
         $collectingperiod = $customdata->period ?? YEARSECS;
         $autobackfill = !isset($customdata->metric);
@@ -106,10 +139,13 @@ class autobackfill_metrics_task extends \core\task\adhoc_task {
             $finishtime = $nowts;
 
             // Check if data has already been backfilled.
-            [$backfillmin, $backfillmax, $backfillinterval] = $metrictype->get_range_retrieved();
-            if ($backfillinterval === $metrictype->get_frequency() && $backfillmin > 0) {
-                // If a backfill range exists for this frequency, we only need to backfill older data.
-                $finishtime = $backfillmin;
+            if ($collector && $collector->is_readable()) {
+                $range = $collector->get_metric_range($metrictype->get_name());
+                if (!is_null($range)) {
+                    // We only need to backfill further back than this time.
+                    // We subtract 1 because we don't want to include it.
+                    $finishtime = $range['mintime'] - 1;
+                }
             }
 
             if ($finishtime < $starttime) {
@@ -145,9 +181,9 @@ class autobackfill_metrics_task extends \core\task\adhoc_task {
                 $count = count($metrics);
             }
 
-            mtrace(sprintf('Generated %s %s metrics', $count,  $metrictype->get_name()));
+            mtrace(sprintf('Generated %s %s metrics', $count, $metrictype->get_name()));
             $total += $count;
         }
-        mtrace('Backfilled totally '.$total.' metrics');
+        mtrace('Backfilled totally ' . $total . ' metrics');
     }
 }

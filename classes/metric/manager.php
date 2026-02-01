@@ -102,6 +102,10 @@ class manager {
             'dailyusers' => new daily_users_metric(),
             'yearlyactiveusers' => new yearly_active_users_metric(),
         ];
+        if (defined('PHPUNIT_TEST')) {
+            // Add testing metrics to the list.
+            $metrics['foobar'] = new test_metric();
+        }
 
         // Find metrics from plugins.
         $more = get_plugins_with_function('metrics', 'lib.php');

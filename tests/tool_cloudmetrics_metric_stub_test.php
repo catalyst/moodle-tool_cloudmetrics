@@ -16,6 +16,8 @@
 
 namespace tool_cloudmetrics;
 
+use tool_cloudmetrics\metric\manager;
+
 defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ . "/metric_testcase.php"); // This is needed. File will not be automatically included.
@@ -27,10 +29,13 @@ require_once(__DIR__ . "/metric_testcase.php"); // This is needed. File will not
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @covers    \tool_cloudmetrics\metric_testcase
  */
-class tool_cloudmetrics_metric_stub_test extends metric_testcase {
-
-    public function test_get_stub() {
+final class tool_cloudmetrics_metric_stub_test extends metric_testcase {
+    /**
+     * Tests that the test metric stub works.
+     */
+    public function test_get_stub(): void {
         $stub = $this->get_metric_stub([1, 2, 3]);
 
         $time = 100;
@@ -52,5 +57,32 @@ class tool_cloudmetrics_metric_stub_test extends metric_testcase {
         $i = $stub->generate_metric_item(0, $time);
         $this->assertEquals(1, $i->value);
         $this->assertEquals($time, $i->time);
+    }
+
+    /**
+     * Tests that the backfillable test stub works.
+     */
+    public function test_get_backfillable_metric_stub(): void {
+        $cycle = [1, 2, 3];
+        $infinate = new \InfiniteIterator(new \ArrayIterator($cycle));
+        $infinate->rewind();
+
+        $frequency = manager::FREQ_MIN;
+        $stub = $this->get_backfillable_metric_stub($cycle, $frequency);
+        $start = 100;
+        $finish = 340;
+
+        $items = $stub->generate_metric_items($finish - $start, $finish, $frequency);
+
+        $time = $start;
+        foreach ($items as $item) {
+            $value = $infinate->current();
+            $infinate->next();
+
+            $this->assertEquals($value, $item->value);
+            $this->assertEquals($time, $item->time);
+            $time = lib::get_next_time($time, $frequency);
+        }
+        $this->assertGreaterThan($finish, $time);
     }
 }

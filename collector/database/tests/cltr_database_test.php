@@ -23,6 +23,7 @@ require_once(__DIR__ . "/../../../tests/metric_testcase.php"); // This is needed
 use tool_cloudmetrics\metric\manager;
 use tool_cloudmetrics\metric\online_users_metric;
 use tool_cloudmetrics\metric\active_users_metric;
+use tool_cloudmetrics\collector\manager as collectormanager;
 
 /**
  * Unit test for database collector
@@ -31,9 +32,9 @@ use tool_cloudmetrics\metric\active_users_metric;
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @covers    \cltr_database\collector
  */
-class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
-
+final class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
     /** @var int Hours in a day*/
     const DAYHOURS = 24;
 
@@ -48,6 +49,18 @@ class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
     }
 
     /**
+     * Test the basic properties of a database collector.
+     */
+    public function test_basic_properties(): void {
+        $collector = collectormanager::get_collector('database');
+        $this->assertEquals('cltr_database\\collector', $collector::class);
+
+        $this->assertTrue($collector->is_readable());
+        $this->assertTrue($collector->supports_backfillable_metrics());
+        $this->assertTrue($collector->is_auto_backfill());
+    }
+
+    /**
      * Test get_midnight_of.
      *
      * @dataProvider midnight_provider
@@ -55,7 +68,7 @@ class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
      * @param string $datestr
      * @param string  $expected   The expected result of the transformation
      */
-    public function test_midnight(string $datestr, string $expected) {
+    public function test_midnight(string $datestr, string $expected): void {
         $tz = \core_date::get_server_timezone_object();
         $time = lib::get_midnight_of($datestr, $tz);
         $expecteddate = new \DateTimeImmutable($expected, $tz);
@@ -69,7 +82,7 @@ class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
      *
      * @return \string[][]
      */
-    public function midnight_provider(): array {
+    public static function midnight_provider(): array {
         return [
             ['today -5 hours', 'yesterday'],
             ['today +20 hours', 'today'],
@@ -91,7 +104,7 @@ class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
      * @param string $datestr
      * @param string $expected
      */
-    public function test_midnight_timestamp(string $datestr, string $expected) {
+    public function test_midnight_timestamp(string $datestr, string $expected): void {
         $tz = \core_date::get_server_timezone_object();
         $ti = new \DateTimeImmutable($datestr, $tz);
         $ts = $ti->getTimestamp();
@@ -105,7 +118,7 @@ class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
      *
      * @covers \cltr_database\collector
      */
-    public function test_collector() {
+    public function test_collector(): void {
         global $DB;
 
         $stub = $this->get_metric_stub([1, 2, 3]);
@@ -155,64 +168,29 @@ class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
     }
 
     /**
-     * Test backfillable metric, here the 'active' metric.
+     * Test get_metric_range()
      *
-     * @covers \cltr_database\collector::record_saved_metrics
+     * @return void
+     * @throws \dml_exception
      */
-    public function test_backfillable_metric() {
-        global $DB;
-
-        $onlinemetric = new online_users_metric();
-        $activemetric = new active_users_metric();
+    public function test_get_metric_range(): void {
+        $stub = $this->get_metric_stub([1, 2, 3]);
         $collector = new collector();
 
-        $onlinebackfill = $onlinemetric->is_backfillable();
-        $activemetricbackfill = $activemetric->is_backfillable();
+        // Test nothing in database.
+        $range = $collector->get_metric_range('mock');
+        $this->assertNull($range);
 
-        $rec = $DB->get_records(lib::TABLE);
-        $this->assertEquals(0, count($rec));
-        $this->assertTrue($onlinebackfill);
-        $this->assertFalse($activemetricbackfill);
+        for ($time = 100; $time <= 200; $time += 10) {
+            $collector->record_metric($stub->generate_metric_item(0, $time));
+        }
 
-        // We did not fill logstore_standard_log db yet.
-        $collector->record_saved_metrics($onlinemetric, []);
-        $rec = $DB->get_records(lib::TABLE);
-        $this->assertEquals(0, count($rec));
-        $dataobjects = [];
-        $res = (1590580800 - 1590465600) / 100;
-        for ($i = 1590465600; $i < 1590580800; $i += $res) {
-            $dataobjects[] = [
-                'eventname' => '\core\event\user_created',
-                'component' => 'core',
-                'action' => 'loggedin',
-                'target' => 'user',
-                'crud' => 'r',
-                'edulevel' => 0,
-                'contextid' => 1,
-                'contextlevel' => 10,
-                'contextinstanceid' => 0,
-                'userid' => $i,
-                'anonymous' => 0,
-                'timecreated' => $i,
-            ];
-        }
-        set_config('enabled_stores', 'logstore_standard', 'tool_log');
-        $plugins = get_config('tool_log', 'enabled_stores');
-        $this->assertEquals('logstore_standard', $plugins);
-        $DB->insert_records('logstore_standard_log', $dataobjects);
-        $rec = $DB->get_records('logstore_standard_log');
-        $this->assertEquals(100, count($rec));
-        $metrics = iterator_to_array($onlinemetric->generate_metric_items(1590465600, 1590580800));
-        $collector->record_saved_metrics($onlinemetric, $metrics);
-        $rec = $DB->get_records(lib::TABLE);
-        $count = 0;
-        foreach ($rec as $r) {
-            $remainder = $r->time % 300;
-            $this->assertEquals($onlinemetric->get_name(), $r->name);
-            $this->assertEquals($remainder, 0);
-            $count++;
-        }
-        $this->assertEquals(381, $count);
+        // Test range values.
+        $range = $collector->get_metric_range('mock');
+        $this->assertTrue(isset($range['mintime']));
+        $this->assertTrue(isset($range['maxtime']));
+        $this->assertEquals(100, $range['mintime']);
+        $this->assertEquals(200, $range['maxtime']);
     }
 
     /**
@@ -227,7 +205,7 @@ class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
      * @param int $numexpected
      * @throws \dml_exception
      */
-    public function test_expiry(int $daysago, int $houradjustment, int $expiry, int $numrecords, int $numexpected) {
+    public function test_expiry(int $daysago, int $houradjustment, int $expiry, int $numrecords, int $numexpected): void {
         global $DB;
 
         $tz = \core_date::get_server_timezone_object();
@@ -275,7 +253,7 @@ class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
      *
      * @return array
      */
-    public function expiry_provider(): array {
+    public static function expiry_provider(): array {
         return [
             [20, 10, 10 * DAYSECS, 20, 10],
             [20, -2, 10 * DAYSECS, 20, 9],
@@ -291,7 +269,7 @@ class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
      * @param int $freq
      * @param int $expected
      */
-    public function test_period_from_interval(int $freq, int $expected) {
+    public function test_period_from_interval(int $freq, int $expected): void {
         $metric = new \tool_cloudmetrics\metric\online_users_metric();
         $metric->set_frequency($freq);
         $this->assertEquals($expected, lib::period_from_interval($metric));
@@ -302,7 +280,7 @@ class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
      *
      * @return array[]
      */
-    public function period_from_interval_provider(): array {
+    public static function period_from_interval_provider(): array {
         return [
             [ manager::FREQ_MIN, DAYSECS * 7],
             [ manager::FREQ_5MIN, DAYSECS * 7],
