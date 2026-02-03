@@ -16,12 +16,14 @@
 
 namespace tool_cloudmetrics;
 
+use tool_cloudmetrics\metric\manager;
+
 defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ . "/metric_testcase.php"); // This is needed. File will not be automatically included.
 
 /**
- * Basic test for collectors.
+ * Tests that the metric mock classes work.
  *
  * @package   tool_cloudmetrics
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
@@ -54,5 +56,33 @@ final class tool_cloudmetrics_metric_stub_test extends metric_testcase {
         $i = $stub->generate_metric_item(0, $time);
         $this->assertEquals(1, $i->value);
         $this->assertEquals($time, $i->time);
+    }
+
+    /**
+     * Tests that the backfillable test stub works.
+     */
+    public function test_get_backfillable_metric_stub(): void {
+        $cycle = [1, 2, 3];
+        $infinite = new \InfiniteIterator(new \ArrayIterator($cycle));
+        $infinite->rewind();
+
+        $frequency = manager::FREQ_MIN;
+        $stub = $this->get_backfillable_metric_stub($cycle, $frequency);
+        $backtime = 240;
+        $finish = time();
+        $start = $finish - $backtime;
+
+        $items = $stub->generate_metric_items($backtime, $finish, $frequency);
+
+        $time = $start;
+        foreach ($items as $item) {
+            $value = $infinite->current();
+            $infinite->next();
+
+            $this->assertEquals($value, $item->value);
+            $this->assertEquals($time, $item->time);
+            $time = lib::get_next_time($time, $frequency);
+        }
+        $this->assertGreaterThan($finish, $time);
     }
 }

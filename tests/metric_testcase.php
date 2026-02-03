@@ -18,6 +18,7 @@ namespace tool_cloudmetrics;
 
 use tool_cloudmetrics\metric\base;
 use tool_cloudmetrics\metric\metric_item;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * Intermediary class to provide metric stubs for use in testing.
@@ -59,6 +60,38 @@ class metric_testcase extends \advanced_testcase {
                 $infinate->next();
                 $item = new metric_item('mock', $finish, $value, $stub);
                 return $item;
+            });
+
+        return $stub;
+    }
+
+    /**
+     * Returns a test stub that does all of the above plus is able to give items from the past.
+     *
+     * @param array $cycle A cycle of values to be repeated infinitely.
+     * @param int $frequency A frequency value as defined in manager class.
+     * @param bool $isready Whether the mock object is available for use.
+     * @return MockObject
+     */
+    protected function get_backfillable_metric_stub(array $cycle, int $frequency, bool $isready = true): MockObject {
+        $stub = $this->get_metric_stub($cycle, $isready);
+
+        $stub->method('get_frequency')
+            ->willReturn($frequency);
+        $stub->method('is_backfillable')
+            ->willReturn(true);
+        $stub->method('is_autobackfill')
+            ->willReturn(true);
+
+        $stub->method('generate_metric_items')
+            ->willReturnCallback(function (int $backtime, ?int $finishtime) use ($stub, $frequency) {
+                $finishtime = $finishtime ?? time();
+                $start = time() - $backtime;
+                $items = [];
+                for ($time = $start; $time <= $finishtime; $time = lib::get_next_time($time, $frequency)) {
+                    $items[] = $stub->generate_metric_item(0, $time);
+                }
+                return new \ArrayIterator($items);
             });
 
         return $stub;
