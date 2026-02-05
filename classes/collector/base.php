@@ -84,4 +84,13 @@ abstract class base {
     public function is_auto_backfill(): bool {
         return false;
     }
+
+    /**
+     * Can we retrieve saved data and metadata from this collector?
+     *
+     * @return bool
+     */
+    public function is_readable(): bool {
+        return false;
+    }
 }

@@ -17,7 +17,7 @@
 namespace cltr_database;
 
 use tool_cloudmetrics\metric\metric_item;
-use tool_cloudmetrics\collector\base;
+use tool_cloudmetrics\collector\readable_base;
 use tool_cloudmetrics\metric;
 
 /**
@@ -28,7 +28,7 @@ use tool_cloudmetrics\metric;
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class collector extends base {
+class collector extends readable_base {
     /**
      * Records metric in cltr table.
      *
@@ -208,5 +208,45 @@ class collector extends base {
      */
     public function is_auto_backfill(): bool {
         return lib::get_metric_auto_backfill();
+    }
+
+    /**
+     * Gets the range of the currently stored metric data.
+     *
+     * @param string $metricname
+     * @return ?array An array of start and end, or null if no data is found.
+     */
+    public function get_metric_range(string $metricname): ?array {
+        global $DB;
+
+        $record = $DB->get_record('cltr_database_metrics', ['name' => $metricname], 'MIN(time) AS mintime, MAX(time) AS maxtime');
+        // Only need to test one, because they are either both null or both not null.
+        if ($record->mintime === null) {
+            return null;
+        }
+
+        return (array) $record;
+    }
+
+    /**
+     * Gets the last backfilled frequency set via set_last_backfilled_frequency.
+     * Note: This value does not necessarily reflect the actual frequency of the stored data.
+     *
+     * @param string $metricname
+     * @return int|false
+     */
+    public function get_last_backfilled_frequency(string $metricname): int|false {
+        return get_config('cltr_database', $metricname . '_lastfreq');
+    }
+
+    /**
+     * Sets the last backfilled frequency.
+     * Note: This value does not necessarily reflect the actual frequency of the stored data.
+     *
+     * @param string $metricname
+     * @param int $frequency
+     */
+    public function set_last_backfilled_frequency(string $metricname, int $frequency) {
+        set_config($metricname . '_lastfreq', $frequency, 'cltr_database');
     }
 }
