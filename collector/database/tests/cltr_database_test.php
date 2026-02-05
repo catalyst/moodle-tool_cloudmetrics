@@ -23,6 +23,7 @@ require_once(__DIR__ . "/../../../tests/metric_testcase.php"); // This is needed
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversMethod;
 use PHPUnit\Framework\Attributes\DataProvider;
+use tool_cloudmetrics\collector\manager as collectormanager;
 use tool_cloudmetrics\metric\manager;
 use tool_cloudmetrics\metric\online_users_metric;
 use tool_cloudmetrics\metric\active_users_metric;
@@ -54,6 +55,22 @@ final class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
         $DB->delete_records(lib::TABLE);
         parent::setUp();
         $this->resetAfterTest();
+    }
+
+    /**
+     * Test the basic properties of a database collector.
+     */
+    public function test_basic_properties(): void {
+        $collector = collectormanager::get_collector('database');
+        $this->assertEquals('cltr_database\\collector', $collector::class);
+
+        $this->assertTrue($collector->is_readable());
+        $this->assertTrue($collector->supports_backfillable_metrics());
+        $this->assertTrue($collector->is_auto_backfill());
+
+        $this->assertFalse($collector->get_last_backfilled_frequency('foobar'));
+        $collector->set_last_backfilled_frequency('foobar', manager::FREQ_5MIN);
+        $this->assertEquals(manager::FREQ_5MIN, $collector->get_last_backfilled_frequency('foobar'));
     }
 
     /**
@@ -158,6 +175,29 @@ final class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
         $this->assertEquals('2', $rec[1]->value);
         $this->assertEquals('3', $rec[2]->value);
         $this->assertEquals('1', $rec[3]->value);
+    }
+
+    /**
+     * Test get_metric_range()
+     */
+    public function test_get_metric_range(): void {
+        $stub = $this->get_metric_stub([1, 2, 3]);
+        $collector = new collector();
+
+        // Test empty database.
+        $range = $collector->get_metric_range('mock');
+        $this->assertNull($range);
+
+        for ($time = 100; $time <= 200; $time += 10) {
+            $collector->record_metric($stub->generate_metric_item(0, $time));
+        }
+
+        // Test range values.
+        $range = $collector->get_metric_range('mock');
+        $this->assertTrue(isset($range['mintime']));
+        $this->assertTrue(isset($range['maxtime']));
+        $this->assertEquals(100, $range['mintime']);
+        $this->assertEquals(200, $range['maxtime']);
     }
 
     /**
