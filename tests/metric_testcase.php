@@ -18,6 +18,7 @@ namespace tool_cloudmetrics;
 
 use tool_cloudmetrics\metric\base;
 use tool_cloudmetrics\metric\metric_item;
+use \PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * Intermediary class to provide metric stubs for use in testing.
@@ -34,9 +35,9 @@ class metric_testcase extends \advanced_testcase {
      *
      * @param array $cycle
      * @param bool $isready
-     * @return mixed|\PHPUnit\Framework\MockObject\MockObject|base
+     * @return MockObject
      */
-    protected function get_metric_stub(array $cycle, bool $isready = true) {
+    protected function get_metric_stub(array $cycle, bool $isready = true): MockObject {
         $infinate = new \InfiniteIterator(new \ArrayIterator($cycle));
         $infinate->rewind();
 
