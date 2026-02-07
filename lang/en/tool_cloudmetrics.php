@@ -82,7 +82,7 @@ $string['yearlyactiveusers_desc'] = 'Users that have been active within the past
 $string['data_empty'] = 'Your database for this metric is empty.';
 $string['data_in_db'] = 'Your database contains data from {$a->dbstart} to {$a->dbend}.';
 $string['data_period'] = 'Current information shows data can be retrieved from {$a->startdate} to {$a->enddate}.';
-$string['different_freq'] = 'Caution - frequency has been changed, new data will complete currently present but no data will be added between
+$string['different_freq'] = 'Caution - Current frequency is different from the last backfill. New data will complete currently present but no data will be added between
 {$a->backfilledfrom} and {$a->backfilledto}.';
 $string['period_select'] = 'Select period to retrieve data from: ';
 $string['return_to_backfill'] = 'Backfill {$a} period';
