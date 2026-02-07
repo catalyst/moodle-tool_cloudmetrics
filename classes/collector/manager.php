@@ -76,7 +76,7 @@ class manager {
         foreach ($plugins as $plugin) {
             $collector = $plugin->get_collector();
 
-            // If the status is empty then we don't know. If it it positive then
+            // If the status is empty then we don't know. If it is positive then
             // it is a timestamp of when it originally failed. If it is negative
             // then it is a timestamp of when it originally worked.
             $key = self::STATUS_PREFIX . $plugin->name;
