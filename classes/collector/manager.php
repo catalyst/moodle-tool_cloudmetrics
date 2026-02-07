@@ -16,7 +16,8 @@
 
 namespace tool_cloudmetrics\collector;
 
-use tool_cloudmetrics\metric\metric_item;
+use core\exception\moodle_exception;
+use tool_cloudmetrics\collector\base as collectorbase;
 use tool_cloudmetrics\plugininfo\cltr;
 
 /**
@@ -38,6 +39,21 @@ class manager {
      */
     public static function get_collector_classes(): array {
         return \core_component::get_plugin_list_with_class('cltr', 'collector');
+    }
+
+    /**
+     * Get an instance of a collector.
+     *
+     * @param string $name
+     * @return collectorbase
+     * @throws moodle_exception Thrown if collector is not installed.
+     */
+    public static function get_collector(string $name): collectorbase {
+        $classname = '\\cltr_' . $name . '\collector';
+        if (!class_exists($classname)) {
+            throw new moodle_exception('Class ' . $classname . ' does not exist');
+        }
+        return new $classname();
     }
 
     /**
