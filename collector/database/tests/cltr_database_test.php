@@ -38,7 +38,6 @@ use tool_cloudmetrics\metric\active_users_metric;
  */
 #[
     CoversClass(\cltr_database\collector::class),
-    CoversMethod(\cltr_database\collector::class, 'record_saved_metrics'),
     CoversMethod(\cltr_database\lib::class, 'get_midnight_of'),
     CoversMethod(\cltr_database\lib::class, 'period_from_interval'),
     CoversClass(\cltr_database\task\metrics_cleanup_task::class),
@@ -198,66 +197,6 @@ final class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
         $this->assertTrue(isset($range['maxtime']));
         $this->assertEquals(100, $range['mintime']);
         $this->assertEquals(200, $range['maxtime']);
-    }
-
-    /**
-     * Test backfillable metric, here the 'active' metric.
-     *
-     */
-    public function test_backfillable_metric() {
-        global $DB;
-
-        $onlinemetric = new online_users_metric();
-        $activemetric = new active_users_metric();
-        $collector = new collector();
-
-        $onlinebackfill = $onlinemetric->is_backfillable();
-        $activemetricbackfill = $activemetric->is_backfillable();
-
-        $rec = $DB->get_records(lib::TABLE);
-        $this->assertEquals(0, count($rec));
-        $this->assertTrue($onlinebackfill);
-        $this->assertFalse($activemetricbackfill);
-
-        // We did not fill logstore_standard_log db yet.
-        $collector->record_saved_metrics($onlinemetric, []);
-        $rec = $DB->get_records(lib::TABLE);
-        $this->assertEquals(0, count($rec));
-        $dataobjects = [];
-        $res = (1590580800 - 1590465600) / 100;
-        for ($i = 1590465600; $i < 1590580800; $i += $res) {
-            $dataobjects[] = [
-                'eventname' => '\core\event\user_created',
-                'component' => 'core',
-                'action' => 'loggedin',
-                'target' => 'user',
-                'crud' => 'r',
-                'edulevel' => 0,
-                'contextid' => 1,
-                'contextlevel' => 10,
-                'contextinstanceid' => 0,
-                'userid' => $i,
-                'anonymous' => 0,
-                'timecreated' => $i,
-            ];
-        }
-        set_config('enabled_stores', 'logstore_standard', 'tool_log');
-        $plugins = get_config('tool_log', 'enabled_stores');
-        $this->assertEquals('logstore_standard', $plugins);
-        $DB->insert_records('logstore_standard_log', $dataobjects);
-        $rec = $DB->get_records('logstore_standard_log');
-        $this->assertEquals(100, count($rec));
-        $metrics = iterator_to_array($onlinemetric->generate_metric_items(1590465600, 1590580800));
-        $collector->record_saved_metrics($onlinemetric, $metrics);
-        $rec = $DB->get_records(lib::TABLE);
-        $count = 0;
-        foreach ($rec as $r) {
-            $remainder = $r->time % 300;
-            $this->assertEquals($onlinemetric->get_name(), $r->name);
-            $this->assertEquals($remainder, 0);
-            $count++;
-        }
-        $this->assertEquals(381, $count);
     }
 
     /**

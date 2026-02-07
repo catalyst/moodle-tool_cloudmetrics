@@ -172,28 +172,6 @@ class collector extends readable_base {
     }
 
     /**
-     * Records retrieved data in collector.
-     *
-     * @param \tool_cloudmetrics\metric\base $metricclass Class representing metric.
-     * @param array $metricitems Array of metric items.
-     * @param \progress_bar|null $progress
-     */
-    public function record_saved_metrics(
-        \tool_cloudmetrics\metric\base $metricclass,
-        array $metricitems = [],
-        ?\progress_bar $progress = null
-    ) {
-        global $DB;
-        $transaction = $DB->start_delegated_transaction();
-        if (count($metricitems) != 0 && !$metricclass->sameconfig) {
-            $this->record_metrics($metricitems, $progress);
-        }
-        $transaction->allow_commit();
-        // Sets what data has been sent to collector.
-        $metricclass->set_data_sent_config();
-    }
-
-    /**
      * Abilitity for a collector to retrieve old data.
      *
      * @return bool

@@ -139,30 +139,6 @@ abstract class base {
     }
 
     /**
-     * The range for which a backfilled metric has retrieved data.
-     *
-     * @return array|bool First value is min timestamp, second is max timestamp, third is used interval.
-     * @throws \dml_exception
-     */
-    public function get_range_retrieved() {
-        $config = explode('-', get_config('tool_cloudmetrics', $this->get_name() . '_range'));
-        if (count($config) !== 3) {
-            return [-1, -1, -1];
-        }
-        return [(int)$config[0], (int)$config[1], (int)$config[2]];
-    }
-
-    /**
-     * Sets the range for which a backfilled metric has retrieved data.
-     *
-     * @param array $currentconfig Config containing min and max timestamps plus interval.
-     */
-    public function set_range_retrieved(array $currentconfig) {
-        $currentconfig = implode('-', $currentconfig);
-        set_config($this->get_name() . '_range', $currentconfig, 'tool_cloudmetrics');
-    }
-
-    /**
      * The latest time for which a metric item was generated for.
      *
      * @return int

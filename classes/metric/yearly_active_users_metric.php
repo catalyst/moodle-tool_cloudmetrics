@@ -28,18 +28,6 @@ use tool_cloudmetrics\lib;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class yearly_active_users_metric extends builtin_user_base {
-    /** @var int The interval config for which data is displayed in seconds (eg: 5 minutes = 300). */
-    public $interval;
-
-    /** @var int The minimal timestamp representing earliest date retrieved in DB. */
-    public $mintimestamp;
-
-    /** @var int The maximal timestamp representing latest date retrieved in DB. */
-    public $maxtimestamp;
-
-    /** @var bool True if config used is same as one requested. */
-    public $sameconfig;
-
     /**
      * The metric's name.
      *
@@ -157,9 +145,6 @@ class yearly_active_users_metric extends builtin_user_base {
             return new \EmptyIterator();
         }
 
-        $this->maxtimestamp = $finishtime;
-        $this->interval = $frequency;
-
         $sql = "SELECT COUNT(DISTINCT userid)
                   FROM {logstore_standard_log}
                  WHERE timecreated >= :from
@@ -177,7 +162,6 @@ class yearly_active_users_metric extends builtin_user_base {
                 $sql,
                 ['from' => $lastyear, 'to' => $time]
             );
-            $this->mintimestamp = $time;
             yield new metric_item($this->get_name(), $time, $activeusers, $this);
             $time -= $interval;
             $count++;
@@ -188,20 +172,6 @@ class yearly_active_users_metric extends builtin_user_base {
                     get_string('backfillgenerating', 'tool_cloudmetrics', $this->get_label())
                 );
             }
-        }
-    }
-
-    /**
-     * Stores what data has been sent to collector.
-     *
-     */
-    public function set_data_sent_config(): void {
-        // Store what data has been sent min, max timestamp range and interval.
-        $currentconfig = [$this->mintimestamp, $this->maxtimestamp, $this->interval];
-        $rangeretrieved = $this->get_range_retrieved();
-        $this->sameconfig = ($rangeretrieved === $currentconfig);
-        if (!$this->sameconfig && isset($this->mintimestamp) && isset($this->maxtimestamp) && isset($this->interval)) {
-            $this->set_range_retrieved($currentconfig);
         }
     }
 }
