@@ -49,6 +49,21 @@ class collector extends readable_base {
     }
 
     /**
+     * Records a number of metrics.
+     *
+     * @param array $metrics
+     * @param ?\progress_bar $progress
+     */
+    public function record_metrics(array $metrics, ?\progress_bar $progress = null) {
+        global $DB;
+        if (count($metrics) !== 0) {
+            $transaction = $DB->start_delegated_transaction();
+            parent::record_metrics($metrics, $progress);
+            $transaction->allow_commit();
+        }
+    }
+
+    /**
      * Deletes every metric from cltr table for a given metric name.
      *
      * @param string $metricname Metric name to remove.
