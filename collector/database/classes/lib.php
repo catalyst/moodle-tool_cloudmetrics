@@ -52,7 +52,7 @@ class lib {
     }
 
     /**
-     * Returns the midnight time of whatever date string is porvided.
+     * Returns the midnight time of whatever date string is provided.
      *
      * In PHP, when processing a date string, the 'midnight' clause is processed before any =/- relative amounts.
      * So the string '+5hour midnight' is the same as 'midnight +5hours'.
