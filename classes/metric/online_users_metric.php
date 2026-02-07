@@ -28,18 +28,6 @@ class online_users_metric extends builtin_user_base {
     /** @var string The DB field the metric accesses. */
     protected $dbfield = 'lastaccess';
 
-    /** @var int The interval config for which data is displayed in seconds (eg: 5 minutes = 300). */
-    public $interval;
-
-    /** @var int The minimal timestamp representing earliest date retrieved in DB. */
-    public $mintimestamp;
-
-    /** @var int The maximal timestamp representing latest date retrieved in DB. */
-    public $maxtimestamp;
-
-    /** @var bool True if config used is same as one requested. */
-    public $sameconfig;
-
     /**
      * The metric's name.
      *
@@ -86,7 +74,6 @@ class online_users_metric extends builtin_user_base {
         // Allows data to be completed instead of retrieving all data again unless frequency change.
         $finishtime = $finishtime ?? time();
         $frequency = $this->get_frequency();
-        [$mintmptmp, $maxtmpstmp, $freqretrieved] = $this->get_range_retrieved();
 
         if ($finishtime < $starttime) {
             return new \EmptyIterator();
@@ -122,17 +109,16 @@ class online_users_metric extends builtin_user_base {
             ['interval' => $interval, 'intervaldup' => $interval, 'starttime' => $starttime, 'finishtime' => $finishtime]
         );
 
-        $this->interval = $frequency;
         $count = 0;
         foreach ($rs as $r) {
             $time = (int)$r->time;
-            if (!isset($this->maxtimestamp)) {
-                $this->maxtimestamp = $time;
+            if (!isset($maxtimestamp)) {
+                $maxtimestamp = $time;
             }
 
-            if (isset($this->mintimestamp) && $this->mintimestamp - $interval !== $time) {
+            if (isset($mintimestamp) && $mintimestamp - $interval !== $time) {
                 // Code to add times where no user have been concurrently active.
-                for ($i = $this->mintimestamp - $interval; $i >= $time; $i -= $interval) {
+                for ($i = $mintimestamp - $interval; $i >= $time; $i -= $interval) {
                     if ($i === $time) {
                         yield new metric_item($this->get_name(), $time, $r->value, $this);
                     } else {
@@ -151,22 +137,8 @@ class online_users_metric extends builtin_user_base {
                 );
             }
             $count++;
-            $this->mintimestamp = $time;
+            $mintimestamp = $time;
         }
         $rs->close();
-    }
-
-    /**
-     * Stores what data has been sent to collector.
-     *
-     */
-    public function set_data_sent_config() {
-        // Store what data has been sent min, max timestamp range and interval.
-        $currentconfig = [$this->mintimestamp, $this->maxtimestamp, $this->interval];
-        $rangeretrieved = $this->get_range_retrieved();
-        $this->sameconfig = ($rangeretrieved === $currentconfig);
-        if (!$this->sameconfig && isset($this->mintimestamp) && isset($this->maxtimestamp) && isset($this->interval)) {
-            $this->set_range_retrieved($currentconfig);
-        }
     }
 }
