@@ -69,30 +69,39 @@ $periods = [
     YEARSECS * 2  => get_string('two_year', 'tool_cloudmetrics'),
 ];
 
-// Gets already saved data range and interval.
-[$mintmptmp, $maxtmpstmp, $freqretrieved] = $metrics[$metricname]->get_range_retrieved();
-if ($mintmptmp != -1) {
-    $backfilledfrom = userdate($mintmptmp, get_string('strftimedatetime', 'cltr_database'), $CFG->timezone);
-    $backfilledto = userdate($maxtmpstmp, get_string('strftimedatetime', 'cltr_database'), $CFG->timezone);
-    $backfilledinterval = (int)$freqretrieved;
-    if ($backfilledinterval !== $metrics[$metricname]->get_frequency()) {
-        $isdifferentfreq = true;
-        $context['cautiondata'] = get_string(
-            'different_freq',
+if ($collector->is_readable()) {
+    // Get some information about existing data.
+    $range = $collector->get_metric_range($metricname);
+    $freqretrieved = $collector->get_last_backfilled_frequency($metricname);
+    if (!empty($range)) {
+        ['mintime' => $mintmptmp, 'maxtime' => $maxtmpstmp] = $range;
+        $backfilledfrom = userdate($mintmptmp, get_string('strftimedatetime', 'cltr_database'), $CFG->timezone);
+        $backfilledto = userdate($maxtmpstmp, get_string('strftimedatetime', 'cltr_database'), $CFG->timezone);
+        $backfilledinterval = (int)$freqretrieved;
+
+        // Add a comment about different frequencies.
+        if ($backfilledinterval !== $metrics[$metricname]->get_frequency()) {
+            $isdifferentfreq = true;
+            $context['cautiondata'] = get_string(
+                'different_freq',
+                'tool_cloudmetrics',
+                ['backfilledfrom' => $backfilledfrom, 'backfilledto' => $backfilledto]
+            );
+        } else {
+            $isdifferentfreq = false;
+        }
+
+        // Add a comment about available data.
+        $context['dataindb'] = get_string(
+            'data_in_db',
             'tool_cloudmetrics',
-            ['backfilledfrom' => $backfilledfrom, 'backfilledto' => $backfilledto]
+            ['dbstart' => $backfilledfrom, 'dbend' => $backfilledto]
         );
     } else {
-        $isdifferentfreq = false;
+        $emptydb = get_string('data_empty', 'tool_cloudmetrics');
     }
-    $context['dataindb'] = get_string(
-        'data_in_db',
-        'tool_cloudmetrics',
-        ['dbstart' => $backfilledfrom, 'dbend' => $backfilledto]
-    );
-} else {
-    $emptydb = get_string('data_empty', 'tool_cloudmetrics');
 }
+
 // Gets available data to backfill.
 $daterange = $metrics[$metricname]->get_range_log_available();
 $startdate = userdate($daterange->min, get_string('strftimedatetime', 'cltr_database'), $CFG->timezone);
@@ -117,6 +126,7 @@ if ($fromform = $mform->get_data()) {
     $backfilltask->set_custom_data([
         'metric' => $metricname,
         'period' => $fromform->periodretrieval,
+        'collector' => 'database',
     ]);
     \core\task\manager::queue_adhoc_task($backfilltask, true);
 
