@@ -182,7 +182,7 @@ abstract class base {
      *
      * @return bool
      */
-    public function is_autobackfill() {
+    public function is_autobackfill(): bool {
         return false;
     }
 
