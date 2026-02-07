@@ -22,7 +22,7 @@ use tool_cloudmetrics\metric\metric_item;
 /**
  * Base class for collectors that can read the stored metrics and other metadata.
  *
- * @package   cltr_database
+ * @package   tool_cloudmetrics
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
