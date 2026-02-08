@@ -18,7 +18,7 @@ namespace tool_cloudmetrics;
 
 use tool_cloudmetrics\metric\base;
 use tool_cloudmetrics\metric\metric_item;
-use \PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * Intermediary class to provide metric stubs for use in testing.
