@@ -29,6 +29,7 @@ require_once(__DIR__ . "/metric_testcase.php"); // This is needed. File will not
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @covers    \tool_cloudmetrics\metric_testcase
  */
 final class tool_cloudmetrics_metric_stub_test extends metric_testcase {
     /**
