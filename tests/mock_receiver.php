@@ -14,17 +14,24 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace tool_cloudmetrics;
+
 /**
- * Version
+ * A class to help test the collect metrics task.
  *
- * @package   cltr_database
- * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
- * @copyright  2022, Catalyst IT
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * This class is mocked to be able to test against the names of the metrics that have been selected for measurement.
+ *
+ * @package tool_cloudmetrics
+ * @author Jason den Dulk <jasondendulk@catalyst-au.net>
+ * @copyright 2026 Catalyst IT
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-defined('MOODLE_INTERNAL') || die();
-
-$plugin->version = 2022083000;
-$plugin->requires = 2017051500;    // Our lowest supported Moodle (3.3.0).
-$plugin->component = 'cltr_database';
+class mock_receiver {
+    /**
+     * Receive names
+     *
+     * @param array $names
+     */
+    public function receive(array $names) {
+    }
+}

@@ -27,7 +27,6 @@ use tool_cloudmetrics\metric\metric_item;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class test_collector extends base {
-
     /**
      * Record the metric
      *
@@ -36,6 +35,7 @@ class test_collector extends base {
     public function record_metric(metric_item $item) {
         echo "metric: $item->name, $item->time, $item->value\n";
     }
+
     /**
      *  Is the metric ready
      *
@@ -45,4 +45,3 @@ class test_collector extends base {
         return true;
     }
 }
-

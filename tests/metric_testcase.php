@@ -28,7 +28,6 @@ use tool_cloudmetrics\metric\metric_item;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class metric_testcase extends \advanced_testcase {
-
     /**
      * Returns a test stub for a metric that gives items, cycling through
      * the array of values, repeating when it gets to the end.
@@ -55,7 +54,7 @@ class metric_testcase extends \advanced_testcase {
             ->willReturn($isready);
 
         $stub->method('generate_metric_item')
-            ->willReturnCallback(function($start, $finish) use ($stub, $infinate) {
+            ->willReturnCallback(function ($start, $finish) use ($stub, $infinate) {
                 $value = $infinate->current();
                 $infinate->next();
                 $item = new metric_item('mock', $finish, $value, $stub);

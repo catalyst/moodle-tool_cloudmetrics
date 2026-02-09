@@ -26,7 +26,6 @@ use tool_cloudmetrics\metric\online_users_metric;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 final class tool_cloudmetrics_online_users_metric_test extends \advanced_testcase {
-
     /**
      * Set up before each test
      */

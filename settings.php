@@ -40,21 +40,24 @@ if ($hassiteconfig) {
     $ADMIN->add('tool_cloudmetrics_reports', $settings);
 
     if ($ADMIN->fulltree) {
-        $settings->add(new admin_setting_heading('tool_cloudmetrics/collectors',
+        $settings->add(new admin_setting_heading(
+            'tool_cloudmetrics/collectors',
             get_string('manage_collectors', 'tool_cloudmetrics'),
             get_string('enable_disable_collectors', 'tool_cloudmetrics')
         ));
 
         $settings->add(new admin_setting_manage_collectors());
 
-        $settings->add(new admin_setting_heading('tool_cloudmetrics/metrics',
+        $settings->add(new admin_setting_heading(
+            'tool_cloudmetrics/metrics',
             get_string('manage_metrics', 'tool_cloudmetrics'),
             get_string('enable_disable_metrics', 'tool_cloudmetrics')
         ));
 
         $settings->add(new admin_setting_manage_metrics());
 
-        $settings->add(new admin_setting_heading('tool_cloudmetrics/builtin_metrics',
+        $settings->add(new admin_setting_heading(
+            'tool_cloudmetrics/builtin_metrics',
             get_string('builtin_metrics_settings', 'tool_cloudmetrics'),
             ''
         ));
