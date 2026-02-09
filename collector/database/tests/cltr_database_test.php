@@ -172,6 +172,8 @@ final class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
 
     /**
      * Test get_metric_range()
+     *
+     * @covers \cltr_database\collector::get_metric_range
      */
     public function test_get_metric_range(): void {
         $stub = $this->get_metric_stub([1, 2, 3]);
