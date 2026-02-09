@@ -24,15 +24,14 @@ namespace tool_cloudmetrics;
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class tool_cloudmetrics_lib_test  extends \advanced_testcase {
-
+final class tool_cloudmetrics_lib_test extends \advanced_testcase {
     /**
      * Tests cltr::get_enabled_plugins() that should return
      * the plugin names as $pluginname => $pluginname.
      *
      * @throws \Exception
      */
-    public function test_get_enabled_plugins() {
+    public function test_get_enabled_plugins(): void {
         $pluginnames = \core_plugin_manager::instance()->get_enabled_plugins('cltr');
         // Not all versions support assertIsArray(), use assertTrue() instead.
         $this->assertTrue(is_array($pluginnames));
@@ -55,7 +54,7 @@ class tool_cloudmetrics_lib_test  extends \advanced_testcase {
      *
      * @throws \Exception
      */
-    public function test_get_enabled_plugin_instances() {
+    public function test_get_enabled_plugin_instances(): void {
         $plugins = plugininfo\cltr::get_enabled_plugin_instances();
         // Not all versions support assertIsArray(), use assertTrue() instead.
         $this->assertTrue(is_array($plugins));
@@ -76,7 +75,7 @@ class tool_cloudmetrics_lib_test  extends \advanced_testcase {
      * @param string $expected
      * @throws \Exception
      */
-    public function test_get_previous_time(string $ref, int $freq, string $expected) {
+    public function test_get_previous_time(string $ref, int $freq, string $expected): void {
         $tz = \core_date::get_server_timezone_object();
 
         $this->assertEquals(
@@ -90,18 +89,18 @@ class tool_cloudmetrics_lib_test  extends \advanced_testcase {
      *
      * @return array[]
      */
-    public function data_for_get_previous_time(): array {
+    public static function data_for_get_previous_time(): array {
         return [
-            ['10:05',  metric\manager::FREQ_MIN, '10:04'],
-            ['10:07',  metric\manager::FREQ_5MIN, '10:02'],
-            ['10:27',  metric\manager::FREQ_15MIN, '10:12'],
-            ['10:07',  metric\manager::FREQ_30MIN, '09:37'],
-            ['10:12',  metric\manager::FREQ_HOUR, '09:12'],
-            ['10:07',  metric\manager::FREQ_3HOUR, '07:07'],
-            ['2020-01-02T10:12:00',  metric\manager::FREQ_12HOUR, '2020-01-01T22:12:00'],
-            ['2020-01-02T10:12:00',  metric\manager::FREQ_DAY, '2020-01-01T10:12:00'],
-            ['2020-01-02T10:12:00',  metric\manager::FREQ_WEEK, '2019-12-26T10:12:00'],
-            ['2020-01-01T10:12:00',  metric\manager::FREQ_MONTH, '2019-12-01T10:12:00'],
+            ['10:05', metric\manager::FREQ_MIN, '10:04'],
+            ['10:07', metric\manager::FREQ_5MIN, '10:02'],
+            ['10:27', metric\manager::FREQ_15MIN, '10:12'],
+            ['10:07', metric\manager::FREQ_30MIN, '09:37'],
+            ['10:12', metric\manager::FREQ_HOUR, '09:12'],
+            ['10:07', metric\manager::FREQ_3HOUR, '07:07'],
+            ['2020-01-02T10:12:00', metric\manager::FREQ_12HOUR, '2020-01-01T22:12:00'],
+            ['2020-01-02T10:12:00', metric\manager::FREQ_DAY, '2020-01-01T10:12:00'],
+            ['2020-01-02T10:12:00', metric\manager::FREQ_WEEK, '2019-12-26T10:12:00'],
+            ['2020-01-01T10:12:00', metric\manager::FREQ_MONTH, '2019-12-01T10:12:00'],
         ];
     }
 
@@ -114,7 +113,7 @@ class tool_cloudmetrics_lib_test  extends \advanced_testcase {
      * @param string $expected
      * @throws \Exception
      */
-    public function test_get_next_time(string $ref, int $freq, string $expected) {
+    public function test_get_next_time(string $ref, int $freq, string $expected): void {
         $tz = \core_date::get_server_timezone_object();
 
         $this->assertEquals(
@@ -128,18 +127,18 @@ class tool_cloudmetrics_lib_test  extends \advanced_testcase {
      *
      * @return array[]
      */
-    public function data_for_get_next_time(): array {
+    public static function data_for_get_next_time(): array {
         return [
-            ['10:05',  metric\manager::FREQ_MIN, '10:06'],
-            ['10:07',  metric\manager::FREQ_5MIN, '10:12'],
-            ['10:27',  metric\manager::FREQ_15MIN, '10:42'],
-            ['10:07',  metric\manager::FREQ_30MIN, '10:37'],
-            ['10:12',  metric\manager::FREQ_HOUR, '11:12'],
-            ['10:07',  metric\manager::FREQ_3HOUR, '13:07'],
-            ['2020-01-02T10:12:00',  metric\manager::FREQ_12HOUR, '2020-01-02T22:12:00'],
-            ['2020-01-02T10:12:00',  metric\manager::FREQ_DAY, '2020-01-03T10:12:00'],
-            ['2020-01-02T10:12:00',  metric\manager::FREQ_WEEK, '2020-01-09T10:12:00'],
-            ['2020-01-01T10:12:00',  metric\manager::FREQ_MONTH, '2020-02-01T10:12:00'],
+            ['10:05', metric\manager::FREQ_MIN, '10:06'],
+            ['10:07', metric\manager::FREQ_5MIN, '10:12'],
+            ['10:27', metric\manager::FREQ_15MIN, '10:42'],
+            ['10:07', metric\manager::FREQ_30MIN, '10:37'],
+            ['10:12', metric\manager::FREQ_HOUR, '11:12'],
+            ['10:07', metric\manager::FREQ_3HOUR, '13:07'],
+            ['2020-01-02T10:12:00', metric\manager::FREQ_12HOUR, '2020-01-02T22:12:00'],
+            ['2020-01-02T10:12:00', metric\manager::FREQ_DAY, '2020-01-03T10:12:00'],
+            ['2020-01-02T10:12:00', metric\manager::FREQ_WEEK, '2020-01-09T10:12:00'],
+            ['2020-01-01T10:12:00', metric\manager::FREQ_MONTH, '2020-02-01T10:12:00'],
         ];
     }
 
@@ -152,7 +151,7 @@ class tool_cloudmetrics_lib_test  extends \advanced_testcase {
      * @param string $expected
      * @throws \Exception
      */
-    public function test_get_last_whole_tick(string $ref, int $freq, string $expected) {
+    public function test_get_last_whole_tick(string $ref, int $freq, string $expected): void {
         $tz = \core_date::get_server_timezone_object();
 
         $this->assertEquals(
@@ -166,21 +165,21 @@ class tool_cloudmetrics_lib_test  extends \advanced_testcase {
      *
      * @return array[]
      */
-    public function data_for_get_last_whole_tick(): array {
+    public static function data_for_get_last_whole_tick(): array {
         return [
-            ['10:06',  metric\manager::FREQ_MIN, '10:06'],
-            ['10:07',  metric\manager::FREQ_5MIN, '10:05'],
-            ['10:27',  metric\manager::FREQ_15MIN, '10:15'],
-            ['10:07',  metric\manager::FREQ_30MIN, '10:00'],
-            ['10:55',  metric\manager::FREQ_30MIN, '10:30'],
-            ['10:12',  metric\manager::FREQ_HOUR, '10:00'],
-            ['10:07',  metric\manager::FREQ_3HOUR, '09:00'],
-            ['2020-01-02T10:12:00',  metric\manager::FREQ_12HOUR, '2020-01-02T00:00:00'],
-            ['2020-01-02T23:12:00',  metric\manager::FREQ_12HOUR, '2020-01-02T12:00:00'],
-            ['2020-01-02T10:12:00',  metric\manager::FREQ_DAY, '2020-01-02T00:00:00'],
-            ['2020-01-02T10:12:00',  metric\manager::FREQ_WEEK, '2019-12-29T00:00:00'],
-            ['2020-01-04T10:12:00',  metric\manager::FREQ_WEEK, '2019-12-29T00:00:00'],
-            ['2020-01-16T10:12:00',  metric\manager::FREQ_MONTH, '2020-01-01T00:00:00'],
+            ['10:06', metric\manager::FREQ_MIN, '10:06'],
+            ['10:07', metric\manager::FREQ_5MIN, '10:05'],
+            ['10:27', metric\manager::FREQ_15MIN, '10:15'],
+            ['10:07', metric\manager::FREQ_30MIN, '10:00'],
+            ['10:55', metric\manager::FREQ_30MIN, '10:30'],
+            ['10:12', metric\manager::FREQ_HOUR, '10:00'],
+            ['10:07', metric\manager::FREQ_3HOUR, '09:00'],
+            ['2020-01-02T10:12:00', metric\manager::FREQ_12HOUR, '2020-01-02T00:00:00'],
+            ['2020-01-02T23:12:00', metric\manager::FREQ_12HOUR, '2020-01-02T12:00:00'],
+            ['2020-01-02T10:12:00', metric\manager::FREQ_DAY, '2020-01-02T00:00:00'],
+            ['2020-01-02T10:12:00', metric\manager::FREQ_WEEK, '2019-12-29T00:00:00'],
+            ['2020-01-04T10:12:00', metric\manager::FREQ_WEEK, '2019-12-29T00:00:00'],
+            ['2020-01-16T10:12:00', metric\manager::FREQ_MONTH, '2020-01-01T00:00:00'],
         ];
     }
 }

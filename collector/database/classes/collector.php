@@ -86,7 +86,7 @@ class collector extends base {
         if ($since) {
             $starting = " AND time > " . (time() - $since);
         }
-        list ($clause, $params) = $DB->get_in_or_equal($metricnames);
+        [$clause, $params] = $DB->get_in_or_equal($metricnames);
         $sql = "SELECT id, name, date, time, value
                   FROM {cltr_database_metrics}
                  WHERE name $clause
@@ -129,7 +129,7 @@ class collector extends base {
         } else {
             $incrementstart = "FLOOR(time/$aggregate) * $aggregate AS increment_start";
         }
-        list ($clause, $params) = $DB->get_in_or_equal($metricnames);
+        [$clause, $params] = $DB->get_in_or_equal($metricnames);
         if (count($metricnames) == 1) {
             $sql = "SELECT AVG(" . $DB->sql_cast_char2int('value', true) . ") AS \"$metricnames[0]\",
                 MIN(" . $DB->sql_cast_char2int('value', true) . ") AS min,

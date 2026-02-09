@@ -25,7 +25,6 @@ namespace tool_cloudmetrics\metric;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class online_users_metric extends builtin_user_base {
-
     /** @var string The DB field the metric accesses. */
     protected $dbfield = 'lastaccess';
 
@@ -118,8 +117,10 @@ class online_users_metric extends builtin_user_base {
                   FROM user_data
               GROUP BY user_data.time
               ORDER BY user_data.time DESC";
-        $rs = $DB->get_recordset_sql($sql,
-                ['interval' => $interval, 'intervaldup' => $interval, 'starttime' => $starttime, 'finishtime' => $finishtime]);
+        $rs = $DB->get_recordset_sql(
+            $sql,
+            ['interval' => $interval, 'intervaldup' => $interval, 'starttime' => $starttime, 'finishtime' => $finishtime]
+        );
 
         $this->interval = $frequency;
         $count = 0;
@@ -143,14 +144,16 @@ class online_users_metric extends builtin_user_base {
                 yield new metric_item($this->get_name(), $r->time, $r->value, $this);
             }
             if ($progress) {
-                $progress->update($count, $backwardperiod / $interval,
-                    get_string('backfillgenerating', 'tool_cloudmetrics', $this->get_label()));
+                $progress->update(
+                    $count,
+                    $backwardperiod / $interval,
+                    get_string('backfillgenerating', 'tool_cloudmetrics', $this->get_label())
+                );
             }
             $count++;
             $this->mintimestamp = $time;
         }
         $rs->close();
-
     }
 
     /**

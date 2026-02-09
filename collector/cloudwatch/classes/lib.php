@@ -66,7 +66,7 @@ class lib {
      * @return mixed|string
      */
     private static function to_namespace($ns) {
-        list($schema, $url) = explode('://', $ns, 2);
+        [$schema, $url] = explode('://', $ns, 2);
         if (empty($url)) {
             $url = $schema;
         }

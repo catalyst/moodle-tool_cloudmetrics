@@ -26,51 +26,65 @@
 defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
-
     if ($ADMIN->fulltree) {
-
-        $settings->add(new admin_setting_heading('cltr_cloudwatch_settings', '',
-            get_string('pluginnamedesc', 'cltr_cloudwatch')));
+        $settings->add(new admin_setting_heading(
+            'cltr_cloudwatch_settings',
+            '',
+            get_string('pluginnamedesc', 'cltr_cloudwatch')
+        ));
 
         // AWS settings.
-        $settings->add(new admin_setting_heading('cltr_cloudwatch_aws',
+        $settings->add(new admin_setting_heading(
+            'cltr_cloudwatch_aws',
             get_string('awssettings', 'cltr_cloudwatch'),
             get_string('awssettings_desc', 'cltr_cloudwatch')
         ));
 
-        $settings->add(new \tool_cloudmetrics\admin_settings_aws_region('cltr_cloudwatch/awsregion',
+        $settings->add(new \tool_cloudmetrics\admin_settings_aws_region(
+            'cltr_cloudwatch/awsregion',
             get_string('awsregion', 'cltr_cloudwatch'),
             get_string('awsregion_desc', 'cltr_cloudwatch'),
             'ap-southeast-2'
         ));
 
-        $settings->add(new admin_setting_configtext('cltr_cloudwatch/aws_key',
+        $settings->add(new admin_setting_configtext(
+            'cltr_cloudwatch/aws_key',
             get_string('awskey', 'cltr_cloudwatch'),
             get_string('awskey_desc', 'cltr_cloudwatch'),
-            '', PARAM_TEXT));
+            '',
+            PARAM_TEXT
+        ));
 
-        $settings->add(new admin_setting_configpasswordunmask('cltr_cloudwatch/aws_secret',
+        $settings->add(new admin_setting_configpasswordunmask(
+            'cltr_cloudwatch/aws_secret',
             get_string('awssecret', 'cltr_cloudwatch'),
             get_string('awssecret_desc', 'cltr_cloudwatch'),
-            ''));
-
+            ''
+        ));
 
         // General Settings.
-        $settings->add(new admin_setting_heading('cltr_cloudwatch_general',
+        $settings->add(new admin_setting_heading(
+            'cltr_cloudwatch_general',
             get_string('generalsettings', 'cltr_cloudwatch'),
             get_string('generalsettings_desc', 'cltr_cloudwatch')
         ));
 
         // Namespace.
-        $settings->add(new admin_setting_configtext('cltr_cloudwatch/namespace',
+        $settings->add(new admin_setting_configtext(
+            'cltr_cloudwatch/namespace',
             get_string('namespace', 'cltr_cloudwatch'),
             get_string('namespace_desc', 'cltr_cloudwatch'),
-            '', PARAM_TEXT));
+            '',
+            PARAM_TEXT
+        ));
 
         // Environment.
-        $settings->add(new admin_setting_configtext('cltr_cloudwatch/environment',
+        $settings->add(new admin_setting_configtext(
+            'cltr_cloudwatch/environment',
             get_string('environment', 'cltr_cloudwatch'),
             get_string('environment_desc', 'cltr_cloudwatch'),
-            'Dev', PARAM_TEXT));
+            'Dev',
+            PARAM_TEXT
+        ));
     }
 }

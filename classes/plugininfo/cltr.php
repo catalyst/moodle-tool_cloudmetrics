@@ -27,7 +27,6 @@ use tool_cloudmetrics\collector\base;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class cltr extends \core\plugininfo\base {
-
     /** Builtin plugins array. */
     const BUILTIN_PLUGINS = [
         'database',
@@ -41,7 +40,7 @@ class cltr extends \core\plugininfo\base {
         $plugins = \core_plugin_manager::instance()->get_plugins_of_type('cltr');
 
         if (empty($plugins)) {
-            return array();
+            return [];
         }
 
         $enabled = [];

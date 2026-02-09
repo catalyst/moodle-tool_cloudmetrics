@@ -28,8 +28,6 @@ use tool_cloudmetrics\lib;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class yearly_active_users_metric extends builtin_user_base {
-
-
     /** @var int The interval config for which data is displayed in seconds (eg: 5 minutes = 300). */
     public $interval;
 

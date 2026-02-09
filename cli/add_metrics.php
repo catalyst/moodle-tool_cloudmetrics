@@ -36,7 +36,7 @@ use tool_cloudmetrics\collector;
 define('CLI_SCRIPT', true);
 
 require_once(__DIR__ . '/../../../../config.php');
-require_once($CFG->libdir.'/clilib.php');
+require_once($CFG->libdir . '/clilib.php');
 
 // For some reson this will not auto load.
 require_once(__DIR__ . '/../classes/lib.php');
@@ -50,14 +50,15 @@ if (empty($CFG->config_php_settings['tool_cloudmetrics_allow_add_metrics'])) {
 }
 
 // Get cli options.
-list($options, $unrecognized) = cli_get_params(
+[$options, $unrecognized] = cli_get_params(
     [
         'help' => false,
         'metric' => 'foobar',
         'number' => 100,
         'remove' => false,
         'frequency' => 60,
-    ], [
+    ],
+    [
         'h' => 'help',
         'm' => 'metric',
         'n' => 'number',
