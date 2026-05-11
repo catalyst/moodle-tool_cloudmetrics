@@ -27,6 +27,12 @@ use tool_cloudmetrics\lib;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class test_metric extends base {
+    /** @var bool  */
+    public static bool $isincremental = false;
+
+    /** @var int The frequency of the metric's sampling. */
+    public static int $frequency = manager::FREQ_MIN;
+
     /** @var string Metric name. */
     public $name = 'foobar';
 
@@ -34,8 +40,6 @@ class test_metric extends base {
     public $value = 100;
     /** @var int The amount the value may vary by (+/-) between generates. */
     public $variance = 10;
-    /** @var int The frequency of the metric's sampling. */
-    public $frequency = manager::FREQ_MIN;
 
     /**
      * The metric's name.
@@ -88,7 +92,7 @@ class test_metric extends base {
      * @return int
      */
     public function get_frequency(): int {
-        return $this->frequency;
+        return self::$frequency;
     }
 
     /**
@@ -128,6 +132,14 @@ class test_metric extends base {
     }
 
     /**
+     * If true, then the metrics need to be processed incerementally, not in bulk.
+     * @return bool
+     */
+    public function is_backfill_incremental(): bool {
+        return self::$isincremental;
+    }
+
+    /**
      * Retrieves the metric.
      *
      * @param int $starttime
@@ -141,19 +153,57 @@ class test_metric extends base {
     }
 
     /**
+     * Estimate the total number of metrics that will be generated.
+     *
+     * @param int $backwardperiod
+     * @param int|null $finishtime
+     * @return int
+     */
+    public function estimate_total(int $backwardperiod, ?int $finishtime = null): int {
+        $finishtime = $finishtime ?? time();
+        $starttime = time() - $backwardperiod;
+
+        // Get aggregation interval.
+        $frequency = $this->get_frequency();
+        $interval = lib::FREQ_TIMES[$frequency];
+
+        if ($finishtime < $starttime) {
+            return 0;
+        }
+
+        return ($finishtime - $starttime) / $interval;
+    }
+
+    /**
      * Retrieve multiple metrics.
      *
      * @param int $backwardperiod
      * @param ?int $finishtime
      * @return \Iterator
      */
-    public function generate_metric_items(int $backwardperiod, ?int $finishtime = null): \Iterator {
+    public function generate_metric_items(
+        int $backwardperiod,
+        ?int $finishtime = null,
+        ?\progress_bar $progress = null
+    ): \Iterator {
         $finishtime = $finishtime ?? time();
         $start = time() - $backwardperiod;
         $items = [];
         for ($time = $start; $time <= $finishtime; $time = lib::get_next_time($time, $this->get_frequency())) {
             $items[] = $this->generate_metric_item(lib::get_previous_time($time, $this->get_frequency()), $time);
         }
-        return new \ArrayIterator($items);
+        $total = count($items);
+        $items = array_reverse($items);
+        foreach ($items as $i => $item) {
+            yield $item;
+            if ($progress) {
+                $progress->update(
+                    $i,
+                    $total,
+                    'test_metric'
+                );
+            }
+        }
+        return new \ArrayIterator(array_reverse($items));
     }
 }
