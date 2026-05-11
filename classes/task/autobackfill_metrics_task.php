@@ -29,11 +29,53 @@ use tool_cloudmetrics\plugininfo\cltr;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class autobackfill_metrics_task extends \core\task\adhoc_task {
+    /** @var int Number of records saved for each dot displayed */
+    private const NUM_PER_DOT = 10;
+
+    /** @var int Number of dots to be displayed on each line. */
+    private const DOTS_PER_LINE = 80;
+
     /** @var array Enabled plugins */
     private array $plugins;
 
     /** @var ?\tool_cloudmetrics\collector\base  */
     private ?\tool_cloudmetrics\collector\base $collector  = null;
+
+    /** @var int Used to control the printing of progress dots. */
+    private static $progresscount = 0;
+
+    /**
+     * Callback for metric recording progress.
+     *
+     * @param $count int Current count
+     * @param $total int Expected total
+     */
+    public static function progress_calllback(int $count, int $total) {
+        ++self::$progresscount;
+        if (self::$progresscount % self::NUM_PER_DOT != 0) {
+            return;
+        }
+        if (self::$progresscount % (self::NUM_PER_DOT * self::DOTS_PER_LINE) == 0) {
+            $percent = '';
+            // Printing a running percentage only makes sense if we are batch processing.
+            if ($total != 1) {
+                $percent = ' ' . round(($count / $total) * 100) . '%';
+            }
+            mtrace(".$percent");
+        } else {
+            mtrace('.', '');
+        }
+    }
+
+    /**
+     * Reset the progress counter.
+     */
+    public static function reset_progress() {
+        if (self::$progresscount % (self::NUM_PER_DOT * self::DOTS_PER_LINE) != 0) {
+            mtrace('');
+        }
+        self::$progresscount = 0;
+    }
 
     /**
      * Get task name
@@ -54,17 +96,15 @@ class autobackfill_metrics_task extends \core\task\adhoc_task {
             return;
         }
         if (!empty($this->collector)) {
-            $this->collector->record_metrics($metricitems);
-            mtrace(sprintf("Recorded %s '%s' metrics", count($metricitems), $metricclass->get_name()));
+            $this->collector->record_metrics($metricitems, [self::class, 'progress_calllback']);
         } else {
             foreach ($this->plugins as $plugin) {
                 $collector = $plugin->get_collector();
                 if ($collector->supports_backfillable_metrics()) {
-                    $collector->record_metrics($metricitems);
+                    $collector->record_metrics($metricitems, [self::class, 'progress_calllback']);
                     if ($collector->is_readable()) {
                         $collector->set_last_backfilled_frequency($metricclass->get_name(), $metricclass->get_frequency());
                     }
-                    mtrace(sprintf("Recorded %s '%s' metrics to %s", count($metricitems), $metricclass->get_name(), $plugin->name));
                 }
             }
         }
@@ -106,6 +146,9 @@ class autobackfill_metrics_task extends \core\task\adhoc_task {
         $autobackfill = !isset($customdata->metric);
         $metrictypes = metric\manager::get_metrics(true);
 
+        // TODO: When it is set to run automatically, idempotency is not used. With the current design, idempotency can
+        // only work when the there is one collector being used.
+
         // Filter to a specific metric.
         if (isset($customdata->metric)) {
             $metric = $customdata->metric;
@@ -121,6 +164,7 @@ class autobackfill_metrics_task extends \core\task\adhoc_task {
 
         $total = 0;
         foreach ($metrictypes as $metrictype) {
+            mtrace('Visiting metric ' . $metrictype->get_name());
             if (!$metrictype->is_ready()) {
                 continue;
             }
@@ -163,25 +207,37 @@ class autobackfill_metrics_task extends \core\task\adhoc_task {
             ));
 
             $metrics = $metrictype->generate_metric_items($collectingperiod, $finishtime);
-            if ($metrictype->is_backfill_incremental()) {
-                // This metric is slow, so we want to send metrics to the collector as soon as each one is obtained.
-                $count = 0;
-                foreach ($metrics as $metric) {
-                    $this->backfill_metrics($metrictype, [$metric]);
-                    $count++;
-                }
-            } else {
-                // Process the metrics as a batch.
-                $metrics = iterator_to_array($metrics);
-                if ($metrics) {
-                    $this->backfill_metrics($metrictype, $metrics);
-                }
-                $count = count($metrics);
-            }
+            mtrace('Finished generating metrics');
 
-            mtrace(sprintf('Generated %s %s metrics', $count, $metrictype->get_name()));
+            $count = 0;
+            try {
+                if ($metrictype->is_backfill_incremental()) {
+                    // This metric is slow, so we want to send metrics to the collector as soon as each one is obtained.
+                    mtrace('Slow metric. Process with an iterator.');
+                    foreach ($metrics as $metric) {
+                        $this->backfill_metrics($metrictype, [$metric]);
+                        $count++;
+                    }
+                } else {
+                    // Process the metrics as a batch.
+                    mtrace('Process with an array.');
+                    $metrics = iterator_to_array($metrics);
+                    mtrace('There are ' . count($metrics) . ' to process.');
+                    if ($metrics) {
+                        $this->backfill_metrics($metrictype, $metrics);
+                    }
+                    $count = count($metrics);
+                }
+                self::reset_progress();
+            } catch (\Exception $e) {
+                self::reset_progress();
+                mtrace('Error occurred: ' . $e->getMessage());
+            }
+            mtrace('Processed ' . $count . ' metrics.');
+
             $total += $count;
+            mtrace('Finished with metric ' . $metrictype->get_name());
         }
-        mtrace('Backfilled totally ' . $total . ' metrics');
+        mtrace('Backfilled a total of ' . $total . ' metrics');
     }
 }

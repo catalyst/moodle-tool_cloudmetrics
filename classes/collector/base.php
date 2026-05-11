@@ -39,15 +39,15 @@ abstract class base {
      * Records a number of metrics.
      *
      * @param array $metrics
-     * @param \progress_bar|null $progress
-     * @return mixed
+     * @param callable|null $progress
      */
-    public function record_metrics(array $metrics, \progress_bar $progress = null) {
+    public function record_metrics(array $metrics, ?callable $progress = null) {
         $count = 0;
         foreach ($metrics as $metric) {
             $this->record_metric($metric);
             if ($progress) {
-                $progress->update(
+                call_user_func(
+                    $progress,
                     $count,
                     count($metrics),
                     get_string('backfillsaving', 'tool_cloudmetrics', $metric->name)

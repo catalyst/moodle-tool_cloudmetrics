@@ -51,12 +51,19 @@ class metrics_cleanup_task extends \core\task\scheduled_task {
             // always have at least the expiry value in time's worth of data.
             $cutoff = lib::get_midnight_of($datestr, $tz)->getTimestamp();
 
+            mtrace('Cutoff timestamp is ' . date(DATE_RSS, $cutoff));
+
+            $precount = $DB->count_records(lib::TABLE);
             // Purge the metrics older than this time.
             $DB->delete_records_select(
                 lib::TABLE,
                 'time < :cutoff',
                 ['cutoff' => $cutoff]
             );
+            $postcount = $DB->count_records(lib::TABLE);
+            mtrace('Purged ' . ($precount - $postcount) . ' records.');
+        } else {
+            mtrace('Expiry is set to zero. No purging done.');
         }
     }
 }

@@ -154,6 +154,6 @@ class test_metric extends base {
         for ($time = $start; $time <= $finishtime; $time = lib::get_next_time($time, $this->get_frequency())) {
             $items[] = $this->generate_metric_item(lib::get_previous_time($time, $this->get_frequency()), $time);
         }
-        return new \ArrayIterator($items);
+        return new \ArrayIterator(array_reverse($items));
     }
 }
