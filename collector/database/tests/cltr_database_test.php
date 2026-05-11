@@ -246,7 +246,9 @@ final class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
         set_config('metric_expiry', $expiry, 'cltr_database');
 
         $task = new \cltr_database\task\metrics_cleanup_task();
+        ob_start();
         $task->execute();
+        ob_end_clean();
 
         // There should now be only $numexpected items in the database.
         $count = $DB->count_records(lib::TABLE);
