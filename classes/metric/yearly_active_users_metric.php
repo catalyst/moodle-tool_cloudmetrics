@@ -123,13 +123,13 @@ class yearly_active_users_metric extends builtin_user_base {
     }
 
     /**
-     * Returns records for backfilled metric.
+     * Generates a number of metric items for a period of time.
      *
-     * @param int $backwardperiod Time from which sample is to be retrieved.
-     * @param int|null $finishtime If data is being completed argument is passed here.
+     * @param int $backwardperiod Time period to draw data from (relative to now).
+     * @param int|null $finishtime The end time to draw data from. Defaults to now.
      * @param progress_bar|null $progress
      *
-     * @return \Iterator
+     * @return \Iterator Iterator of metric_item in reverse chronological order (most recent first).
      */
     public function generate_metric_items(int $backwardperiod, ?int $finishtime = null, ?progress_bar $progress = null): \Iterator {
         global $DB;

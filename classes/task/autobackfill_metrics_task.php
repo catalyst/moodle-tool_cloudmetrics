@@ -48,23 +48,21 @@ class autobackfill_metrics_task extends \core\task\adhoc_task {
      * @param \tool_cloudmetrics\metric\base $metricclass Class representing metric.
      * @param array $metricitems Array of metric items.
      */
-    public function backfill_metrics(\tool_cloudmetrics\metric\base $metricclass, array $metricitems) {
+    public function backfill_metrics(\tool_cloudmetrics\metric\base $metricclass, array $metricitems, ?\progress_bar $progress = null) {
         if (!$metricitems) {
             mtrace('No metrics to send at the moment');
             return;
         }
         if (!empty($this->collector)) {
-            $this->collector->record_metrics($metricitems);
-            mtrace(sprintf("Recorded %s '%s' metrics", count($metricitems), $metricclass->get_name()));
+            $this->collector->record_metrics($metricitems, $progress);
         } else {
             foreach ($this->plugins as $plugin) {
                 $collector = $plugin->get_collector();
                 if ($collector->supports_backfillable_metrics()) {
-                    $collector->record_metrics($metricitems);
+                    $collector->record_metrics($metricitems, $progress);
                     if ($collector->is_readable()) {
                         $collector->set_last_backfilled_frequency($metricclass->get_name(), $metricclass->get_frequency());
                     }
-                    mtrace(sprintf("Recorded %s '%s' metrics to %s", count($metricitems), $metricclass->get_name(), $plugin->name));
                 }
             }
         }
@@ -121,6 +119,7 @@ class autobackfill_metrics_task extends \core\task\adhoc_task {
 
         $total = 0;
         foreach ($metrictypes as $metrictype) {
+            mtrace('Visiting metric ' . $metrictype->get_name());
             if (!$metrictype->is_ready()) {
                 continue;
             }
@@ -162,26 +161,33 @@ class autobackfill_metrics_task extends \core\task\adhoc_task {
                 userdate($starttime, '%e %b %Y, %H:%M')
             ));
 
-            $metrics = $metrictype->generate_metric_items($collectingperiod, $finishtime);
+            mtrace('Finished generating metrics');
+            $count = 0;
+
+            $bar = new \progress_bar();
+            $bar->create();
+            $metrics = $metrictype->generate_metric_items($collectingperiod, $finishtime, $metrictype->is_backfill_incremental() ? $bar : null);
             if ($metrictype->is_backfill_incremental()) {
                 // This metric is slow, so we want to send metrics to the collector as soon as each one is obtained.
-                $count = 0;
+                mtrace('Inceremental metric. Process with an iterator.');
                 foreach ($metrics as $metric) {
                     $this->backfill_metrics($metrictype, [$metric]);
                     $count++;
                 }
             } else {
                 // Process the metrics as a batch.
+                mtrace('Non-inceremental metric. Process with an array.');
                 $metrics = iterator_to_array($metrics);
-                if ($metrics) {
-                    $this->backfill_metrics($metrictype, $metrics);
-                }
                 $count = count($metrics);
+                mtrace('There are ' . $count . ' to process.');
+                if ($metrics) {
+                    $this->backfill_metrics($metrictype, $metrics, $bar);
+                }
             }
-
-            mtrace(sprintf('Generated %s %s metrics', $count, $metrictype->get_name()));
+            mtrace('Processed ' . $count . ' records.');
             $total += $count;
+            mtrace('Finished with metric ' . $metrictype->get_name());
         }
-        mtrace('Backfilled totally ' . $total . ' metrics');
+        mtrace('Backfilled a total of ' . $total . ' metrics');
     }
 }
