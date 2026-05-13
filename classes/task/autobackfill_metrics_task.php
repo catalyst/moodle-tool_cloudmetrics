@@ -176,10 +176,9 @@ class autobackfill_metrics_task extends \core\task\adhoc_task {
                 }
             } else {
                 // Process the metrics as a batch.
-                mtrace('Non-inceremental metric. Process with an array.');
+                mtrace("Non-inceremental metric. Process with an array. There are $count to process.");
                 $metrics = iterator_to_array($metrics);
                 $count = count($metrics);
-                mtrace('There are ' . $count . ' to process.');
                 if ($metrics) {
                     $this->backfill_metrics($metrictype, $metrics, $bar);
                 }
