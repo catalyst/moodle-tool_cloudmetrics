@@ -47,12 +47,13 @@ abstract class base {
         foreach ($metrics as $metric) {
             $this->record_metric($metric);
             if ($progress) {
+                $count++;
                 $progress->update(
                     $count,
                     count($metrics),
                     get_string('backfillsaving', 'tool_cloudmetrics', $metric->name)
+                    . userdate( $metric->time, '%e %b %Y, %H:%M')
                 );
-                $count++;
             }
         }
     }
