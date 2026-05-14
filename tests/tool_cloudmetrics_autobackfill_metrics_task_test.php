@@ -32,8 +32,8 @@ require_once(__DIR__ . "/metric_testcase.php"); // This is needed. File will not
  * @author Jason den Dulk <jasondendulk@catalyst-au.net>
  * @copyright 2026 Catalyst IT
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @covers \tool_cloudmetrics\autobackfill_metrics_task
  */
-#[CoversClass(autobackfill_metrics_task::class)]
 final class tool_cloudmetrics_autobackfill_metrics_task_test extends metric_testcase {
     /**
      * Set up before each test

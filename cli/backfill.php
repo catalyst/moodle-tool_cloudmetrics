@@ -47,13 +47,47 @@ if (empty($CFG->config_php_settings['tool_cloudmetrics_allow_add_metrics'])) {
     die;
 }
 
-$period = DAYSECS * 61;
-$incremental = false;
+// Get cli options.
+[$options, $unrecognized] = cli_get_params(
+    [
+        'help' => false,
+        'period' => DAYSECS * 61,
+        'incremental' => false,
+    ],
+    [
+        'h' => 'help',
+        'p' => 'period',
+        'i' => 'incremental',
+    ]
+);
+
+if ($unrecognized) {
+    $unrecognized = implode("\n  ", $unrecognized);
+    cli_error(get_string('cliunknowoption', 'admin', $unrecognized));
+}
+
+if ($options['help']) {
+    $help =
+        "Test backfill.
+
+Add mock metric data as a backfill.
+Do not use with production environments.
+
+Options:
+-h, --help               Print out this help
+-p, --period             Time period (from now) in seconds.
+-i, --incremental        Make the metric incremental in nature.
+";
+
+    echo $help;
+    die;
+}
+
 $frequency = manager::FREQ_DAY;
 
 // Set up the metric.
 
-test_metric::$isincremental = $incremental;
+test_metric::$isincremental = (bool) $options['incremental'];
 test_metric::$frequency = $frequency;
 $metric = new test_metric();
 $metric->set_enabled(true);
@@ -64,7 +98,7 @@ $task = new autobackfill_metrics_task();
 $customdata = [
     'metric' => 'foobar',
     'collector' => 'database',
-    'period' => $period,
+    'period' => (int) $options['period'],
 ];
 $task->set_custom_data($customdata);
 
