@@ -52,7 +52,7 @@ abstract class base {
                     $count,
                     count($metrics),
                     get_string('backfillsaving', 'tool_cloudmetrics', $metric->name)
-                    . userdate( $metric->time, '%e %b %Y, %H:%M')
+                    . userdate($metric->time, '%e %b %Y, %H:%M')
                 );
             }
         }

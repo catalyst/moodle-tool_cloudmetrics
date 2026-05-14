@@ -164,22 +164,27 @@ class autobackfill_metrics_task extends \core\task\adhoc_task {
             mtrace('Finished generating metrics');
             $count = 0;
 
-            $bar = new \progress_bar();
-            $bar->create();
-            $metrics = $metrictype->generate_metric_items($collectingperiod, $finishtime, $metrictype->is_backfill_incremental() ? $bar : null);
+            $bar = null;
+            if ($metrictype->is_backfill_incremental()) {
+                mtrace('Inceremental metric. Process with an iterator.');
+                $bar = new \progress_bar();
+                $bar->create();
+            }
+            $metrics = $metrictype->generate_metric_items($collectingperiod, $finishtime, $bar);
             if ($metrictype->is_backfill_incremental()) {
                 // This metric is slow, so we want to send metrics to the collector as soon as each one is obtained.
-                mtrace('Inceremental metric. Process with an iterator.');
                 foreach ($metrics as $metric) {
                     $this->backfill_metrics($metrictype, [$metric]);
                     $count++;
                 }
             } else {
                 // Process the metrics as a batch.
-                mtrace("Non-inceremental metric. Process with an array. There are $count to process.");
                 $metrics = iterator_to_array($metrics);
                 $count = count($metrics);
+                mtrace("Non-inceremental metric. Process with an array. There are $count to process.");
                 if ($metrics) {
+                    $bar = new \progress_bar();
+                    $bar->create();
                     $this->backfill_metrics($metrictype, $metrics, $bar);
                 }
             }

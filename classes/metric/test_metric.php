@@ -153,28 +153,6 @@ class test_metric extends base {
     }
 
     /**
-     * Estimate the total number of metrics that will be generated.
-     *
-     * @param int $backwardperiod
-     * @param int|null $finishtime
-     * @return int
-     */
-    public function estimate_total(int $backwardperiod, ?int $finishtime = null): int {
-        $finishtime = $finishtime ?? time();
-        $starttime = time() - $backwardperiod;
-
-        // Get aggregation interval.
-        $frequency = $this->get_frequency();
-        $interval = lib::FREQ_TIMES[$frequency];
-
-        if ($finishtime < $starttime) {
-            return 0;
-        }
-
-        return ($finishtime - $starttime) / $interval;
-    }
-
-    /**
      * Retrieve multiple metrics.
      *
      * @param int $backwardperiod
@@ -186,16 +164,19 @@ class test_metric extends base {
         ?int $finishtime = null,
         ?\progress_bar $progress = null
     ): \Iterator {
-        $finishtime = $finishtime ?? time();
-        $start = time() - $backwardperiod;
+        $time = time();
+        $finishtime = $finishtime ?? $time;
+        $start = $time - $backwardperiod;
         $items = [];
         for ($time = $start; $time <= $finishtime; $time = lib::get_next_time($time, $this->get_frequency())) {
             $items[] = $this->generate_metric_item(lib::get_previous_time($time, $this->get_frequency()), $time);
         }
         $total = count($items);
         $items = array_reverse($items);
-        foreach ($items as $i => $item) {
+        $i = 0;
+        foreach ($items as $item) {
             yield $item;
+            ++$i;
             if ($progress) {
                 $progress->update(
                     $i,
