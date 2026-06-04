@@ -47,8 +47,13 @@ class autobackfill_metrics_task extends \core\task\adhoc_task {
      *
      * @param \tool_cloudmetrics\metric\base $metricclass Class representing metric.
      * @param array $metricitems Array of metric items.
+     * @param \progress_bar|null $progress Progress bar.
      */
-    public function backfill_metrics(\tool_cloudmetrics\metric\base $metricclass, array $metricitems, ?\progress_bar $progress = null) {
+    public function backfill_metrics(
+        \tool_cloudmetrics\metric\base $metricclass,
+        array $metricitems,
+        ?\progress_bar $progress = null
+    ) {
         if (!$metricitems) {
             mtrace('No metrics to send at the moment');
             return;

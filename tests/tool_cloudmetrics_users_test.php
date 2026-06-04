@@ -17,6 +17,7 @@
 namespace tool_cloudmetrics;
 
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\CoversClass;
 use tool_cloudmetrics\metric\metric_item;
 use tool_cloudmetrics\metric\new_users_metric;
 use tool_cloudmetrics\metric\active_users_metric;
@@ -31,6 +32,10 @@ use tool_cloudmetrics\metric\yearly_active_users_metric;
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[CoversClass(new_users_metric::class)]
+#[CoversClass(active_users_metric::class)]
+#[CoversClass(online_users_metric::class)]
+#[CoversClass(yearly_active_users_metric::class)]
 final class tool_cloudmetrics_users_test extends \advanced_testcase {
     /**
      * Set up before each test

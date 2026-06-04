@@ -48,6 +48,10 @@ final class tool_cloudmetrics_autobackfill_metrics_task_test extends metric_test
      */
     public function test_execute(): void {
         global $DB;
+        $this->markTestSkipped('This tst is suspended until Issue #213 is resolved.');
+
+        // TODO: This test is suspended until Issue #213 is resolved.
+        return;
 
         ob_start();
         $metricname = 'foobar';

@@ -36,12 +36,10 @@ use tool_cloudmetrics\metric\active_users_metric;
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-#[
-    CoversClass(\cltr_database\collector::class),
-    CoversMethod(\cltr_database\lib::class, 'get_midnight_of'),
-    CoversMethod(\cltr_database\lib::class, 'period_from_interval'),
-    CoversClass(\cltr_database\task\metrics_cleanup_task::class),
-]
+#[CoversClass(\cltr_database\collector::class)]
+#[CoversMethod(\cltr_database\lib::class, 'get_midnight_of')]
+#[CoversMethod(\cltr_database\lib::class, 'period_from_interval')]
+#[CoversClass(\cltr_database\task\metrics_cleanup_task::class)]
 final class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
     /** @var int Hours in a day*/
     const DAYHOURS = 24;
@@ -79,7 +77,7 @@ final class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
      * @param string  $expected   The expected result of the transformation
      */
     #[DataProvider('midnight_provider')]
-    public function test_midnight(string $datestr, string $expected) {
+    public function test_midnight(string $datestr, string $expected): void {
         $tz = \core_date::get_server_timezone_object();
         $time = lib::get_midnight_of($datestr, $tz);
         $expecteddate = new \DateTimeImmutable($expected, $tz);
@@ -114,7 +112,7 @@ final class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
      * @param string $expected
      */
     #[DataProvider('midnight_provider')]
-    public function test_midnight_timestamp(string $datestr, string $expected) {
+    public function test_midnight_timestamp(string $datestr, string $expected): void {
         $tz = \core_date::get_server_timezone_object();
         $ti = new \DateTimeImmutable($datestr, $tz);
         $ts = $ti->getTimestamp();
@@ -127,7 +125,7 @@ final class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
      * Tests the database collector
      *
      */
-    public function test_collector() {
+    public function test_collector(): void {
         global $DB;
 
         $stub = $this->get_metric_stub([1, 2, 3]);
@@ -210,7 +208,7 @@ final class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
      * @throws \dml_exception
      */
     #[DataProvider('expiry_provider')]
-    public function test_expiry(int $daysago, int $houradjustment, int $expiry, int $numrecords, int $numexpected) {
+    public function test_expiry(int $daysago, int $houradjustment, int $expiry, int $numrecords, int $numexpected): void {
         global $DB;
 
         $tz = \core_date::get_server_timezone_object();
@@ -275,7 +273,7 @@ final class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
      * @param int $expected
      */
     #[DataProvider('period_from_interval_provider')]
-    public function test_period_from_interval(int $freq, int $expected) {
+    public function test_period_from_interval(int $freq, int $expected): void {
         $metric = new \tool_cloudmetrics\metric\online_users_metric();
         $metric->set_frequency($freq);
         $this->assertEquals($expected, lib::period_from_interval($metric));
