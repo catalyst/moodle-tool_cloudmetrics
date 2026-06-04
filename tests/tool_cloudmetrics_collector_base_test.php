@@ -17,6 +17,7 @@
 namespace tool_cloudmetrics;
 
 use tool_cloudmetrics\collector\base;
+use PHPUnit\Framework\Attributes\CoversClass;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -30,11 +31,12 @@ require_once(__DIR__ . "/metric_testcase.php"); // This is needed. File will not
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[CoversClass(base::class)]
 final class tool_cloudmetrics_collector_base_test extends metric_testcase {
     /**
      * Tests ability to mock collector_base.
      */
-    public function test_basic() {
+    public function test_basic(): void {
         $stub = $this->get_metric_stub([1]);
         $item = $stub->generate_metric_item(0, 0);
 

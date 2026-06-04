@@ -17,6 +17,7 @@
 namespace tool_cloudmetrics;
 
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
  * Unit tests for lib class.
@@ -26,6 +27,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[CoversClass(lib::class)]
 final class tool_cloudmetrics_lib_test extends \advanced_testcase {
     /**
      * Tests cltr::get_enabled_plugins() that should return
@@ -33,7 +35,7 @@ final class tool_cloudmetrics_lib_test extends \advanced_testcase {
      *
      * @throws \Exception
      */
-    public function test_get_enabled_plugins() {
+    public function test_get_enabled_plugins(): void {
         $pluginnames = \core_plugin_manager::instance()->get_enabled_plugins('cltr');
         // Not all versions support assertIsArray(), use assertTrue() instead.
         $this->assertTrue(is_array($pluginnames));
@@ -56,7 +58,7 @@ final class tool_cloudmetrics_lib_test extends \advanced_testcase {
      *
      * @throws \Exception
      */
-    public function test_get_enabled_plugin_instances() {
+    public function test_get_enabled_plugin_instances(): void {
         $plugins = plugininfo\cltr::get_enabled_plugin_instances();
         // Not all versions support assertIsArray(), use assertTrue() instead.
         $this->assertTrue(is_array($plugins));
@@ -77,7 +79,7 @@ final class tool_cloudmetrics_lib_test extends \advanced_testcase {
      * @throws \Exception
      */
     #[DataProvider('data_for_get_previous_time')]
-    public function test_get_previous_time(string $ref, int $freq, string $expected) {
+    public function test_get_previous_time(string $ref, int $freq, string $expected): void {
         $tz = \core_date::get_server_timezone_object();
 
         $this->assertEquals(
@@ -115,7 +117,7 @@ final class tool_cloudmetrics_lib_test extends \advanced_testcase {
      * @throws \Exception
      */
     #[DataProvider('data_for_get_next_time')]
-    public function test_get_next_time(string $ref, int $freq, string $expected) {
+    public function test_get_next_time(string $ref, int $freq, string $expected): void {
         $tz = \core_date::get_server_timezone_object();
 
         $this->assertEquals(
@@ -153,7 +155,7 @@ final class tool_cloudmetrics_lib_test extends \advanced_testcase {
      * @throws \Exception
      */
     #[DataProvider('data_for_get_last_whole_tick')]
-    public function test_get_last_whole_tick(string $ref, int $freq, string $expected) {
+    public function test_get_last_whole_tick(string $ref, int $freq, string $expected): void {
         $tz = \core_date::get_server_timezone_object();
 
         $this->assertEquals(

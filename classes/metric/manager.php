@@ -102,7 +102,7 @@ class manager {
             'dailyusers' => new daily_users_metric(),
             'yearlyactiveusers' => new yearly_active_users_metric(),
         ];
-        if (defined('PHPUNIT_TEST')) {
+        if (!empty(PHPUNIT_TEST)) {
             // Add testing metrics to the list.
             $metrics['foobar'] = new test_metric();
         }

@@ -83,11 +83,31 @@ class admin_setting_manage_metrics extends \admin_setting {
             return $metric1->group <=> $metric2->group;
         });
 
-        $txt = get_strings(['plugin', 'settings', 'name', 'group', 'description', 'enable', 'disable', 'default', 'show', 'actions', 'report']);
+        $txt = get_strings([
+            'plugin',
+            'settings',
+            'name',
+            'group',
+            'description',
+            'enable',
+            'disable',
+            'default',
+            'show',
+            'actions',
+            'report',
+        ]);
         $txt->frequency = get_string('frequency', 'tool_cloudmetrics');
         $txt->colour = get_string('colour', 'tool_cloudmetrics');
         $table = new \html_table();
-        $table->head  = [$txt->plugin, $txt->name, $txt->group, $txt->description, $txt->frequency, $txt->actions, get_string('backfillable', 'tool_cloudmetrics')];
+        $table->head  = [
+            $txt->plugin,
+            $txt->name,
+            $txt->group,
+            $txt->description,
+            $txt->frequency,
+            $txt->actions,
+            get_string('backfillable', 'tool_cloudmetrics'),
+        ];
         $table->align = ['left', 'left', 'left', 'left'];
         $table->attributes['class'] = 'manageformattable generaltable admintable w-auto';
         $table->data  = [];

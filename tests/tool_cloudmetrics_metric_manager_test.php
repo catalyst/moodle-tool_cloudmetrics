@@ -17,6 +17,7 @@
 namespace tool_cloudmetrics;
 
 use tool_cloudmetrics\metric\manager;
+use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
  * Tests the metric\manager class
@@ -26,6 +27,7 @@ use tool_cloudmetrics\metric\manager;
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+#[CoversClass(manager::class)]
 final class tool_cloudmetrics_metric_manager_test extends \advanced_testcase {
     /**
      * Set up before each test
@@ -38,7 +40,7 @@ final class tool_cloudmetrics_metric_manager_test extends \advanced_testcase {
     /**
      * Test the get_metrics() method.
      */
-    public function test_get_metrics() {
+    public function test_get_metrics(): void {
         set_config('activeusers_enabled', 1, 'tool_cloudmetrics');
         set_config('newusers_enabled', 0, 'tool_cloudmetrics');
         set_config('onlineusers_enabled', 1, 'tool_cloudmetrics');
