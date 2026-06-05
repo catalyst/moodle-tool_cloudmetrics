@@ -25,15 +25,12 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['pluginname'] = 'AWS CloudWatch collector';
-$string['pluginnamedesc'] = 'Cloudmetrics collector that exports metrics to AWS CloudWatch.';
-
-// Privacy.
-$string['privacy:metadata'] = 'No personal information is stored';
-
-// Settings.
+$string['awskey'] = 'AWS access key';
+$string['awskey_desc'] = 'The access key ID assigned to the IAM user.';
 $string['awsregion'] = 'AWS region';
 $string['awsregion_desc'] = 'The AWS region to use for API calls';
+$string['awssecret'] = 'AWS access secret';
+$string['awssecret_desc'] = 'The secret access key assigned to the IAM user.';
 $string['awssettings'] = 'AWS settings';
 $string['awssettings_desc'] = 'Settings for aws. The library automatically use iam role and environment variables. If you need a specific api key and secret, it needs to go into config.php, please see README.md.';
 $string['awsversion'] = 'API version';
@@ -44,11 +41,7 @@ $string['generalsettings'] = 'General settings';
 $string['generalsettings_desc'] = 'Settings for the general behaviour of the plugin';
 $string['namespace'] = 'Namespace';
 $string['namespace_desc'] = 'Unique namespace to store metrics under in CloudWatch. If left empty, then $CFG->wwwroot will be used';
-
-$string['awskey'] = 'AWS access key';
-$string['awskey_desc'] = 'The access key ID assigned to the IAM user.';
-$string['awssecret'] = 'AWS access secret';
-$string['awssecret_desc'] = 'The secret access key assigned to the IAM user.';
-
-// Missing requirements.
+$string['pluginname'] = 'AWS CloudWatch collector';
+$string['pluginnamedesc'] = 'Cloudmetrics collector that exports metrics to AWS CloudWatch.';
+$string['privacy:metadata'] = 'No personal information is stored';
 $string['unsatisfied_requirements'] = 'Unsatisfied Requirements';
