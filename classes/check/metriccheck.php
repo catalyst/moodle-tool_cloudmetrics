@@ -32,14 +32,31 @@ use tool_cloudmetrics\metric\metric_item;
  */
 class metriccheck extends check {
     /** @var base $metric to be checked*/
-    private $metric;
+    protected $metric;
+
+    /**
+     * Factory method for making a metric check.
+     *
+     * @param base $metric
+     * @return mixed|self
+     */
+    public static function get_check(base $metric) {
+        // Derive the metric-specific check class from the metric's short name,
+        // e.g. metric\task_load_metric -> check\task_load_metric_performance_check.
+        $parts = explode('\\', $metric::class);
+        $classname = __NAMESPACE__ . '\\' . end($parts) . '_performance_check';
+        if (class_exists($classname)) {
+            return new $classname($metric);
+        }
+        return new self($metric);
+    }
 
     /**
      * Constructor
      *
      * @param base $metric
      */
-    public function __construct($metric) {
+    public function __construct(base $metric) {
         $this->metric = $metric;
     }
 
@@ -75,6 +92,7 @@ class metriccheck extends check {
 
     /**
      * Return result
+     *
      * @return result
      */
     public function get_result(): result {
@@ -86,12 +104,11 @@ class metriccheck extends check {
         }
 
         $options = manager::get_frequency_labels();
-        $frequency = get_config('tool_cloudmetrics', $this->metric->get_name() . '_frequency') ?
-            get_config('tool_cloudmetrics', $this->metric->get_name() . '_frequency') : $this->metric->get_frequency_default();
-        $description = get_string('collector_frequency', 'tool_cloudmetrics', $options[$frequency]);
+        $frequency = $this->metric->get_frequency();
+        $details = get_string('collector_frequency', 'tool_cloudmetrics', $options[$frequency]);
 
         // Return only the value of the metric, so it can be easily parsed externally.
         $value = get_config('tool_cloudmetrics', $this->metric->get_name() . '_last_value');
-        return new result(result::OK, $value, $description);
+        return new result(result::OK, $value, $details);
     }
 }

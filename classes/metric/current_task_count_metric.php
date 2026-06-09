@@ -72,7 +72,7 @@ class current_task_count_metric extends builtin_base {
      * @return string
      */
     public function get_colour(): string {
-        return '#ec87f2'; // Pink/purple.
+        return '#00ff00'; // Green.
     }
 
     /**
