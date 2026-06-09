@@ -101,6 +101,7 @@ class manager {
             'onlineusers' => new online_users_metric(),
             'dailyusers' => new daily_users_metric(),
             'yearlyactiveusers' => new yearly_active_users_metric(),
+            'currenttaskcount' => new current_task_count_metric(),
         ];
         if (!empty(PHPUNIT_TEST)) {
             // Add testing metrics to the list.
