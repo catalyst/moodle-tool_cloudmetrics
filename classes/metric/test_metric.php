@@ -30,6 +30,9 @@ class test_metric extends base {
     /** @var bool  */
     public static bool $isincremental = false;
 
+    /** @var string  */
+    public $group = 'task_activity';
+
     /** @var int The frequency of the metric's sampling. */
     public static int $frequency = manager::FREQ_MIN;
 
