@@ -77,5 +77,15 @@ function xmldb_tool_cloudmetrics_upgrade($oldversion) {
         \core\task\manager::queue_adhoc_task($backfilltask, true);
         upgrade_plugin_savepoint(true, 2025072300, 'tool', 'cloudmetrics');
     }
+
+    if ($oldversion < 2026020802) {
+        $metric = new \tool_cloudmetrics\metric\current_task_count_metric();
+        $metric->set_enabled(true);
+
+        $metric = new \tool_cloudmetrics\metric\task_load_metric();
+        $metric->set_enabled(true);
+        upgrade_plugin_savepoint(true, 2026020802, 'tool', 'cloudmetrics');
+    }
+
     return true;
 }

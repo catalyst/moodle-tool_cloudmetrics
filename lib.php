@@ -94,7 +94,7 @@ function tool_cloudmetrics_performance_checks() {
     $checks = [];
     $metrics = manager::get_metrics(false);
     foreach ($metrics as $metric) {
-        $checks[] = new tool_cloudmetrics\check\metriccheck($metric);
+        $checks[] = tool_cloudmetrics\check\metriccheck::get_check($metric);
     }
     return $checks;
 }

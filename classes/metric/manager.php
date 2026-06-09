@@ -85,6 +85,8 @@ class manager {
         'onlineusers' => self::FREQ_5MIN,
         'dailyusers' => self::FREQ_DAY,
         'yearlyactiveusers' => self::FREQ_DAY,
+        'currenttaskcount' => self::FREQ_5MIN,
+        'estimatedtaskload' => self::FREQ_5MIN,
     ];
 
     /**
@@ -102,6 +104,7 @@ class manager {
             'dailyusers' => new daily_users_metric(),
             'yearlyactiveusers' => new yearly_active_users_metric(),
             'currenttaskcount' => new current_task_count_metric(),
+            'estimatedtaskload' => new task_load_metric(),
         ];
         if (defined('PHPUNIT_TEST') && PHPUNIT_TEST) {
             // Add testing metrics to the list.

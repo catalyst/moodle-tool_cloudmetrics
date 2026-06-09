@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <https://www.gnu.org/licenses/>.
 
+use tool_cloudmetrics\metric\manager;
 /**
  * Install script for databases.
  *
@@ -30,6 +31,15 @@ function xmldb_tool_cloudmetrics_install() {
     if (PHPUNIT_TEST) {
         return;
     }
+
+    // All metrics are enabled by default.
+    $metrics = manager::get_metrics(false);
+
+    foreach ($metrics as $metric) {
+        $metric->set_enabled(true);
+    }
+
+    // Perform a backfill straight away.
     $backfilltask = new \tool_cloudmetrics\task\autobackfill_metrics_task();
     \core\task\manager::queue_adhoc_task($backfilltask, true);
 }
