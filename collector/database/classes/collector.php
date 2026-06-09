@@ -74,6 +74,9 @@ class collector extends readable_base {
         global $DB;
         $starting = '';
 
+        $clock = \core\di::get(\core\clock::class);
+        $now = $clock->time();
+
         if (is_null($metricnames)) {
             $metricnames = [];
             $metrics = metric\manager::get_metrics(true);
@@ -84,7 +87,7 @@ class collector extends readable_base {
             $metricnames = [$metricnames];
         }
         if ($since) {
-            $starting = " AND time > " . (time() - $since);
+            $starting = " AND time > " . ($now - $since);
         }
         [$clause, $params] = $DB->get_in_or_equal($metricnames);
         $sql = "SELECT id, name, date, time, value
@@ -111,6 +114,9 @@ class collector extends readable_base {
         global $DB;
         $starting = '';
 
+        $clock = \core\di::get(\core\clock::class);
+        $now = $clock->time();
+
         if (is_null($metricnames)) {
             $metricnames = [];
             $metrics = metric\manager::get_metrics(true);
@@ -121,7 +127,7 @@ class collector extends readable_base {
             $metricnames = [$metricnames];
         }
         if ($since) {
-            $starting = " AND time > " . (time() - $since);
+            $starting = " AND time > " . ($now - $since);
         }
 
         if ($aggregate == DAYSECS) {
@@ -131,9 +137,9 @@ class collector extends readable_base {
         }
         [$clause, $params] = $DB->get_in_or_equal($metricnames);
         if (count($metricnames) == 1) {
-            $sql = "SELECT AVG(" . $DB->sql_cast_char2int('value', true) . ") AS \"$metricnames[0]\",
-                MIN(" . $DB->sql_cast_char2int('value', true) . ") AS min,
-                MAX(" . $DB->sql_cast_char2int('value', true) . ") AS max,
+            $sql = "SELECT AVG(" . $DB->sql_cast_char2real('value', true) . ") AS \"$metricnames[0]\",
+                MIN(" . $DB->sql_cast_char2real('value', true) . ") AS min,
+                MAX(" . $DB->sql_cast_char2real('value', true) . ") AS max,
                 $incrementstart
                 FROM {cltr_database_metrics}
                 WHERE name $clause
@@ -143,7 +149,9 @@ class collector extends readable_base {
         } else {
             $metricselect = '';
             foreach ($params as $param) {
-                $metricselect .= "AVG(CASE name WHEN '$param' THEN" . $DB->sql_cast_char2int('value', true) . "END) AS \"$param\",";
+                $metricselect .= "AVG(CASE name WHEN '$param' THEN" .
+                    $DB->sql_cast_char2real('value', true) .
+                    "END) AS \"$param\",";
             }
             $metricselect = rtrim($metricselect, ',');
             $sql = "SELECT $incrementstart,
