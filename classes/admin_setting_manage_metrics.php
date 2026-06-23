@@ -87,7 +87,6 @@ class admin_setting_manage_metrics extends \admin_setting {
             'plugin',
             'settings',
             'name',
-            'group',
             'description',
             'enable',
             'disable',
@@ -102,7 +101,6 @@ class admin_setting_manage_metrics extends \admin_setting {
         $table->head  = [
             $txt->plugin,
             $txt->name,
-            $txt->group,
             $txt->description,
             $txt->frequency,
             $txt->actions,
@@ -111,6 +109,8 @@ class admin_setting_manage_metrics extends \admin_setting {
         $table->align = ['left', 'left', 'left', 'left'];
         $table->attributes['class'] = 'manageformattable generaltable admintable w-auto';
         $table->data  = [];
+        $currentgroup = null;
+        $numcols = count($table->head);
 
         foreach ($metrics as $metric) {
             $url = new \moodle_url(
@@ -120,6 +120,17 @@ class admin_setting_manage_metrics extends \admin_setting {
             $displayname = $metric->get_label();
             $description = $metric->get_description();
             $group = !empty($metric->group) ? get_string($metric->group, 'tool_cloudmetrics') : '';
+
+            // Insert a subheading row when the group changes.
+            if ($metric->group !== $currentgroup) {
+                $currentgroup = $metric->group;
+                $headingcell = new \html_table_cell($group);
+                $headingcell->colspan = $numcols;
+                $headingcell->header = true;
+                $headingrow = new \html_table_row([$headingcell]);
+                $headingrow->attributes['class'] = 'table-primary';
+                $table->data[] = $headingrow;
+            }
 
             // Colour.
             $colour = $metric->get_colour();
@@ -207,7 +218,6 @@ class admin_setting_manage_metrics extends \admin_setting {
             $row = new \html_table_row([
                 $metric->get_plugin_name(),
                 $swatch . ' ' . $displayname,
-                $group,
                 $description,
                 $freq,
                 $hideshow . $settingslink . $chartlink,
