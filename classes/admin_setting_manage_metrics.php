@@ -83,6 +83,15 @@ class admin_setting_manage_metrics extends \admin_setting {
             return $metric1->group <=> $metric2->group;
         });
 
+        // Pre-compute the coarsest (highest value) frequency per group for chart links.
+        $groupcoarsestfreq = [];
+        foreach ($metrics as $metric) {
+            $g = $metric->group;
+            if (!isset($groupcoarsestfreq[$g]) || $metric->get_frequency() > $groupcoarsestfreq[$g]) {
+                $groupcoarsestfreq[$g] = $metric->get_frequency();
+            }
+        }
+
         $txt = get_strings([
             'plugin',
             'settings',
@@ -124,7 +133,22 @@ class admin_setting_manage_metrics extends \admin_setting {
             // Insert a subheading row when the group changes.
             if ($metric->group !== $currentgroup) {
                 $currentgroup = $metric->group;
-                $headingcell = new \html_table_cell($group);
+                $headingtext = $group;
+                if (!empty($metric->group)) {
+                    $charturl = new \moodle_url(
+                        '/admin/tool/cloudmetrics/collector/database/chart.php',
+                        [
+                            'groupselect' => $metric->group,
+                            'graphfrequency' => $groupcoarsestfreq[$metric->group],
+                        ]
+                    );
+                    $headingtext .= ' ' . \html_writer::link(
+                        $charturl,
+                        $OUTPUT->pix_icon('i/report', get_string('report'), 'moodle', ['class' => 'iconsmall']),
+                        ['title' => get_string('report')]
+                    );
+                }
+                $headingcell = new \html_table_cell($headingtext);
                 $headingcell->colspan = $numcols;
                 $headingcell->header = true;
                 $headingrow = new \html_table_row([$headingcell]);

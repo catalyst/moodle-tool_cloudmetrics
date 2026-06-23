@@ -25,12 +25,12 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2026020801;
-$plugin->release = 2026020800;
+$plugin->version = 2026020803;
+$plugin->release = 2026020803;
 
 $plugin->requires = 2025041400;    // Our lowest supported Moodle (5.0).
 
-$plugin->supported = [500, 501];     // Available as of Moodle 5.0 or later.
+$plugin->supported = [500, 502];     // Available as of Moodle 5.0 or later.
 // TODO $plugin->incompatible = ;  // Available as of Moodle 3.9.0 or later.
 
 $plugin->component = 'tool_cloudmetrics';
