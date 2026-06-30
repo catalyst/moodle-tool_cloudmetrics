@@ -108,7 +108,8 @@ class manager {
         ];
         if (defined('PHPUNIT_TEST') && PHPUNIT_TEST) {
             // Add testing metrics to the list.
-            $metrics['foobar'] = new test_metric();
+            $metric = new test_metric();
+            $metrics[$metric->get_name()] = $metric;
         }
         // Find metrics from plugins.
         $more = get_plugins_with_function('metrics', 'lib.php');

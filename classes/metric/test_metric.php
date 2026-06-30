@@ -30,6 +30,9 @@ class test_metric extends base {
     /** @var bool  */
     public static bool $isincremental = false;
 
+    /** @var bool Whether the metric can be backfilled during an upgrade or install. */
+    public static bool $canbackfillduringupgrade = true;
+
     /** @var string  */
     public $group = 'task_activity';
 
@@ -44,125 +47,79 @@ class test_metric extends base {
     /** @var int The amount the value may vary by (+/-) between generates. */
     public $variance = 10;
 
-    /**
-     * The metric's name.
-     *
-     * @return string
-     */
+    #[\Override]
     public function get_name(): string {
         return $this->name;
     }
 
-    /**
-     * The metric's display name.
-     *
-     * @return string
-     */
+    #[\Override]
     public function get_label(): string {
         return 'Test metric'; // Don't use get_string as this is for testing only.
     }
 
-    /**
-     * Returns the colour of the metric.
-     *
-     * @return string
-     */
+    #[\Override]
     public function get_colour(): string {
         return '#ffffff';
     }
 
-    /**
-     * A short description of the metric.
-     *
-     * @return string
-     */
+    #[\Override]
     public function get_description(): string {
         return 'Test metric';
     }
 
-    /**
-     * The plugin that defines the metric.
-     *
-     * @return string
-     */
+    #[\Override]
     public function get_plugin_name(): string {
         return 'tool_cloudmetrics';
     }
 
-    /**
-     * The frequency of the metric's sampling.
-     *
-     * @return int
-     */
+    #[\Override]
     public function get_frequency(): int {
         return self::$frequency;
     }
 
-    /**
-     * The metric's default frequency.
-     *
-     * @return int
-     */
+    #[\Override]
     public function get_frequency_default(): int {
         return manager::FREQ_MIN;
     }
 
-    /**
-     * The metric type.
-     *
-     * @return int
-     */
+    #[\Override]
+    public function set_frequency(int $freq) {
+        self::$frequency = $freq;
+    }
+
+    #[\Override]
     public function get_type(): int {
         return manager::TYPE_GAUGE;
     }
 
-    /**
-     * Metric's ability to be backfilled.
-     *
-     * @return bool
-     */
+    #[\Override]
+    public function is_enabled(): bool {
+        return true;
+    }
+
+    #[\Override]
     public function is_backfillable(): bool {
         return true;
     }
 
-    /**
-     * Metric's ability to be backfilled automatically.
-     *
-     * @return bool
-     */
-    public function is_autobackfill(): bool {
-        return true;
+    #[\Override]
+    public function can_backfill_during_upgrade(): bool {
+        return self::$canbackfillduringupgrade;
     }
 
-    /**
-     * If true, then the metrics need to be processed incerementally, not in bulk.
-     * @return bool
-     */
+    #[\Override]
     public function is_backfill_incremental(): bool {
         return self::$isincremental;
     }
 
-    /**
-     * Retrieves the metric.
-     *
-     * @param int $starttime
-     * @param int $finishtime
-     * @return metric_item
-     */
+    #[\Override]
     public function generate_metric_item($starttime, $finishtime): metric_item {
         $item = new metric_item($this->get_name(), $finishtime, $this->value, $this);
         $this->value += rand(-$this->variance, $this->variance);
         return $item;
     }
 
-    /**
-     * Retrieve multiple metrics.
-     *
-     * @param int $start_time
-     * @param ?int $finish_time
-     * @param ?\progress_bar $progress
-     * @return \Iterator
-     */
+    #[\Override]
     public function generate_metric_items(
         int $starttime,
         ?int $finishtime = null,

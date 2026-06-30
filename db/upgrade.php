@@ -72,6 +72,7 @@ function xmldb_tool_cloudmetrics_upgrade($oldversion) {
 
     if ($oldversion < 2025072300) {
         $backfilltask = new \tool_cloudmetrics\task\autobackfill_metrics_task();
+        $backfilltask->set_custom_data(['isupgrade' => true]);
         \core\task\manager::queue_adhoc_task($backfilltask, true);
         upgrade_plugin_savepoint(true, 2025072300, 'tool', 'cloudmetrics');
     }

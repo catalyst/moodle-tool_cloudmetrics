@@ -178,11 +178,11 @@ abstract class base {
     }
 
     /**
-     * Metric's ability to be backfilled automatically.
+     * Metric's ability to be backfilled during an upgrade or install.
      *
      * @return bool
      */
-    public function is_autobackfill(): bool {
+    public function can_backfill_during_upgrade(): bool {
         return false;
     }
 

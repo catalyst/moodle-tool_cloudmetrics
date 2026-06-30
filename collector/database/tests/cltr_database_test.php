@@ -22,6 +22,7 @@ require_once(__DIR__ . "/../../../tests/metric_testcase.php"); // This is needed
 
 use tool_cloudmetrics\collector\manager as collectormanager;
 use tool_cloudmetrics\metric\manager;
+use tool_cloudmetrics\metric\metric_item;
 use tool_cloudmetrics\metric\online_users_metric;
 use tool_cloudmetrics\metric\active_users_metric;
 
@@ -193,6 +194,43 @@ final class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
         $this->assertTrue(isset($range['maxtime']));
         $this->assertEquals(100, $range['mintime']);
         $this->assertEquals(200, $range['maxtime']);
+    }
+
+    /**
+     * Test get_times().
+     *
+     * Records should be returned within the given time range (inclusive of both endpoints),
+     * filtered by metric name, and ordered by time descending.
+     */
+    public function test_get_times(): void {
+        $stub = $this->get_metric_stub([1]);
+        $collector = new collector();
+
+        // Record 'mock' metrics across a spread of times.
+        foreach ([100, 110, 120, 130, 140] as $time) {
+            $collector->record_metric($stub->generate_metric_item(0, $time));
+        }
+
+        // Record a metric with a different name inside the range, to verify name filtering.
+        $collector->record_metric(new metric_item('other', 115, 1, $stub));
+
+        // Query a subrange. Both endpoints are inclusive, and the out-of-range and
+        // differently-named records must be excluded.
+        $times = [];
+        foreach ($collector->get_times('mock', 110, 130) as $rec) {
+            $times[] = $rec;
+        }
+
+        // Only the three in-range 'mock' records, in descending time order.
+        $this->assertCount(3, $times);
+        $this->assertEquals([130, 120, 110], $times);
+
+        // A range with no matching records yields nothing.
+        $empty = [];
+        foreach ($collector->get_times('mock', 200, 300) as $rec) {
+            $empty[] = $rec;
+        }
+        $this->assertCount(0, $empty);
     }
 
     /**

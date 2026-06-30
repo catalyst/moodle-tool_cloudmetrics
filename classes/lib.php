@@ -38,7 +38,17 @@ class lib {
         manager::FREQ_12HOUR => MINSECS * 720,
         manager::FREQ_DAY => MINSECS * 1440,
         manager::FREQ_WEEK => MINSECS * 10080,
+        manager::FREQ_MONTH => WEEKSECS * 4, // The minimum length for a month.
     ];
+
+    /**
+     * Get a time period from the frequency constant.
+     * @param int $frequency Freqency constant defined in manager class.
+     * @return int The period time in seconds.
+     */
+    public static function get_period(int $frequency): int {
+        return self::FREQ_TIMES[$frequency];
+    }
 
     /**
      * Get the time which is one 'frequency' unit before the given time.
