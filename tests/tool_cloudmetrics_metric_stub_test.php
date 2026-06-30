@@ -74,7 +74,7 @@ final class tool_cloudmetrics_metric_stub_test extends metric_testcase {
         $finish = time();
         $start = $finish - $backtime;
 
-        $items = $stub->generate_metric_items($backtime, $finish, $frequency);
+        $items = $stub->generate_metric_items($start, $finish);
 
         $time = $start;
         foreach ($items as $item) {

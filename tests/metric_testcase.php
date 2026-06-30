@@ -84,11 +84,10 @@ class metric_testcase extends \advanced_testcase {
             ->willReturn(true);
 
         $stub->method('generate_metric_items')
-            ->willReturnCallback(function (int $backtime, ?int $finishtime) use ($stub, $frequency) {
-                $finishtime = $finishtime ?? time();
-                $start = time() - $backtime;
+            ->willReturnCallback(function (int $starttime, ?int $finishtime) use ($stub, $frequency) {
+                $finishtime = $finishtime ?? \core\di::get(\core\clock::class)->time();
                 $items = [];
-                for ($time = $start; $time <= $finishtime; $time = lib::get_next_time($time, $frequency)) {
+                for ($time = $starttime; $time <= $finishtime; $time = lib::get_next_time($time, $frequency)) {
                     $items[] = $stub->generate_metric_item(0, $time);
                 }
                 return new \ArrayIterator($items);

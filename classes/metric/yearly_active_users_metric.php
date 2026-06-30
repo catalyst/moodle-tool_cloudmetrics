@@ -125,18 +125,16 @@ class yearly_active_users_metric extends builtin_user_base {
     /**
      * Generates a number of metric items for a period of time.
      *
-     * @param int $backwardperiod Time period to draw data from (relative to now).
+     * @param int $starttime The start time to draw data from.
      * @param int|null $finishtime The end time to draw data from. Defaults to now.
      * @param progress_bar|null $progress
      *
      * @return \Iterator Iterator of metric_item in reverse chronological order (most recent first).
      */
-    public function generate_metric_items(int $backwardperiod, ?int $finishtime = null, ?progress_bar $progress = null): \Iterator {
+    public function generate_metric_items(int $starttime, ?int $finishtime = null, ?progress_bar $progress = null): \Iterator {
         global $DB;
 
-        $finishtime = ($finishtime === -1) ? null : $finishtime;
-        $finishtime = $finishtime ?? time();
-        $starttime = time() - $backwardperiod;
+        $finishtime = $finishtime ?? \core\di::get(\core\clock::class)->time();
         // Get aggregation interval.
         $frequency = $this->get_frequency();
         $interval = lib::FREQ_TIMES[$frequency];

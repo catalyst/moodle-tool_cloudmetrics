@@ -59,20 +59,16 @@ class online_users_metric extends builtin_user_base {
     /**
      * Generates a number of metric items for a period of time.
      *
-     * @param int $backwardperiod Time period to draw data from (relative to now).
-     * @param int|null $finishtime The end time to draw data from. Defaults to now.
+     * @param int $start_time The start time to draw data from.
+     * @param int|null $finish_time The end time to draw data from. Defaults to now.
      * @param \progress_bar|null $progress
      *
      * @return \Iterator Iterator of metric_item in reverse chronological order (most recent first).
      */
-    public function generate_metric_items($backwardperiod, $finishtime = null, ?\progress_bar $progress = null): \Iterator {
+    public function generate_metric_items(int $starttime, ?int $finishtime = null, ?\progress_bar $progress = null): \Iterator {
         global $DB;
 
-        // Get start time from period selection.
-        $starttime = time() - $backwardperiod;
-        $finishtime = ($finishtime === -1) ? null : $finishtime;
-        // Allows data to be completed instead of retrieving all data again unless frequency change.
-        $finishtime = $finishtime ?? time();
+        $finishtime = $finishtime ?? \core\di::get(\core\clock::class)->time();
         $frequency = $this->get_frequency();
 
         if ($finishtime < $starttime) {
@@ -132,7 +128,7 @@ class online_users_metric extends builtin_user_base {
             if ($progress) {
                 $progress->update(
                     $count,
-                    $backwardperiod / $interval,
+                    ($finishtime - $starttime) / $interval,
                     get_string('backfillgenerating', 'tool_cloudmetrics', $this->get_label())
                 );
             }
