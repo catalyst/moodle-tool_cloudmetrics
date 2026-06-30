@@ -199,12 +199,12 @@ abstract class base {
     /**
      * Generates a number of metric items for a period of time.
      *
-     * @param int $backwardperiod Time period to draw data from (relative to now).
+     * @param int $starttime The start time to draw data from.
      * @param int|null $finishtime The end time to draw data from. Defaults to now.
      *
      * @return \Iterator Iterator of metric_item in reverse chronological order (most recent first).
      */
-    public function generate_metric_items(int $backwardperiod, int $finishtime = null): \Iterator {
+    public function generate_metric_items(int $starttime, ?int $finishtime = null): \Iterator {
         return new \EmptyIterator();
     }
 

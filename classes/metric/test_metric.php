@@ -158,20 +158,19 @@ class test_metric extends base {
     /**
      * Retrieve multiple metrics.
      *
-     * @param int $backwardperiod
-     * @param ?int $finishtime
+     * @param int $start_time
+     * @param ?int $finish_time
+     * @param ?\progress_bar $progress
      * @return \Iterator
      */
     public function generate_metric_items(
-        int $backwardperiod,
+        int $starttime,
         ?int $finishtime = null,
         ?\progress_bar $progress = null
     ): \Iterator {
-        $time = time();
-        $finishtime = $finishtime ?? $time;
-        $start = $time - $backwardperiod;
+        $finishtime = $finishtime ?? \core\di::get(\core\clock::class)->time();
         $items = [];
-        for ($time = $start; $time <= $finishtime; $time = lib::get_next_time($time, $this->get_frequency())) {
+        for ($time = $starttime; $time <= $finishtime; $time = lib::get_next_time($time, $this->get_frequency())) {
             $items[] = $this->generate_metric_item(lib::get_previous_time($time, $this->get_frequency()), $time);
         }
         $total = count($items);
