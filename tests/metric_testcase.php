@@ -80,7 +80,7 @@ class metric_testcase extends \advanced_testcase {
             ->willReturn($frequency);
         $stub->method('is_backfillable')
             ->willReturn(true);
-        $stub->method('is_autobackfill')
+        $stub->method('can_backfill_during_upgrade')
             ->willReturn(true);
 
         $stub->method('generate_metric_items')

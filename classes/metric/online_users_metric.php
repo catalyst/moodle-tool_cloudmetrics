@@ -59,8 +59,8 @@ class online_users_metric extends builtin_user_base {
     /**
      * Generates a number of metric items for a period of time.
      *
-     * @param int $start_time The start time to draw data from.
-     * @param int|null $finish_time The end time to draw data from. Defaults to now.
+     * @param int $starttime The start time to draw data from.
+     * @param int|null $finishtime The end time to draw data from. Defaults to now.
      * @param \progress_bar|null $progress
      *
      * @return \Iterator Iterator of metric_item in reverse chronological order (most recent first).

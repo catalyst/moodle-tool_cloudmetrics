@@ -83,12 +83,8 @@ class yearly_active_users_metric extends builtin_user_base {
         return true;
     }
 
-    /**
-     * Metric's ability to be backfilled automatically.
-     *
-     * @return bool
-     */
-    public function is_autobackfill(): bool {
+    #[\Override]
+    public function can_backfill_during_upgrade(): bool {
         return true;
     }
 

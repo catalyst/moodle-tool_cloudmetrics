@@ -17,6 +17,7 @@
 namespace tool_cloudmetrics\collector;
 
 use tool_cloudmetrics\metric\metric_item;
+use tool_cloudmetrics\metric\base as metric;
 
 /**
  * Base class for collectors.
