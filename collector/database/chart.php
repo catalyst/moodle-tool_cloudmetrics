@@ -121,6 +121,9 @@ $context = [];
 // Prepare time window selector.
 $periods = [
     HOURSECS      => get_string('one_hour', 'tool_cloudmetrics'),
+    HOURSECS * 2  => get_string('two_hours', 'tool_cloudmetrics'),
+    HOURSECS * 4  => get_string('four_hours', 'tool_cloudmetrics'),
+    HOURSECS * 8  => get_string('eight_hours', 'tool_cloudmetrics'),
     DAYSECS       => get_string('one_day', 'tool_cloudmetrics'),
     WEEKSECS      => get_string('one_week', 'tool_cloudmetrics'),
     WEEKSECS * 2  => get_string('two_week', 'tool_cloudmetrics'),
