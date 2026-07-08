@@ -49,9 +49,17 @@ if (!isset($plugins[$name])) {
 switch ($action) {
     case 'disable':
         $plugins[$name]->set_enabled(false);
+        \tool_cloudmetrics\event\collector_plugin_disabled::create([
+            'context' => $syscontext,
+            'other' => ['pluginname' => $name],
+        ])->trigger();
         break;
     case 'enable':
         $plugins[$name]->set_enabled(true);
+        \tool_cloudmetrics\event\collector_plugin_enabled::create([
+            'context' => $syscontext,
+            'other' => ['pluginname' => $name],
+        ])->trigger();
         break;
 }
 redirect($return);
