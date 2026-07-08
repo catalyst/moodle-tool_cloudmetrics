@@ -69,6 +69,11 @@ abstract class task_load_estimator {
         foreach ($scheduled as $record) {
             $task = taskmanager::scheduled_task_from_record($record);
 
+            // Skip tasks whose plugin is not installed or whose class cannot be loaded.
+            if ($task === false) {
+                continue;
+            }
+
             // If the task has already started, then we add the remaining time.
             if ($record->timestarted > 0) {
                 $started = (int) $record->timestarted;
