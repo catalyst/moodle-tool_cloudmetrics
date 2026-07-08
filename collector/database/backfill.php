@@ -71,10 +71,10 @@ $periods = [
 ];
 
 // Gets already saved data range and interval.
-[$mintmptmp, $maxtmpstmp, $freqretrieved] = $metrics[$metricname]->get_range_retrieved();
-if ($mintmptmp != -1) {
-    $backfilledfrom = userdate($mintmptmp, get_string('strftimedatetime', 'cltr_database'), $CFG->timezone);
-    $backfilledto = userdate($maxtmpstmp, get_string('strftimedatetime', 'cltr_database'), $CFG->timezone);
+[$mintime, $maxtime, $freqretrieved] = $metrics[$metricname]->get_range_retrieved();
+if ($mintime != -1) {
+    $backfilledfrom = userdate($mintime, get_string('strftimedatetime', 'cltr_database'), $CFG->timezone);
+    $backfilledto = userdate($maxtime, get_string('strftimedatetime', 'cltr_database'), $CFG->timezone);
     $backfilledinterval = (int)$freqretrieved;
     if ($backfilledinterval !== $metrics[$metricname]->get_frequency()) {
         $isdifferentfreq = true;
@@ -111,7 +111,7 @@ if ($fromform = $mform->get_data()) {
     \core\session\manager::write_close(); // Unlock session while backfilling.
     $progressbar->create();
     $periodretrieval = $fromform->periodretrieval;
-    $metricitems = $metrics[$metricname]->generate_metric_items($periodretrieval, $mintmptmp, $progressbar);
+    $metricitems = $metrics[$metricname]->generate_metric_items($periodretrieval, $mintime, $progressbar);
     $collector->record_saved_metrics($metrics[$metricname], $metricitems, $progressbar);
     $progressbar->update_full(100, get_string('backfillcomplete', 'tool_cloudmetrics', $metrics[$metricname]->get_label()));
 }
