@@ -103,7 +103,7 @@ class manager {
             'yearlyactiveusers' => new yearly_active_users_metric(),
             'currenttaskcount' => new current_task_count_metric(),
         ];
-        if (!empty(PHPUNIT_TEST)) {
+        if (defined('PHPUNIT_TEST') && PHPUNIT_TEST) {
             // Add testing metrics to the list.
             $metrics['foobar'] = new test_metric();
         }
