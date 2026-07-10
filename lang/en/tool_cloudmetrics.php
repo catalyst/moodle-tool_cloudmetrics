@@ -125,8 +125,13 @@ $string['managelink'] = 'Manage collectors';
 
 // Backfill progress.
 $string['backfillcomplete'] = 'Backfilling data for {$a} complete.';
+$string['backfilldata'] = 'Backfill data';
 $string['backfillsaving'] = 'Saving metric items for {$a}.';
 $string['backfillgenerating'] = 'Generating metric items for {$a}.';
 
 // Groups.
 $string['user_activity'] = 'User activity';
+
+// Event logs.
+$string['eventcollectorplugindisabled'] = 'Collector plugin disabled';
+$string['eventcollectorpluginenabled'] = 'Collector plugin enabled';

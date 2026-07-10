@@ -74,9 +74,8 @@ if ($collector->is_readable()) {
     $range = $collector->get_metric_range($metricname);
     $freqretrieved = $collector->get_last_backfilled_frequency($metricname);
     if (!empty($range)) {
-        ['mintime' => $mintmptmp, 'maxtime' => $maxtmpstmp] = $range;
-        $backfilledfrom = userdate($mintmptmp, get_string('strftimedatetime', 'cltr_database'), $CFG->timezone);
-        $backfilledto = userdate($maxtmpstmp, get_string('strftimedatetime', 'cltr_database'), $CFG->timezone);
+        $backfilledfrom = userdate($range['mintime'], get_string('strftimedatetime', 'cltr_database'), $CFG->timezone);
+        $backfilledto = userdate($range['maxtime'], get_string('strftimedatetime', 'cltr_database'), $CFG->timezone);
         $backfilledinterval = (int)$freqretrieved;
 
         // Add a comment about different frequencies.
