@@ -47,9 +47,12 @@ class metric_backfill_form extends moodleform {
             }
         }
         $mform->addElement('select', 'periodretrieval', get_string('period_select', 'tool_cloudmetrics'), $periods);
+        $mform->setType('periodretrieval', PARAM_INT);
+
         $mform->addElement('hidden', 'metric', $metric);
         $mform->setType('metric', PARAM_ALPHANUMEXT);
-        $this->add_action_buttons(false, 'Backfill data');
+
+        $this->add_action_buttons(false, get_string('backfilldata', 'tool_cloudmetrics'));
     }
 
     /**
@@ -59,6 +62,14 @@ class metric_backfill_form extends moodleform {
      * @param array $files
      */
     public function validation($data, $files) {
-        return [];
+        $errors = [];
+
+        // Ensure `periodretrieval` is a valid option.
+        $allowed = array_keys($this->_customdata[1] ?? []);
+        if (!in_array((int) ($data['periodretrieval'] ?? null), $allowed, false)) {
+            $errors['periodretrieval'] = get_string('invaliddata', 'error');
+        }
+
+        return $errors;
     }
 }

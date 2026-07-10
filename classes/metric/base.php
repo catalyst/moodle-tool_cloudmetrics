@@ -90,7 +90,7 @@ abstract class base {
      * @param int $freq
      */
     public function set_frequency(int $freq) {
-        set_config($this->get_name() . '_frequency', $freq, 'tool_cloudmetrics');
+        set_config($this->get_name() . '_frequency', $freq, 'tool_cloudmetrics', true);
     }
 
     /**
