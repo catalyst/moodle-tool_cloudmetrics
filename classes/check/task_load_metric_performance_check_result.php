@@ -66,10 +66,16 @@ class task_load_metric_performance_check_result extends result {
         ]);
     }
 
+    /**
+     * Get additional details about the check.
+     *
+     * @return string HTML markup describing the check in more detail
+     */
     public function get_details(): string {
         $details = \html_writer::tag('p', parent::get_details());
         $window = $this->metric->get_lookahead();
-        $details .= \html_writer::tag('p',
+        $details .= \html_writer::tag(
+            'p',
             get_string('estimatedtaskload_window', 'tool_cloudmetrics', format_time($window))
         );
         $table = new \html_table();
