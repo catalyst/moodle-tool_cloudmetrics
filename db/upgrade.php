@@ -32,9 +32,7 @@ use tool_cloudmetrics\metric\manager;
  * @return bool result
  */
 function xmldb_tool_cloudmetrics_upgrade($oldversion) {
-    global $DB, $CFG;
-
-    $dbman = $DB->get_manager();
+    global $DB;
 
     // Automatically generated Moodle v3.11.0 release upgrade line.
     // Put any upgrade step following this.
@@ -78,13 +76,13 @@ function xmldb_tool_cloudmetrics_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2025072300, 'tool', 'cloudmetrics');
     }
 
-    if ($oldversion < 2026020802) {
+    if ($oldversion < 2025082004) {
         $metric = new \tool_cloudmetrics\metric\current_task_count_metric();
         $metric->set_enabled(true);
 
         $metric = new \tool_cloudmetrics\metric\task_load_metric();
         $metric->set_enabled(true);
-        upgrade_plugin_savepoint(true, 2026020802, 'tool', 'cloudmetrics');
+        upgrade_plugin_savepoint(true, 2025082004, 'tool', 'cloudmetrics');
     }
 
     return true;

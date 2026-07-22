@@ -60,7 +60,7 @@ final class tool_cloudmetrics_lib_test extends \advanced_testcase {
         $this->assertTrue(is_array($plugins));
         // If plugin is not enabled the result will be an empty array.
         if (!empty($plugins)) {
-            foreach ($plugins as $key => $val) {
+            foreach ($plugins as $val) {
                 $this->assertTrue(is_object($val));
             }
         }

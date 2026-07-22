@@ -40,7 +40,6 @@ use core\task\course_backup_task;
  * @copyright 2026, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-#[CoversMethod(task_load_metric::class, 'generate_metric_item')]
 final class tool_cloudmetrics_task_load_metric_test extends \advanced_testcase {
     /**
      * Set up.
@@ -57,8 +56,8 @@ final class tool_cloudmetrics_task_load_metric_test extends \advanced_testcase {
      *
      * @param int $time
      * @param float $expected
+     * @dataProvider times_provider
      */
-    #[DataProvider('times_provider')]
     public function test_generate_metric_item_with_scheduled_tasks(int $time, float $expected): void {
         global $DB;
 
@@ -218,8 +217,6 @@ final class tool_cloudmetrics_task_load_metric_test extends \advanced_testcase {
      * @param float $mean If set, will add a mean value for this task.
      */
     public static function add_adhoc_task(string $classname, int $time, ?int $timestarted = null, float $mean = 0.0) {
-        global $DB;
-
         $classname = taskmanager::get_canonical_class_name($classname);
 
         $task = new $classname();
