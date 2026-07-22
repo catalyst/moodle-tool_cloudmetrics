@@ -41,7 +41,7 @@ class metric_backfill_form extends moodleform {
         $periods = $this->_customdata[1];
         $metric = $this->_customdata[2];
         // Prevent display of bigger periods selection than necessary.
-        foreach ($periods as $period => $value) {
+        foreach (array_keys($periods) as $period) {
             if ($period > $maxperiod) {
                 unset($periods[$period]);
             }

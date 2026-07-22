@@ -32,9 +32,7 @@ use tool_cloudmetrics\metric\manager;
  * @return bool result
  */
 function xmldb_tool_cloudmetrics_upgrade($oldversion) {
-    global $DB, $CFG;
-
-    $dbman = $DB->get_manager();
+    global $DB;
 
     // Automatically generated Moodle v3.11.0 release upgrade line.
     // Put any upgrade step following this.

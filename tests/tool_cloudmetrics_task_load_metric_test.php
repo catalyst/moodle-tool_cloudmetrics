@@ -218,8 +218,6 @@ final class tool_cloudmetrics_task_load_metric_test extends \advanced_testcase {
      * @param float $mean If set, will add a mean value for this task.
      */
     public static function add_adhoc_task(string $classname, int $time, ?int $timestarted = null, float $mean = 0.0) {
-        global $DB;
-
         $classname = taskmanager::get_canonical_class_name($classname);
 
         $task = new $classname();
