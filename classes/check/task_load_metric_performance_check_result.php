@@ -17,7 +17,7 @@
 namespace tool_cloudmetrics\check;
 
 use core\output\action_link;
-use tool_cloudmetrics\metric\base;
+use tool_cloudmetrics\metric\task_load_metric;
 use core\check\result;
 use core_admin\reportbuilder\local\entities\task_log;
 use tool_cloudmetrics\local\task_load\task_load_estimator;
@@ -31,18 +31,21 @@ use tool_cloudmetrics\local\task_load\task_load_estimator;
  * @copyright Catalyst IT
  */
 class task_load_metric_performance_check_result extends result {
-    /** @var base The metric that was checked */
-    private readonly base $metric;
+    /** @var task_load_metric The metric that was checked */
+    private readonly task_load_metric $metric;
+
+    /** @var \stdClass[]|null Cached estimate rows */
+    private ?array $data = null;
 
     /**
      * Construct the result object.
-     * @param base $metric The metric that was checked
+     * @param task_load_metric $metric The metric that was checked
      * @param string $status
      * @param string $summary
      * @param string $details
      */
     public function __construct(
-        base $metric,
+        task_load_metric $metric,
         string $status,
         string $summary,
         string $details = '',
@@ -56,22 +59,54 @@ class task_load_metric_performance_check_result extends result {
      *
      * @return string HTML markup describing the check in more detail
      */
+    public function get_summary(): string {
+        return get_string('estimatedtaskload_summary', 'tool_cloudmetrics', (object) [
+            'duration' => self::format_duration($this->get_total_seconds()),
+            'window'   => format_time($this->metric->get_lookahead()),
+        ]);
+    }
+
     public function get_details(): string {
         $details = \html_writer::tag('p', parent::get_details());
+        $window = $this->metric->get_lookahead();
+        $details .= \html_writer::tag('p',
+            get_string('estimatedtaskload_window', 'tool_cloudmetrics', format_time($window))
+        );
         $table = new \html_table();
+        $table->attributes['class'] = 'table w-auto';
         $table->head = [
+            get_string('estimatedtaskload', 'tool_cloudmetrics'),
             get_string('task_name', 'tool_cloudmetrics'),
-            get_string('estimatedtaskload_s', 'tool_cloudmetrics'),
         ];
-        foreach ($this->get_data() as $row) {
+        $table->align = ['right', 'left'];
+        $data = $this->get_data();
+        usort($data, fn($a, $b) => $b->estimated_load <=> $a->estimated_load);
+        foreach ($data as $row) {
             $table->data[] = [
+                self::format_duration($row->estimated_load),
                 self::format_classname(ltrim($row->task_name, '\\')),
-                round($row->estimated_load, 1),
             ];
         }
+        $totalseconds = $this->get_total_seconds();
+        $table->data[] = [
+            \html_writer::tag('strong', self::format_duration($totalseconds)),
+            \html_writer::tag('strong', get_string('total')),
+        ];
 
         $details .= \html_writer::table($table);
         return $details;
+    }
+
+    /**
+     * Formats a duration in seconds as M:SS.
+     *
+     * @param float $seconds
+     * @return string e.g. "2:15"
+     */
+    public static function format_duration(float $seconds): string {
+        $minutes = (int) floor($seconds / 60);
+        $secs = (int) round(fmod($seconds, 60));
+        return sprintf('%d:%02d', $minutes, $secs);
     }
 
     /**
@@ -97,6 +132,18 @@ class task_load_metric_performance_check_result extends result {
     }
 
     /**
+     * Returns the sum of all task estimates in seconds.
+     *
+     * @return float
+     */
+    private function get_total_seconds(): float {
+        return array_sum(array_column(
+            array_map(fn($r) => ['load' => $r->estimated_load], $this->get_data()),
+            'load'
+        ));
+    }
+
+    /**
      * Fetch the task load estimates as rows.
      *
      * Estimates are generated for the time window supplied by the metric.
@@ -104,16 +151,18 @@ class task_load_metric_performance_check_result extends result {
      * @return \stdClass[] the report rows, keyed by column name
      */
     private function get_data(): array {
-        $estimator = task_load_estimator::create();
-        $estimates = $estimator->generate_load_estimates($this->metric->get_time_window());
+        if ($this->data === null) {
+            $estimator = task_load_estimator::create();
+            $estimates = $estimator->generate_load_estimates($this->metric->get_lookahead());
 
-        $rows = [];
-        foreach ($estimates as $estimate) {
-            $rows[] = (object) [
-                'task_name' => $estimate['classname'],
-                'estimated_load' => $estimate['totalduration'],
-            ];
+            $this->data = [];
+            foreach ($estimates as $estimate) {
+                $this->data[] = (object) [
+                    'task_name' => $estimate['classname'],
+                    'estimated_load' => $estimate['totalduration'],
+                ];
+            }
         }
-        return $rows;
+        return $this->data;
     }
 }

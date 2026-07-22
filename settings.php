@@ -85,6 +85,14 @@ if ($hassiteconfig) {
             5 * MINSECS,
             MINSECS
         ));
+
+        $settings->add(new admin_setting_configduration(
+            'tool_cloudmetrics/taskload_lookahead',
+            get_string('taskload_lookahead', 'tool_cloudmetrics'),
+            get_string('taskload_lookahead_desc', 'tool_cloudmetrics'),
+            15 * MINSECS,
+            MINSECS
+        ));
     }
 
     foreach (core_plugin_manager::instance()->get_plugins_of_type('cltr') as $plugin) {
