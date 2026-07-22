@@ -37,8 +37,6 @@ class collector extends base {
      * AWS Cloudwatch collector constructor.
      */
     public function __construct() {
-        global $CFG;
-
         if (is_null(self::$client)) {
             $clientconfig = [
                 'region' => get_config('cltr_cloudwatch', 'awsregion'),
