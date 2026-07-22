@@ -48,6 +48,8 @@ final class tool_cloudmetrics_task_load_metric_test extends \advanced_testcase {
     protected function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
+        // Set lookahead to 1 hour so the tests can use FREQ_HOUR as both sampling and lookahead window.
+        set_config('taskload_lookahead', HOURSECS, 'tool_cloudmetrics');
     }
 
     /**
