@@ -47,7 +47,7 @@ class task_load_metric extends builtin_base {
      * @return string - The colour in RGB hex. E.g. 'FDFF00' for the colour 'Lemon'.
      */
     public function get_colour(): string {
-        return '#ff0000'; // Red.
+        return '#df4242'; // Red.
     }
 
     /**
@@ -77,6 +77,16 @@ class task_load_metric extends builtin_base {
     }
 
     /**
+     * The lookahead time window used to estimate task load.
+     *
+     * @return int seconds
+     */
+    public function get_lookahead(): int {
+        $config = get_config('tool_cloudmetrics', 'taskload_lookahead');
+        return $config !== false ? (int) $config : 15 * MINSECS;
+    }
+
+    /**
      * Generates a metric item from the source data.
      *
      * @param int $starttime Ignored
@@ -84,7 +94,7 @@ class task_load_metric extends builtin_base {
      * @return metric_item
      */
     public function generate_metric_item(int $starttime, int $finishtime): metric_item {
-        $window = $this->get_time_window();
+        $window = $this->get_lookahead();
         $estimator = task_load_estimator::create();
         $loads = $estimator->generate_load_estimates($window);
 
