@@ -100,14 +100,21 @@ class collector extends readable_base {
      *
      * @param mixed $metricnames The metrics to be retrieved. Either a single string, or an
      *         array of strings. If empty, then all available metrics will be retrieved.
-     * @param int|false $since The earliest timestamp to retrieve.
+     * @param int|null $starttime The earliest timestamp to retrieve.
+     * @param int|null $endtime The latest timestamp to retrieve.
      * @param int $limit The max number of records to retrieve.
      * @param int $aggregate The time increment to aggregate data into, in secs.
-     * @return \moodle_recordset
+     * @return traversable
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    public function get_metrics_aggregated($metricnames = null, $since = false, int $limit = 1000, int $aggregate = 1) {
+    public function get_metrics_aggregated(
+        $metricnames = null,
+        ?int $starttime = null,
+        ?int $endtime = null,
+        int $limit = 1000,
+        int $aggregate = 1
+    ): iterable {
         global $DB;
         $starting = '';
 
@@ -120,8 +127,11 @@ class collector extends readable_base {
         } else if (is_string($metricnames)) {
             $metricnames = [$metricnames];
         }
-        if ($since) {
-            $starting = " AND time > " . (time() - $since);
+        if ($starttime !== null) {
+            $starting .= " AND time >= " . (int) $starttime;
+        }
+        if ($endtime !== null) {
+            $starting .= " AND time <= " . (int) $endtime;
         }
 
         if ($aggregate == DAYSECS) {
@@ -131,10 +141,10 @@ class collector extends readable_base {
         }
         [$clause, $params] = $DB->get_in_or_equal($metricnames);
         if (count($metricnames) == 1) {
-            $sql = "SELECT AVG(" . $DB->sql_cast_char2int('value', true) . ") AS \"$metricnames[0]\",
+            $sql = "SELECT $incrementstart,
+                AVG(" . $DB->sql_cast_char2int('value', true) . ") AS \"$metricnames[0]\",
                 MIN(" . $DB->sql_cast_char2int('value', true) . ") AS min,
-                MAX(" . $DB->sql_cast_char2int('value', true) . ") AS max,
-                $incrementstart
+                MAX(" . $DB->sql_cast_char2int('value', true) . ") AS max
                 FROM {cltr_database_metrics}
                 WHERE name $clause
                 $starting
@@ -153,7 +163,8 @@ class collector extends readable_base {
                 GROUP BY increment_start
                 ORDER BY increment_start ASC";
         }
-        return $DB->get_recordset_sql($sql, $params, 0, $limit);
+        // We return an array, trusting that $limit is not too large.
+        return $DB->get_records_sql($sql, $params, 0, $limit);
     }
 
     /**
