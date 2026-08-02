@@ -218,22 +218,43 @@ while ($graphperiodsec / $aggregatefreqtime > $maxrecords) {
     $aggregatefreqtime = $aggregatefreqtimes[$displayfrequency];
 }
 
-$clock = \core\di::get(\core\clock::class);
-$nowts = $clock->time();
-
+$nowts = \core\di::get(\core\clock::class)->time();
 $starttime = $nowts - $graphperiodsec;
 $endtime = $nowts;
-
 $records = $collector->get_metrics_aggregated($displayedmetrics, $starttime, $endtime, $maxrecords, $aggregatefreqtime);
+$numrecords = count($records);
 
 $lastvaluearr = [];
+$previoustime = null;
+$gapcount = 0; // The number of new records added.
 foreach ($records as $record) {
+    $recordtime = (int) $record->increment_start;
+
+    // If there is a gap in the record times, fill it with null values so the chart shows a break,
+    // unless doing so will cause the total number of values to exceed the maximum.
+    if ($previoustime !== null && ($recordtime - $previoustime) > 2 * $aggregatefreqtime) {
+        $gaptime = $previoustime + $aggregatefreqtime;
+        while ($gaptime < $recordtime && $gapcount + $numrecords < $maxrecords) {
+            $times[] = $gaptime;
+            foreach ($displayedmetrics as $displayedmetric) {
+                $values[$displayedmetric][] = null;
+            }
+            if (count($displayedmetrics) == 1) {
+                $mins[] = null;
+                $maxs[] = null;
+            }
+            $gaptime += $aggregatefreqtime;
+            ++$count;
+            ++$gapcount;
+        }
+    }
+
     foreach ($displayedmetrics as $displayedmetric) {
         $value = !$record->{$displayedmetric} ? null : round($record->{$displayedmetric}, 1);
         $values[$displayedmetric][] = $value;
     }
 
-    $times[] = (int) $record->increment_start;
+    $times[] = $recordtime;
 
     if (count($displayedmetrics) == 1) {
         $mins[] = (float)$record->min;
@@ -241,6 +262,7 @@ foreach ($records as $record) {
         $diffs[] = (float)$record->max - (float)$record->min;
     }
     $count++;
+    $previoustime = $recordtime;
 }
 
 if ($count) {
