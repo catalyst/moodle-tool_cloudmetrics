@@ -217,7 +217,14 @@ while ($graphperiodsec / $aggregatefreqtime > $maxrecords) {
     $aggregatefreqtime = $aggregatefreqtimes[$displayfrequency];
 }
 
-$records = $collector->get_metrics_aggregated($displayedmetrics, $graphperiodsec, $maxrecords, $aggregatefreqtime);
+$clock = \core\di::get(\core\clock::class);
+$nowts = $clock->time();
+
+$starttime = $nowts - $graphperiodsec;
+$endtime = $nowts;
+
+$records = $collector->get_metrics_aggregated($displayedmetrics, $starttime, $endtime, $maxrecords, $aggregatefreqtime);
+
 $lastvaluearr = [];
 foreach ($records as $record) {
     foreach ($displayedmetrics as $displayedmetric) {
