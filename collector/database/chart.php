@@ -114,7 +114,6 @@ if ($graphperiodsec === -1) {
 } else {
     require_login(null, false);
     require_capability('moodle/site:config', context_system::instance());
-    require_sesskey();
     set_config('chart_period', $graphperiodsec, 'cltr_database');
     \core_plugin_manager::reset_caches();
 }
