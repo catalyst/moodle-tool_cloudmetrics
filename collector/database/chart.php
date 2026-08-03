@@ -139,7 +139,6 @@ $periods = [
     YEARSECS * 2  => get_string('two_year', 'tool_cloudmetrics'),
 ];
 
-$collector = new \cltr_database\collector();
 
 $configfrequency = $metrics[$displayedmetrics[0]]->get_frequency();
 // The frequency of the data points (if any).
@@ -197,13 +196,6 @@ $aggregatefreqtime = $aggregatefreqtimes[$displayfrequency];
 
 $maxrecords = 1000;
 
-$values = [];
-$labels = [];
-$mins = [];
-$maxs = [];
-$diffs = [];
-$count = 0;
-$times = [];
 $chart = new chart_line();
 
 // We want to keep the number of data points to be below the maximum, so we scale up the time interval to reduce the
@@ -217,103 +209,13 @@ while ($graphperiodsec / $aggregatefreqtime > $maxrecords) {
     $aggregatefreqtime = $aggregatefreqtimes[$displayfrequency];
 }
 
-$nowts = \core\di::get(\core\clock::class)->time();
-$starttime = $nowts - $graphperiodsec;
-$endtime = $nowts;
-$records = $collector->get_metrics_aggregated($displayedmetrics, $starttime, $endtime, $maxrecords, $aggregatefreqtime);
-$numrecords = count($records);
-
-$lastvaluearr = [];
-$previoustime = null;
-$gapcount = 0; // The number of new records added.
-foreach ($records as $record) {
-    $recordtime = (int) $record->increment_start;
-
-    // If there is a gap in the record times, fill it with null values so the chart shows a break,
-    // unless doing so will cause the total number of values to exceed the maximum.
-    if ($previoustime !== null && ($recordtime - $previoustime) > 2 * $aggregatefreqtime) {
-        $gaptime = $previoustime + $aggregatefreqtime;
-        while ($gaptime < $recordtime && $gapcount + $numrecords < $maxrecords) {
-            $times[] = $gaptime;
-            foreach ($displayedmetrics as $displayedmetric) {
-                $values[$displayedmetric][] = null;
-            }
-            if (count($displayedmetrics) == 1) {
-                $mins[] = null;
-                $maxs[] = null;
-            }
-            $gaptime += $aggregatefreqtime;
-            ++$count;
-            ++$gapcount;
-        }
-    }
-
-    foreach ($displayedmetrics as $displayedmetric) {
-        $value = $record->{$displayedmetric} === null ? null : round($record->{$displayedmetric}, 1);
-        $values[$displayedmetric][] = $value;
-    }
-
-    $times[] = $recordtime;
-
-    if (count($displayedmetrics) == 1) {
-        $mins[] = (float)$record->min;
-        $maxs[] = (float)$record->max;
-        $diffs[] = (float)$record->max - (float)$record->min;
-    }
-    $count++;
-    $previoustime = $recordtime;
-}
-
-if ($count) {
-    // Insert padding at the end to get the chart to display the full time period.
-    $latesttime = time();
-    $currenttime = end($times) + $aggregatefreqtime;
-    while ($currenttime <= $latesttime && $count < $maxrecords) {
-        $times[] = $currenttime;
-        foreach ($displayedmetrics as $displayedmetric) {
-            $values[$displayedmetric][] = null;
-        }
-        if (count($displayedmetrics) == 1) {
-            $mins[] = null;
-            $maxs[] = null;
-        }
-        $currenttime += $aggregatefreqtime;
-        ++$count;
-    }
-
-    // Insert padding at the beginning to get the chart to display the full time period.
-    $earliesttime = time() - $graphperiodsec;
-    $currenttime = $times[0] - $aggregatefreqtime;
-    while ($currenttime >= $earliesttime && $count < $maxrecords) {
-        array_unshift($times, $currenttime);
-        foreach ($displayedmetrics as $displayedmetric) {
-            array_unshift($values[$displayedmetric], null);
-        }
-        if (count($displayedmetrics) == 1) {
-            array_unshift($mins, null);
-            array_unshift($maxs, null);
-        }
-        $currenttime -= $aggregatefreqtime;
-        ++$count;
-    }
-
-    // Make human readable labels for the times.
-
-    // If freq 12hr or greater set to UTC.
-    $timezone = $CFG->timezone;
-    if ($displayfrequency >= 128) {
-        $timezone = 'UTC';
-    }
-
-    foreach ($times as $time) {
-        if ($displayfrequency == 4096) {
-            // If time increment is month display data at start of month.
-            $labels[] = userdate($time + $aggregatefreqtime, get_string('strftimemonth', 'cltr_database'), $timezone);
-        } else {
-            $labels[] = userdate($time, get_string('strftimedatetime', 'cltr_database'), $timezone);
-        }
-    }
-}
+[$count, $times, $labels, $values, $mins, $maxs, $diffs] = cltr_database\lib::get_metrics_aggregated_for_chart(
+    $displayedmetrics,
+    $graphperiodsec,
+    $aggregatefreqtime,
+    $displayfrequency,
+    $maxrecords
+);
 
 foreach ($displayedmetrics as $displayedmetric) {
     $chartseries = new chart_series($metriclabels[$displayedmetric], $values[$displayedmetric] ?? null);
