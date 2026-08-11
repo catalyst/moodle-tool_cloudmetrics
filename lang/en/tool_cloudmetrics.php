@@ -56,6 +56,7 @@ $string['data_in_db'] = 'Your database contains data from {$a->dbstart} to {$a->
 $string['data_period'] = 'Current information shows data can be retrieved from {$a->startdate} to {$a->enddate}.';
 $string['different_freq'] = 'Caution - Current frequency is different from the last backfill. New data will complete currently present but no data will be added between {$a->backfilledfrom} and {$a->backfilledto}.';
 $string['eight_hours'] = '8 hours';
+$string['six_hours'] = '6 hours';
 $string['enable_disable_collectors'] = 'Enable or disable collectors.';
 $string['enable_disable_metrics'] = 'Enable or disable metrics.';
 $string['estimatedtaskload'] = 'Estimated load';
