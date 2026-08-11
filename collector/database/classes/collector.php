@@ -18,7 +18,7 @@ namespace cltr_database;
 
 use tool_cloudmetrics\metric\metric_item;
 use tool_cloudmetrics\collector\readable_base;
-use tool_cloudmetrics\metric;
+use tool_cloudmetrics\metric\manager;
 
 /**
  * Collector class for the internal database.
@@ -79,7 +79,7 @@ class collector extends readable_base {
 
         if (is_null($metricnames)) {
             $metricnames = [];
-            $metrics = metric\manager::get_metrics(true);
+            $metrics = manager::get_metrics(true);
             foreach ($metrics as $metric) {
                 $metricnames[] = $metric->get_name();
             }
@@ -119,7 +119,7 @@ class collector extends readable_base {
 
         if (is_null($metricnames)) {
             $metricnames = [];
-            $metrics = metric\manager::get_metrics(true);
+            $metrics = manager::get_metrics(true);
             foreach ($metrics as $metric) {
                 $metricnames[] = $metric->get_name();
             }
@@ -234,5 +234,19 @@ class collector extends readable_base {
      */
     public function set_last_backfilled_frequency(string $metricname, int $frequency) {
         set_config($metricname . '_lastfreq', $frequency, 'cltr_database');
+    }
+
+    #[\Override]
+    public function get_times(string $metricname, int $timestart, int $timeend): iterable {
+        global $DB;
+        $sql = "name = :name AND time >= :timestart AND time <= :timeend";
+
+        $records = $DB->get_records_select(
+            'cltr_database_metrics',
+            $sql,
+            ['name' => $metricname, 'timestart' => $timestart, 'timeend' => $timeend],
+            'time desc'
+        );
+        return array_values(array_map(fn($rec) => (int) $rec->time, $records));
     }
 }

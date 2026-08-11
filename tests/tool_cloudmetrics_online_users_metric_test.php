@@ -43,11 +43,12 @@ final class tool_cloudmetrics_online_users_metric_test extends \advanced_testcas
     public function test_generate_metric_items(): void {
         global $DB;
 
+        $time = time();
+        $this->mock_clock_with_frozen($time);
         $onlinemetric = new online_users_metric();
         $dataobjects = [];
 
         // Generate 100 log entries for 24 hr period starting 48 hrs ago.
-        $time = time();
         $end = $time - 86400;
         $start = $time - 172800;
         $res = ($end - $start) / 100;
@@ -75,13 +76,14 @@ final class tool_cloudmetrics_online_users_metric_test extends \advanced_testcas
         $this->assertEquals(100, count($rec));
 
         // Get metrics with finish time less than start time. Should be empty.
-        $backperiod = 86400;
-        $finish = time() - 17200;
-        $metrics = iterator_to_array($onlinemetric->generate_metric_items($backperiod, $finish));
+        $finish = $time - 17200;
+        $starttime = $time - 86400;
+        $metrics = iterator_to_array($onlinemetric->generate_metric_items($starttime, $finish));
         $this->assertEmpty($metrics);
 
         // Get metrics for previous 24 hr period. Should be empty.
-        $metrics = iterator_to_array($onlinemetric->generate_metric_items($backperiod));
+        $starttime = $time - 86400;
+        $metrics = iterator_to_array($onlinemetric->generate_metric_items($starttime));
         $this->assertEmpty($metrics);
 
         // Frequency periods.
@@ -90,13 +92,15 @@ final class tool_cloudmetrics_online_users_metric_test extends \advanced_testcas
 
         // Get metrics for previous year with frequency 60 seconds.
         $onlinemetric->set_frequency(1);
-        $metrics = iterator_to_array($onlinemetric->generate_metric_items(31556926));
+        $starttime = $time - 31556926;
+        $metrics = iterator_to_array($onlinemetric->generate_metric_items($starttime));
         $count = ($metrics[0]->time - end($metrics)->time) / $freq1 + 1;
         $this->assertCount($count, $metrics);
 
         // Get metrics for previous year with frequency 300 seconds.
         $onlinemetric->set_frequency(2);
-        $metrics = iterator_to_array($onlinemetric->generate_metric_items(31556926));
+        $starttime = $time - 31556926;
+        $metrics = iterator_to_array($onlinemetric->generate_metric_items($starttime));
         $count = ($metrics[0]->time - end($metrics)->time) / $freq2 + 1;
         $this->assertCount($count, $metrics);
     }

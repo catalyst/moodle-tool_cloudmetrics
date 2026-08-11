@@ -83,12 +83,8 @@ class daily_users_metric extends online_users_metric {
         return DAYSECS;
     }
 
-    /**
-     * Metric's ability to be backfilled automatically.
-     *
-     * @return bool
-     */
-    public function is_autobackfill(): bool {
+    #[\Override]
+    public function can_backfill_during_upgrade(): bool {
         return true;
     }
 }

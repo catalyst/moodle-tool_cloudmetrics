@@ -63,4 +63,14 @@ abstract class readable_base extends base
      * @param int $frequency
      */
     abstract public function set_last_backfilled_frequency(string $metricname, int $frequency);
+
+    /**
+     * Get the times stored in the collector for the given metric. Times are in reverse chronological order.
+     *
+     * @param string $metricname
+     * @param int $timestart
+     * @param int $timeend
+     * @return iterable
+     */
+    abstract public function get_times(string $metricname, int $timestart, int $timeend): iterable;
 }

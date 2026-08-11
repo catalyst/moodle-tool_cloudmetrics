@@ -16,7 +16,9 @@
 
 namespace tool_cloudmetrics;
 
+use tool_cloudmetrics\metric\builtin_base;
 use tool_cloudmetrics\task\collect_metrics_task;
+use tool_cloudmetrics\metric\manager;
 
 /**
  * A class to help test the collect metrics task.
@@ -52,8 +54,13 @@ class helper_collect_metrics_task extends collect_metrics_task {
      */
     public function send_metrics(array $items) {
         $names = [];
+        $metrics = manager::get_metrics();
         foreach ($items as $item) {
-            $names[] = $item->name;
+            $metric = $metrics[$item->name];
+            // Only include metrics from this plugin.
+            if ($metric instanceof builtin_base) {
+                $names[] = $item->name;
+            }
         }
         sort($names);
         $this->mock->receive($names);
