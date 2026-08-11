@@ -118,6 +118,7 @@ $string['two_hours'] = '2 hours';
 $string['two_month'] = '2 months';
 $string['two_week'] = '2 week';
 $string['two_year'] = '2 years';
+$string['n_years'] = '{$a} years';
 $string['user_activity'] = 'User activity';
 $string['view_chart'] = 'View {$a} chart';
 $string['yearlyactiveusers'] = 'Yearly active users';
