@@ -69,6 +69,10 @@ $periods = [
     YEARSECS * 2  => get_string('two_year', 'tool_cloudmetrics'),
 ];
 
+for ($i = 3; $i <= 10; $i++) {
+    $periods[YEARSECS * $i] = get_string('n_years', 'tool_cloudmetrics', $i);
+}
+
 if ($collector->is_readable()) {
     // Get some information about existing data.
     $range = $collector->get_metric_range($metricname);
