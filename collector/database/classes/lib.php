@@ -159,7 +159,7 @@ class lib {
             }
 
             foreach ($displayedmetrics as $displayedmetric) {
-                $value = !$record->{$displayedmetric} ? null : round($record->{$displayedmetric}, 1);
+                $value = $record->{$displayedmetric} === null ? null : round($record->{$displayedmetric}, 1);
                 $values[$displayedmetric][] = $value;
             }
 
