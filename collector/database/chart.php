@@ -221,7 +221,7 @@ $records = $collector->get_metrics_aggregated($displayedmetrics, $graphperiodsec
 $lastvaluearr = [];
 foreach ($records as $record) {
     foreach ($displayedmetrics as $displayedmetric) {
-        $value = !$record->{$displayedmetric} ? null : round($record->{$displayedmetric}, 1);
+        $value = $record->{$displayedmetric} === null ? null : round($record->{$displayedmetric}, 1);
         $values[$displayedmetric][] = $value;
     }
 
