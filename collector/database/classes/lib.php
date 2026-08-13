@@ -97,4 +97,141 @@ class lib {
         }
         return $period;
     }
+
+    /**
+     * Complies values from the collector into a format suitable for a chart.
+     * @param array $displayedmetrics The names of the metrics to retrive the data for.
+     * @param int $graphperiodsec The domain of time to retrieve data for.
+     * @param int $aggregatefreqtime The interval between time points to retrieve data for.
+     * @param int $displayfrequency
+     * @param int $maxrecords The maximum number of records to return.
+     * @return array
+     * @throws \coding_exception
+     * @throws \dml_exception
+     */
+    public static function get_metrics_aggregated_for_chart(
+        array $displayedmetrics,
+        int $graphperiodsec,
+        int $aggregatefreqtime,
+        int $displayfrequency,
+        int $maxrecords = 1000
+    ): array {
+        global $CFG;
+
+        $values = [];
+        $labels = [];
+        $mins = [];
+        $maxs = [];
+        $diffs = [];
+        $count = 0;
+        $times = [];
+
+        $collector = new collector();
+
+        $nowts = \core\di::get(\core\clock::class)->time();
+        $starttime = $nowts - $graphperiodsec;
+        $endtime = $nowts;
+        $records = $collector->get_metrics_aggregated($displayedmetrics, $starttime, $endtime, $maxrecords, $aggregatefreqtime);
+        $numrecords = count($records);
+
+        $previoustime = null;
+        $gapcount = 0; // The number of new records added.
+        foreach ($records as $record) {
+            $recordtime = (int) $record->increment_start;
+
+            // If there is a gap in the record times, fill it with null values so the chart shows a break,
+            // unless doing so will cause the total number of values to exceed the maximum.
+            if ($previoustime !== null && ($recordtime - $previoustime) > 2 * $aggregatefreqtime) {
+                $gaptime = $previoustime + $aggregatefreqtime;
+                while ($gaptime < $recordtime && $gapcount + $numrecords < $maxrecords) {
+                    $times[] = $gaptime;
+                    foreach ($displayedmetrics as $displayedmetric) {
+                        $values[$displayedmetric][] = null;
+                    }
+                    if (count($displayedmetrics) == 1) {
+                        $mins[] = null;
+                        $maxs[] = null;
+                    }
+                    $gaptime += $aggregatefreqtime;
+                    ++$count;
+                    ++$gapcount;
+                }
+            }
+
+            foreach ($displayedmetrics as $displayedmetric) {
+                $value = $record->{$displayedmetric} === null ? null : round($record->{$displayedmetric}, 1);
+                $values[$displayedmetric][] = $value;
+            }
+
+            $times[] = $recordtime;
+
+            if (count($displayedmetrics) == 1) {
+                $mins[] = (float)$record->min;
+                $maxs[] = (float)$record->max;
+                $diffs[] = (float)$record->max - (float)$record->min;
+            }
+            $count++;
+            $previoustime = $recordtime;
+        }
+
+        if ($count) {
+            // Insert padding at the end to get the chart to display the full time period.
+            $latesttime = time();
+            $currenttime = end($times) + $aggregatefreqtime;
+            while ($currenttime <= $latesttime && $count < $maxrecords) {
+                $times[] = $currenttime;
+                foreach ($displayedmetrics as $displayedmetric) {
+                    $values[$displayedmetric][] = null;
+                }
+                if (count($displayedmetrics) == 1) {
+                    $mins[] = null;
+                    $maxs[] = null;
+                }
+                $currenttime += $aggregatefreqtime;
+                ++$count;
+            }
+
+            // Insert padding at the beginning to get the chart to display the full time period.
+            $earliesttime = time() - $graphperiodsec;
+            $currenttime = $times[0] - $aggregatefreqtime;
+            while ($currenttime >= $earliesttime && $count < $maxrecords) {
+                array_unshift($times, $currenttime);
+                foreach ($displayedmetrics as $displayedmetric) {
+                    array_unshift($values[$displayedmetric], null);
+                }
+                if (count($displayedmetrics) == 1) {
+                    array_unshift($mins, null);
+                    array_unshift($maxs, null);
+                }
+                $currenttime -= $aggregatefreqtime;
+                ++$count;
+            }
+
+            // Make human readable labels for the times.
+
+            // If freq 12hr or greater set to UTC.
+            $timezone = $CFG->timezone;
+            if ($displayfrequency >= 128) {
+                $timezone = 'UTC';
+            }
+
+            foreach ($times as $time) {
+                if ($displayfrequency == 4096) {
+                    // If time increment is month display data at start of month.
+                    $labels[] = userdate($time + $aggregatefreqtime, get_string('strftimemonth', 'cltr_database'), $timezone);
+                } else {
+                    $labels[] = userdate($time, get_string('strftimedatetime', 'cltr_database'), $timezone);
+                }
+            }
+        }
+        return [
+            $count,
+            $times,
+            $labels,
+            $values,
+            $mins,
+            $maxs,
+            $diffs,
+        ];
+    }
 }
