@@ -80,15 +80,14 @@ class metric_testcase extends \advanced_testcase {
             ->willReturn($frequency);
         $stub->method('is_backfillable')
             ->willReturn(true);
-        $stub->method('is_autobackfill')
+        $stub->method('can_backfill_during_upgrade')
             ->willReturn(true);
 
         $stub->method('generate_metric_items')
-            ->willReturnCallback(function (int $backtime, ?int $finishtime) use ($stub, $frequency) {
-                $finishtime = $finishtime ?? time();
-                $start = time() - $backtime;
+            ->willReturnCallback(function (int $starttime, ?int $finishtime) use ($stub, $frequency) {
+                $finishtime = $finishtime ?? \core\di::get(\core\clock::class)->time();
                 $items = [];
-                for ($time = $start; $time <= $finishtime; $time = lib::get_next_time($time, $frequency)) {
+                for ($time = $starttime; $time <= $finishtime; $time = lib::get_next_time($time, $frequency)) {
                     $items[] = $stub->generate_metric_item(0, $time);
                 }
                 return new \ArrayIterator($items);

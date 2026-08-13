@@ -41,5 +41,6 @@ function xmldb_tool_cloudmetrics_install() {
 
     // Perform a backfill straight away.
     $backfilltask = new \tool_cloudmetrics\task\autobackfill_metrics_task();
+    $backfilltask->set_custom_data(['isupgrade' => true]);
     \core\task\manager::queue_adhoc_task($backfilltask, true);
 }

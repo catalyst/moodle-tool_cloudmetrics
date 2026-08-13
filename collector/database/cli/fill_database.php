@@ -33,7 +33,6 @@ $collector = new collector();
 $metric = new \tool_cloudmetrics\metric\test_metric();
 $metric->name = 'activeusers';
 
-for ($x = 0; $x <= 100; ++$x) {
-    $metrics = iterator_to_array($metric->generate_metric_items(0, 0));
-    $collector->record_metrics($metrics);
-}
+$time = time();
+$metrics = iterator_to_array($metric->generate_metric_items($time - DAYSECS, $time));
+$collector->record_metrics($metrics);
