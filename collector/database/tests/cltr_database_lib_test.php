@@ -17,7 +17,6 @@
 namespace cltr_database;
 
 use PHPUnit\Framework\Attributes\CoversMethod;
-use PHPUnit\Framework\Attributes\DataProvider;
 use tool_cloudmetrics\metric\manager;
 
 /**
@@ -75,6 +74,7 @@ final class cltr_database_lib_test extends \advanced_testcase {
     /**
      * Tests lib::get_metrics_aggregated_for_chart() over a range of inputs.
      *
+     * @dataProvider chart_provider
      * @param array $records List of [name, bucketoffset, value]. bucketoffset is a (usually negative)
      *        integer multiple of $aggregatefreqtime placing the record relative to "now".
      * @param array $displayedmetrics
@@ -87,7 +87,6 @@ final class cltr_database_lib_test extends \advanced_testcase {
      * @param array $expectedmaxs Expected non-null maxs (single metric only).
      * @param array $expecteddiffs Expected diffs (single metric only).
      */
-    #[DataProvider('chart_provider')]
     public function test_get_metrics_aggregated_for_chart(
         array $records,
         array $displayedmetrics,
