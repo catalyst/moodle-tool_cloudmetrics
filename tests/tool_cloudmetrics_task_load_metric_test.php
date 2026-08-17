@@ -18,7 +18,6 @@ namespace tool_cloudmetrics;
 
 use core\task\adhoc_task;
 use PHPUnit\Framework\Attributes\CoversMethod;
-use PHPUnit\Framework\Attributes\DataProvider;
 use tool_cloudmetrics\metric\task_load_metric;
 use tool_cloudmetrics\task\collect_metrics_task;
 use tool_cloudmetrics\task\autobackfill_metrics_task;
@@ -54,9 +53,9 @@ final class tool_cloudmetrics_task_load_metric_test extends \advanced_testcase {
     /**
      * Tests the metric generation using scheduled tasks.
      *
+     * @dataProvider times_provider
      * @param int $time
      * @param float $expected
-     * @dataProvider times_provider
      */
     public function test_generate_metric_item_with_scheduled_tasks(int $time, float $expected): void {
         global $DB;
