@@ -16,6 +16,8 @@
 
 namespace tool_cloudmetrics\plugininfo;
 
+use core\setting\part\page;
+use core\setting\part\part_of_admin_tree;
 use tool_cloudmetrics\collector\base;
 
 /**
@@ -145,11 +147,11 @@ class cltr extends \core\plugininfo\base {
     /**
      * Load plugin settings
      *
-     * @param \part_of_admin_tree $adminroot
+     * @param part_of_admin_tree $adminroot
      * @param  string $parentnodename
      * @param bool $hassiteconfig
      */
-    public function load_settings(\part_of_admin_tree $adminroot, $parentnodename, $hassiteconfig) {
+    public function load_settings(part_of_admin_tree $adminroot, $parentnodename, $hassiteconfig) {
         global $CFG, $USER, $DB, $OUTPUT, $PAGE; // In case settings.php wants to refer to them.
         $ADMIN = $adminroot; // May be used in settings.php.
         $plugininfo = $this; // Also can be used inside settings.php.
@@ -163,7 +165,7 @@ class cltr extends \core\plugininfo\base {
         }
 
         $section = $this->get_settings_section_name();
-        $settings = new \admin_settingpage($section, $this->displayname, 'moodle/site:config');
+        $settings = new page($section, $this->displayname, 'moodle/site:config');
         include($this->full_path('settings.php')); // This may also set $settings to null.
 
         if ($settings) {
