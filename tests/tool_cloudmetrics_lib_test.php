@@ -90,7 +90,7 @@ class tool_cloudmetrics_lib_test  extends \advanced_testcase {
      *
      * @return array[]
      */
-    public function data_for_get_previous_time(): array {
+    public static function data_for_get_previous_time(): array {
         return [
             ['10:05',  metric\manager::FREQ_MIN, '10:04'],
             ['10:07',  metric\manager::FREQ_5MIN, '10:02'],
@@ -128,7 +128,7 @@ class tool_cloudmetrics_lib_test  extends \advanced_testcase {
      *
      * @return array[]
      */
-    public function data_for_get_next_time(): array {
+    public static function data_for_get_next_time(): array {
         return [
             ['10:05',  metric\manager::FREQ_MIN, '10:06'],
             ['10:07',  metric\manager::FREQ_5MIN, '10:12'],
@@ -166,7 +166,7 @@ class tool_cloudmetrics_lib_test  extends \advanced_testcase {
      *
      * @return array[]
      */
-    public function data_for_get_last_whole_tick(): array {
+    public static function data_for_get_last_whole_tick(): array {
         return [
             ['10:06',  metric\manager::FREQ_MIN, '10:06'],
             ['10:07',  metric\manager::FREQ_5MIN, '10:05'],
