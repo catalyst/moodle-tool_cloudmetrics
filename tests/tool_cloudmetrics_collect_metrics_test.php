@@ -57,6 +57,7 @@ class mock_receiver {
  * it passes it to a mock receiver class instead.
  */
 class helper_collect_metrics_task extends collect_metrics_task {
+    protected mock_receiver $mock;
 
     /**
      * Constructer for helper_collect_metrics_task

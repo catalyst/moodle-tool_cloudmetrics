@@ -134,7 +134,7 @@ final class tool_cloudmetrics_users_test extends \advanced_testcase {
      *
      * @return array[]
      */
-    public function data_for_test_generate_metrics(): array {
+    public static function data_for_test_generate_metrics(): array {
         $newusersmetric = new new_users_metric();
         $activeusersmetric = new active_users_metric();
         $onlineusersmetric = new online_users_metric();
@@ -171,7 +171,7 @@ final class tool_cloudmetrics_users_test extends \advanced_testcase {
      *
      * @return array[]
      */
-    public function data_for_test_generate_yearly_active_users_metric(): array {
+    public static function data_for_test_generate_yearly_active_users_metric(): array {
         $yearlyactiveusers = new yearly_active_users_metric();
 
         return [

@@ -69,7 +69,7 @@ class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
      *
      * @return \string[][]
      */
-    public function midnight_provider(): array {
+    public static function midnight_provider(): array {
         return [
             ['today -5 hours', 'yesterday'],
             ['today +20 hours', 'today'],
@@ -274,7 +274,7 @@ class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
      *
      * @return array
      */
-    public function expiry_provider() {
+    public static function expiry_provider() {
         return [
             [20, 10, 10 * DAYSECS, 20, 10],
             [20, -2, 10 * DAYSECS, 20, 9],
@@ -301,7 +301,7 @@ class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
      *
      * @return array[]
      */
-    public function period_from_interval_provider(): array {
+    public static function period_from_interval_provider(): array {
         return [
             [ manager::FREQ_MIN, DAYSECS * 7],
             [ manager::FREQ_5MIN, DAYSECS * 7],
