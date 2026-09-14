@@ -16,12 +16,14 @@
 
 namespace tool_cloudmetrics;
 
+use core\setting\setting_base;
+
 /**
  * A table to manage collector plugins.
  *
  * @package   tool_cloudmetrics
  */
-class admin_setting_manage_collectors extends \admin_setting {
+class admin_setting_manage_collectors extends setting_base {
 
     /**
      * Calls parent::__construct with specific arguments

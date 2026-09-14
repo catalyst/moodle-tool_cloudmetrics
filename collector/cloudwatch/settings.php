@@ -23,6 +23,10 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use core\setting\heading;
+use core\setting\type\password_unmask;
+use core\setting\type\text;
+
 defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
@@ -31,11 +35,11 @@ if ($hassiteconfig) {
 
         // Some of the settings cannot be created if the plugin is not fully usable.
         if (\cltr_cloudwatch\lib::is_plugin_usable()) {
-            $settings->add(new admin_setting_heading('cltr_cloudwatch_settings', '',
+            $settings->add(new heading('cltr_cloudwatch_settings', '',
                 get_string('pluginnamedesc', 'cltr_cloudwatch')));
 
             // AWS settings.
-            $settings->add(new admin_setting_heading('cltr_cloudwatch_aws',
+            $settings->add(new heading('cltr_cloudwatch_aws',
                 get_string('awssettings', 'cltr_cloudwatch'),
                 get_string('awssettings_desc', 'cltr_cloudwatch')
             ));
@@ -46,31 +50,31 @@ if ($hassiteconfig) {
                 'ap-southeast-2'
             ));
 
-            $settings->add(new admin_setting_configtext('cltr_cloudwatch/aws_key',
+            $settings->add(new text('cltr_cloudwatch/aws_key',
                 get_string('awskey', 'cltr_cloudwatch'),
                 get_string('awskey_desc', 'cltr_cloudwatch'),
                 '', PARAM_TEXT));
 
-            $settings->add(new admin_setting_configpasswordunmask('cltr_cloudwatch/aws_secret',
+            $settings->add(new password_unmask('cltr_cloudwatch/aws_secret',
                 get_string('awssecret', 'cltr_cloudwatch'),
                 get_string('awssecret_desc', 'cltr_cloudwatch'),
                 ''));
 
 
             // General Settings.
-            $settings->add(new admin_setting_heading('cltr_cloudwatch_general',
+            $settings->add(new heading('cltr_cloudwatch_general',
                 get_string('generalsettings', 'cltr_cloudwatch'),
                 get_string('generalsettings_desc', 'cltr_cloudwatch')
             ));
 
             // Namespace.
-            $settings->add(new admin_setting_configtext('cltr_cloudwatch/namespace',
+            $settings->add(new text('cltr_cloudwatch/namespace',
                 get_string('namespace', 'cltr_cloudwatch'),
                 get_string('namespace_desc', 'cltr_cloudwatch'),
                 '', PARAM_TEXT));
 
             // Environment.
-            $settings->add(new admin_setting_configtext('cltr_cloudwatch/environment',
+            $settings->add(new text('cltr_cloudwatch/environment',
                 get_string('environment', 'cltr_cloudwatch'),
                 get_string('environment_desc', 'cltr_cloudwatch'),
                 'Dev', PARAM_TEXT));
@@ -78,13 +82,13 @@ if ($hassiteconfig) {
             $plugininfo = $plugins = \core_plugin_manager::instance()->get_plugin_info('local_aws');
             if (is_null($plugininfo)) {
                 $text = $OUTPUT->notification(get_string('aws:installneeded', 'cltr_cloudwatch', \cltr_cloudwatch\lib::LOCAL_AWS_VERSION));
-                $settings->add(new \admin_setting_heading('cltr_cloudwatch_aws',
+                $settings->add(new \core\setting\heading('cltr_cloudwatch_aws',
                     get_string('unsatisfied_requirements', 'cltr_cloudwatch'),
                     $text
                 ));
             } else if ($plugininfo->versiondisk < \cltr_cloudwatch\lib::LOCAL_AWS_VERSION) {
                 $text = $OUTPUT->notification(get_string('aws:upgradeneeded', 'cltr_cloudwatch', \cltr_cloudwatch\lib::LOCAL_AWS_VERSION));
-                $settings->add(new \admin_setting_heading('cltr_cloudwatch_aws',
+                $settings->add(new \core\setting\heading('cltr_cloudwatch_aws',
                     get_string('unsatisfied_requirements', 'cltr_cloudwatch'),
                     $text
                 ));
