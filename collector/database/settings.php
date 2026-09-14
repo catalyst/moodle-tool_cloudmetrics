@@ -23,12 +23,16 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use core\setting\page\externalpage;
+use core\setting\type\checkbox;
+use core\setting\type\duration;
+
 defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
     $ADMIN->add(
         'reports',
-        new admin_externalpage(
+        new externalpage(
             'cltr_database_chart',
             get_string('metric_display', 'cltr_database'),
             new moodle_url('/admin/tool/cloudmetrics/collector/database/chart.php'),
@@ -38,7 +42,7 @@ if ($hassiteconfig) {
 
     $ADMIN->add(
         'reports',
-        new admin_externalpage(
+        new externalpage(
             'cltr_database_backfill',
             get_string('metric_backfill', 'cltr_database'),
             new moodle_url('/admin/tool/cloudmetrics/collector/database/backfill.php'),
@@ -48,7 +52,7 @@ if ($hassiteconfig) {
 
     if ($ADMIN->fulltree) {
         $settings->add(
-            new admin_setting_configduration(
+            new duration(
                 'cltr_database/metric_expiry',
                 get_string('metric_expiry', 'cltr_database'),
                 get_string('metric_expiry_desc', 'cltr_database'),
@@ -56,7 +60,7 @@ if ($hassiteconfig) {
             )
         );
         $settings->add(
-            new admin_setting_configcheckbox(
+            new checkbox(
                 'cltr_database/metric_auto_backfill',
                 get_string('metric_auto_backfill', 'cltr_database'),
                 get_string('metric_auto_backfill_desc', 'cltr_database'),

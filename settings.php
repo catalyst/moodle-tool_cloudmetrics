@@ -23,6 +23,10 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use core\setting\heading;
+use core\setting\part\category;
+use core\setting\part\page;
+use core\setting\type\duration;
 use tool_cloudmetrics\admin_setting_manage_collectors;
 use tool_cloudmetrics\admin_setting_manage_metrics;
 use tool_cloudmetrics\metric\manager;
@@ -30,9 +34,9 @@ use tool_cloudmetrics\metric\manager;
 defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
-    $ADMIN->add('tools', new admin_category('tool_cloudmetrics_reports', get_string('pluginname', 'tool_cloudmetrics')));
+    $ADMIN->add('tools', new category('tool_cloudmetrics_reports', get_string('pluginname', 'tool_cloudmetrics')));
 
-    $settings = new admin_settingpage(
+    $settings = new page(
         'tool_cloudmetrics',
         get_string('generalsettings', 'admin')
     );
@@ -40,26 +44,26 @@ if ($hassiteconfig) {
     $ADMIN->add('tool_cloudmetrics_reports', $settings);
 
     if ($ADMIN->fulltree) {
-        $settings->add(new admin_setting_heading('tool_cloudmetrics/collectors',
+        $settings->add(new heading('tool_cloudmetrics/collectors',
             get_string('manage_collectors', 'tool_cloudmetrics'),
             get_string('enable_disable_collectors', 'tool_cloudmetrics')
         ));
 
         $settings->add(new admin_setting_manage_collectors());
 
-        $settings->add(new admin_setting_heading('tool_cloudmetrics/metrics',
+        $settings->add(new heading('tool_cloudmetrics/metrics',
             get_string('manage_metrics', 'tool_cloudmetrics'),
             get_string('enable_disable_metrics', 'tool_cloudmetrics')
         ));
 
         $settings->add(new admin_setting_manage_metrics());
 
-        $settings->add(new admin_setting_heading('tool_cloudmetrics/builtin_metrics',
+        $settings->add(new heading('tool_cloudmetrics/builtin_metrics',
             get_string('builtin_metrics_settings', 'tool_cloudmetrics'),
             ''
         ));
 
-        $settings->add(new admin_setting_configduration(
+        $settings->add(new duration(
             'tool_cloudmetrics/activeusers_time_window',
             get_string('activeusers_time_window', 'tool_cloudmetrics'),
             get_string('activeusers_time_window_desc', 'tool_cloudmetrics'),
@@ -67,7 +71,7 @@ if ($hassiteconfig) {
             DAYSECS
         ));
 
-        $settings->add(new admin_setting_configduration(
+        $settings->add(new duration(
             'tool_cloudmetrics/newusers_time_window',
             get_string('newusers_time_window', 'tool_cloudmetrics'),
             get_string('newusers_time_window_desc', 'tool_cloudmetrics'),
@@ -75,7 +79,7 @@ if ($hassiteconfig) {
             DAYSECS
         ));
 
-        $settings->add(new admin_setting_configduration(
+        $settings->add(new duration(
             'tool_cloudmetrics/onlineusers_time_window',
             get_string('onlineusers_time_window', 'tool_cloudmetrics'),
             get_string('onlineusers_time_window_desc', 'tool_cloudmetrics'),

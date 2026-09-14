@@ -18,6 +18,7 @@ namespace tool_cloudmetrics;
 
 use tool_cloudmetrics\metric\manager;
 use core\output\inplace_editable;
+use core\setting\setting_base;
 
 /**
  * Admin setting object for managing metrics
@@ -27,7 +28,7 @@ use core\output\inplace_editable;
  * @copyright 2022, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class admin_setting_manage_metrics extends \admin_setting {
+class admin_setting_manage_metrics extends setting_base {
 
     /**
      * Calls parent::__construct with specific arguments
