@@ -41,19 +41,21 @@ abstract class base {
      *
      * @param array $metrics
      * @param \progress_bar|null $progress
+     * @param int $offset Number of items already processed prior to this call, for cumulative progress reporting.
+     * @param int|null $total Grand total of items being processed across all calls. Defaults to count($metrics).
      * @return mixed
      */
-    public function record_metrics(array $metrics, \progress_bar $progress = null) {
-        $count = 0;
+    public function record_metrics(array $metrics, ?\progress_bar $progress = null, int $offset = 0, ?int $total = null) {
+        $total ??= count($metrics);
+        $count = $offset;
         foreach ($metrics as $metric) {
             $this->record_metric($metric);
             if ($progress) {
                 $count++;
                 $progress->update(
                     $count,
-                    count($metrics),
-                    get_string('backfillsaving', 'tool_cloudmetrics', $metric->name)
-                    . userdate($metric->time, '%e %b %Y, %H:%M')
+                    $total,
+                    userdate($metric->time, '%e %b %Y, %H:%M')
                 );
             }
         }

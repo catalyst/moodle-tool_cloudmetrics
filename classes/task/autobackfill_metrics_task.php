@@ -31,6 +31,8 @@ use tool_cloudmetrics\collector\readable_base as collector;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class autobackfill_metrics_task extends \core\task\adhoc_task {
+    use \core\task\stored_progress_task_trait;
+
     /**
      * Get task name
      */
@@ -125,16 +127,30 @@ class autobackfill_metrics_task extends \core\task\adhoc_task {
         $rangestart = $nowts - $timerange;
         $rangeend = $nowts;
 
+        // Start reporting progress via the task API, so it can be tracked in the admin UI.
+        $this->start_stored_progress();
+
+        $total = count($metrics) * count($collectors);
+        $done = 0;
+
         // For each metric, for each collector, backfill gaps.
         foreach ($metrics as $metricname => $metric) {
             foreach ($collectors as $collectorname => $collector) {
                 mtrace("Backfilling metric '{$metricname}' to collector '{$collectorname}'...");
+                $this->progress->update(
+                    $done,
+                    $total,
+                    "Backfilling metric '{$metricname}' to collector '{$collectorname}'..."
+                );
 
                 $this->do_backfill($metric, $collector, $rangestart, $rangeend);
 
+                $done++;
                 mtrace("Backfilling complete for metric '{$metricname}' to collector '{$collectorname}'.");
             }
         }
+
+        $this->progress->update_full(100, 'Backfilling complete.');
     }
 
     /**
@@ -156,11 +172,16 @@ class autobackfill_metrics_task extends \core\task\adhoc_task {
 
         $freq = $metric->get_frequency();
         $endtime = lib::get_last_whole_tick($endtime, $freq);
+        $period = lib::get_period($freq);
 
         // Records are in reverse chronological order, matching our descending iteration,
         // so we can walk both in lockstep.
         $backrecords->rewind();
 
+        // First pass: identify every gap (there may be several, separated by existing records)
+        // so we can report cumulative progress across the whole range instead of resetting
+        // the progress bar back to 0% at the start of each individual gap.
+        $gaps = [];
         $first = $last = null;
         for (
             $time = $endtime;
@@ -176,7 +197,7 @@ class autobackfill_metrics_task extends \core\task\adhoc_task {
                 // A record exists for this time, so the gap (if any) has ended. Backfill the kept times.
                 $backrecords->next();
                 if ($first !== null) {
-                    $this->transfer($metric, $collector, $first, $last);
+                    $gaps[] = [$first, $last];
                     $first = $last = null;
                 }
             } else {
@@ -191,7 +212,18 @@ class autobackfill_metrics_task extends \core\task\adhoc_task {
 
         // Backfill any remaining gap reaching the start of the range.
         if ($first !== null) {
-            $this->transfer($metric, $collector, $first, $last);
+            $gaps[] = [$first, $last];
+        }
+
+        // Total number of ticks across all gaps, used as the grand total for cumulative progress.
+        $totalitems = 0;
+        foreach ($gaps as [$low, $high]) {
+            $totalitems += ($high - $low) / $period + 1;
+        }
+
+        $processed = 0;
+        foreach ($gaps as [$low, $high]) {
+            $processed = $this->transfer($metric, $collector, $low, $high, $processed, $totalitems);
         }
     }
 
@@ -202,35 +234,46 @@ class autobackfill_metrics_task extends \core\task\adhoc_task {
      * @param collector $collector
      * @param int $low
      * @param int $high
-     * @return void
+     * @param int $processed Number of items already backfilled for this metric/collector, across earlier gaps.
+     * @param int|null $totalitems Total items to backfill for this metric/collector, across all gaps.
+     * @return int Updated count of items processed, including this gap.
      */
-    public function transfer(metric\base $metric, collector $collector, int $low, int $high) {
+    public function transfer(
+        metric\base $metric,
+        collector $collector,
+        int $low,
+        int $high,
+        int $processed = 0,
+        ?int $totalitems = null
+    ): int {
         mtrace("Filling gap from $low to $high");
         $items = $metric->generate_metric_items($low, $high);
-        $progressbar = new \core\output\progress_bar();
-        $progressbar->create();
+        // Reuse the task's stored progress bar (set up by execute() via start_stored_progress())
+        // so per-item progress is visible via the task API. Fall back to a plain progress bar
+        // when transfer()/do_backfill() are called directly (e.g. in unit tests) without execute().
+        $progressbar = $this->progress ?? new \core\output\progress_bar();
+        if ($this->progress === null) {
+            $progressbar->create();
+        }
         if ($metric->is_backfill_incremental()) {
             // Incremental metrics are stored one at a time.
             // We do not know the exact number of records to save, so we approximate it.
-            $roughtotal = ($high - $low) / lib::get_period($metric->get_frequency()) + 1;
-            $count = 0;
+            $roughtotal = $totalitems ?? (($high - $low) / lib::get_period($metric->get_frequency()) + 1);
             foreach ($items as $item) {
                 $collector->record_metric($item);
+                $processed++;
                 $progressbar->update(
-                    ++$count,
+                    $processed,
                     $roughtotal,
-                    get_string('backfillsaving', 'tool_cloudmetrics', $item->name)
-                            . userdate($item->time, '%e %b %Y, %H:%M')
+                    userdate($item->time, '%e %b %Y, %H:%M')
                 );
             }
-            // Finish the progress bar.
-            $progressbar->update(
-                $roughtotal,
-                $roughtotal,
-                get_string('backfillcomplete', 'tool_cloudmetrics')
-            );
         } else {
-            $collector->record_metrics(iterator_to_array($items), $progressbar);
+            $itemsarray = iterator_to_array($items);
+            $roughtotal = $totalitems ?? count($itemsarray);
+            $collector->record_metrics($itemsarray, $progressbar, $processed, $roughtotal);
+            $processed += count($itemsarray);
         }
+        return $processed;
     }
 }
