@@ -36,7 +36,6 @@ $string['backfillable'] = 'Backfillable';
 $string['backfillcomplete'] = 'Backfilling complete.';
 $string['backfilldata'] = 'Backfill data';
 $string['backfillgenerating'] = 'Generating metric items for {$a}.';
-$string['backfillsaving'] = 'Saving metric items for {$a}.';
 $string['builtin_metrics_settings'] = 'Built in metric settings';
 $string['change_frequency'] = 'Change frequency';
 $string['checkcollectorcheck'] = 'Cloudmetrics collector status';
