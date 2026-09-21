@@ -32,56 +32,10 @@ use tool_cloudmetrics\task\collect_metrics_task;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once(__DIR__ . "/metric_testcase.php"); // This is needed. File will not be automatically included.
-
-/**
- * A class to help test the collect metrics task.
- *
- * This class is mocked to be able to test against the names of the metrics that have been selected for measurement.
- */
-class mock_receiver {
-    /**
-     * Receive names
-     *
-     * @param array $names
-     */
-    public function receive(array $names) {
-    }
-}
-
-/**
- * A class to help test the collect metrics task.
- *
- * This class overrides collect_metrics_task so that instead of sending the metric items to the collectors,
- * it passes it to a mock receiver class instead.
- */
-class helper_collect_metrics_task extends collect_metrics_task {
-    /**
-     * Constructer for helper_collect_metrics_task
-     *
-     * @param  mock_receiver $mock
-     */
-    public function __construct(mock_receiver $mock) {
-        $this->mock = $mock;
-    }
-
-    /**
-     * In this test, we are not interested in the times or values of the items, only the names. So we take out
-     * the names and pass them on the mock class which checks them.
-     *
-     * The array is alphabetically sorted to make it easier to test against.
-     *
-     * @param array $items
-     */
-    public function send_metrics(array $items) {
-        $names = [];
-        foreach ($items as $item) {
-            $names[] = $item->name;
-        }
-        sort($names);
-        $this->mock->receive($names);
-    }
-}
+// This is needed. Files will not be automatically included.
+require_once(__DIR__ . "/helper_collect_metrics_task.php");
+require_once(__DIR__ . "/metric_testcase.php");
+require_once(__DIR__ . "/mock_receiver.php");
 
 /**
  * Test for collect_metrics_task.

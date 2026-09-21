@@ -157,7 +157,7 @@ class cltr extends \core\plugininfo\base {
             return;
         }
 
-        if (!$hassiteconfig or !file_exists($this->full_path('settings.php'))) {
+        if (!$hassiteconfig || !file_exists($this->full_path('settings.php'))) {
             return;
         }
 

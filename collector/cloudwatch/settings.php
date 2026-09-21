@@ -92,14 +92,18 @@ if ($hassiteconfig) {
         } else {
             $plugininfo = $plugins = \core_plugin_manager::instance()->get_plugin_info('local_aws');
             if (is_null($plugininfo)) {
-                $text = $OUTPUT->notification(get_string('aws:installneeded', 'cltr_cloudwatch', \cltr_cloudwatch\lib::LOCAL_AWS_VERSION));
+                $text = $OUTPUT->notification(
+                    get_string('aws:installneeded', 'cltr_cloudwatch', \cltr_cloudwatch\lib::LOCAL_AWS_VERSION)
+                );
                 $settings->add(new \admin_setting_heading(
                     'cltr_cloudwatch_aws',
                     get_string('unsatisfied_requirements', 'cltr_cloudwatch'),
                     $text
                 ));
             } else if ($plugininfo->versiondisk < \cltr_cloudwatch\lib::LOCAL_AWS_VERSION) {
-                $text = $OUTPUT->notification(get_string('aws:upgradeneeded', 'cltr_cloudwatch', \cltr_cloudwatch\lib::LOCAL_AWS_VERSION));
+                $text = $OUTPUT->notification(
+                    get_string('aws:upgradeneeded', 'cltr_cloudwatch', \cltr_cloudwatch\lib::LOCAL_AWS_VERSION)
+                );
                 $settings->add(new \admin_setting_heading(
                     'cltr_cloudwatch_aws',
                     get_string('unsatisfied_requirements', 'cltr_cloudwatch'),
