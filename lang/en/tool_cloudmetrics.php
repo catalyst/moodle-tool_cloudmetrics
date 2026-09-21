@@ -85,8 +85,8 @@ $string['data_period'] = 'Current information shows data can be retrieved from {
 $string['different_freq'] = 'Caution - frequency has been changed, new data will complete currently present but no data will be added between
 {$a->backfilledfrom} and {$a->backfilledto}.';
 $string['period_select'] = 'Select period to retrieve data from: ';
-$string['return_to_backfill'] = 'Backfill {$a} period';
-$string['return_to_chart'] = 'Return to {$a} chart';
+$string['return_to_backfill'] = 'Backfill period: ';
+$string['return_to_chart'] = 'Return to chart: ';
 $string['view_chart'] = 'View {$a} chart';
 $string['same_freq'] = 'Backfilling to a further date in the past will complete already present data.';
 
