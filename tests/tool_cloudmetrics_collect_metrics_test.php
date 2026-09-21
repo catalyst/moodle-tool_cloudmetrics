@@ -40,7 +40,6 @@ require_once(__DIR__ . "/metric_testcase.php"); // This is needed. File will not
  * This class is mocked to be able to test against the names of the metrics that have been selected for measurement.
  */
 class mock_receiver {
-
     /**
      * Receive names
      *
@@ -57,7 +56,6 @@ class mock_receiver {
  * it passes it to a mock receiver class instead.
  */
 class helper_collect_metrics_task extends collect_metrics_task {
-
     /**
      * Constructer for helper_collect_metrics_task
      *
@@ -90,7 +88,6 @@ class helper_collect_metrics_task extends collect_metrics_task {
  *
  */
 class tool_cloudmetrics_collect_metrics_test extends \advanced_testcase {
-
     /**
      * Set up before each test
      */

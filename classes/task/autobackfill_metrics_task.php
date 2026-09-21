@@ -28,7 +28,6 @@ use tool_cloudmetrics\metric;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class autobackfill_metrics_task extends \core\task\adhoc_task {
-
     /**
      * Get task name
      */
@@ -71,10 +70,10 @@ class autobackfill_metrics_task extends \core\task\adhoc_task {
                 userdate(($nowts - $collectingperiod), '%e %b %Y, %H:%M')
             ));
             $items = $metrictype->generate_metric_items($collectingperiod, $nowts);
-            mtrace(sprintf('Generated %s %s metrics', count($items),  $metrictype->get_name()));
+            mtrace(sprintf('Generated %s %s metrics', count($items), $metrictype->get_name()));
             $this->backfill_metrics($items);
             $total += count($items);
         }
-        mtrace('Backfilled totally '.$total.' metrics');
+        mtrace('Backfilled totally ' . $total . ' metrics');
     }
 }

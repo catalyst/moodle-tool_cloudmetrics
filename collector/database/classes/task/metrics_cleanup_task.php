@@ -27,7 +27,6 @@ use cltr_database\lib;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class metrics_cleanup_task extends \core\task\scheduled_task {
-
     /**
      * Get task name
      */

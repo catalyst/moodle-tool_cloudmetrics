@@ -38,7 +38,6 @@ use tool_cloudmetrics\metric;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class collect_metrics_task extends \core\task\scheduled_task {
-
     /** @var int|null Reference timestamp, if set by user. */
     private $time = null;
 
@@ -114,5 +113,4 @@ class collect_metrics_task extends \core\task\scheduled_task {
         // Performance important part is over, we can relax a little.
         $this->send_metrics($items);
     }
-
 }
