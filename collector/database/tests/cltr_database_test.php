@@ -33,7 +33,6 @@ use tool_cloudmetrics\metric\active_users_metric;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
-
     /** @var int Hours in a day*/
     const DAYHOURS = 24;
 
@@ -193,7 +192,7 @@ class cltr_database_test extends \tool_cloudmetrics\metric_testcase {
                 'contextinstanceid' => 0,
                 'userid' => $i,
                 'anonymous' => 0,
-                'timecreated' => $i
+                'timecreated' => $i,
             ];
         }
         set_config('enabled_stores', 'logstore_standard', 'tool_log');

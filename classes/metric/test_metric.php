@@ -27,7 +27,6 @@ use tool_cloudmetrics\lib;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class test_metric extends base {
-
     /** @var string Metric name. */
     public $name = 'foobar';
 

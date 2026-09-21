@@ -24,7 +24,7 @@
  */
 
 define('NO_OUTPUT_BUFFERING', true);
-require_once(__DIR__.'/../../../../../config.php');
+require_once(__DIR__ . '/../../../../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 
 use tool_cloudmetrics\metric\manager;
@@ -78,13 +78,20 @@ if ($mintime != -1) {
     $backfilledinterval = (int)$freqretrieved;
     if ($backfilledinterval !== $metrics[$metricname]->get_frequency()) {
         $isdifferentfreq = true;
-        $context['cautiondata'] = get_string('different_freq', 'tool_cloudmetrics',
-            ['backfilledfrom' => $backfilledfrom, 'backfilledto' => $backfilledto]);;
+        $context['cautiondata'] = get_string(
+            'different_freq',
+            'tool_cloudmetrics',
+            ['backfilledfrom' => $backfilledfrom, 'backfilledto' => $backfilledto]
+        );
+        ;
     } else {
         $isdifferentfreq = false;
     }
-    $context['dataindb'] = get_string('data_in_db', 'tool_cloudmetrics',
-            ['dbstart' => $backfilledfrom, 'dbend' => $backfilledto]);
+    $context['dataindb'] = get_string(
+        'data_in_db',
+        'tool_cloudmetrics',
+        ['dbstart' => $backfilledfrom, 'dbend' => $backfilledto]
+    );
 } else {
     $emptydb = get_string('data_empty', 'tool_cloudmetrics');
 }
@@ -95,8 +102,11 @@ $enddate = userdate($daterange->max, get_string('strftimedatetime', 'cltr_databa
 $mform = new metric_backfill_form(null, [$daterange, $periods, $metricname]);
 $context['form'] = $mform->render();
 
-$context['dataperiod'] = get_string('data_period', 'tool_cloudmetrics',
-            ['startdate' => $startdate ?? 0, 'enddate' => $enddate ?? 0]);
+$context['dataperiod'] = get_string(
+    'data_period',
+    'tool_cloudmetrics',
+    ['startdate' => $startdate ?? 0, 'enddate' => $enddate ?? 0]
+);
 $context['emptydb'] = $emptydb ?? false;
 $context['linktochart'] = $tochart;
 $context['metriclabel'] = $metrics[$metricname]->get_label();

@@ -27,7 +27,6 @@ namespace tool_cloudmetrics\metric;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class daily_users_metric extends online_users_metric {
-
     /**
      * The metric's name.
      *

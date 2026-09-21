@@ -25,7 +25,6 @@ namespace tool_cloudmetrics\metric;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class builtin_user_base extends builtin_base {
-
     /** @var string Group the metric belongs to */
     public $group = 'user_activity';
 

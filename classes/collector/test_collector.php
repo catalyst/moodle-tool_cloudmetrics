@@ -27,7 +27,6 @@ use tool_cloudmetrics\metric\metric_item;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class test_collector extends base {
-
     /**
      * Record the metric
      *
@@ -45,4 +44,3 @@ class test_collector extends base {
         return true;
     }
 }
-
