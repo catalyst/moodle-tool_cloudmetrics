@@ -78,7 +78,9 @@ foreach ($metrics as $m) {
     $color = html_writer::tag(
         'span',
         '',
-        ['style' => 'display: inline-block; width: 2.5em; height: 1em; background-color: ' . $m->get_colour() . '; margin: 0 6px; vertical-align: middle;']
+        ['style' => 'display: inline-block; width: 2.5em; height: 1em; background-color: '
+            . $m->get_colour()
+            . '; margin: 0 6px; vertical-align: middle;']
     );
     $checkboxes[] = [
         'checkbox' => html_writer::tag('div', $checkbox . $color . $label, [
@@ -293,7 +295,8 @@ if (count($displayedmetrics) == 1) {
     // Calculate threshold for displaying aggregation or not.
     if (count($diffs) > 0) {
         $avgdiff = array_sum($diffs) / count($diffs);
-        // If the ratio between the average(MAX-MIN) and the number of total data points is below 0.25 only display the default aggregate.
+        // If the ratio between the average(MAX-MIN) and the number of total data points is below 0.25
+        // only display the default aggregate.
         if ($avgdiff / $count < 0.25) {
             $displayaggregates = false;
         }
@@ -336,7 +339,10 @@ echo $renderer->render_chart_page($context);
 if ($count == 0) {
     echo $OUTPUT->notification(get_string('norecords', 'cltr_database', $maxrecords), 'info');
 } else {
-    echo $OUTPUT->notification(get_string('displaying_records', 'cltr_database', ['count' => $count, 'freq' => $freqoptions[$displayfrequency]]), 'info');
+    echo $OUTPUT->notification(
+        get_string('displaying_records', 'cltr_database', ['count' => $count, 'freq' => $freqoptions[$displayfrequency]]),
+        'info'
+    );
     if ($displayfrequency != $selectedfrequency) {
         echo $OUTPUT->notification(get_string(
             'different_frequency',
