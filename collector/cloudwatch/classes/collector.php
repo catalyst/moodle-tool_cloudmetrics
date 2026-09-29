@@ -74,12 +74,24 @@ class collector extends base {
      *
      * @param array $items
      * @param \progress_bar|null $progress
+     * @param int $offset Number of items already processed prior to this call, for cumulative progress reporting.
+     * @param int|null $total Grand total of items being processed across all calls. Defaults to count($items).
      * @return mixed
      */
-    public function record_metrics(array $items, \progress_bar $progress = null) {
+    public function record_metrics(array $items, ?\progress_bar $progress = null, int $offset = 0, ?int $total = null) {
+        $total ??= count($items);
         $metricdata = [];
+        $count = $offset;
         foreach ($items as $item) {
             $metricdata[] = $this->make_metric_data_entry($item);
+            if ($progress) {
+                $count++;
+                $progress->update(
+                    $count,
+                    $total,
+                    userdate($item->time, '%e %b %Y, %H:%M')
+                );
+            }
         }
         self::$client->putMetricData([
             'Namespace' => self::$pluginconfig->namespace,
