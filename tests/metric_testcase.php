@@ -16,6 +16,7 @@
 
 namespace tool_cloudmetrics;
 
+use core_phpunit\testcase;
 use tool_cloudmetrics\metric\base;
 use tool_cloudmetrics\metric\metric_item;
 
@@ -27,7 +28,7 @@ use tool_cloudmetrics\metric\metric_item;
  * @copyright  2022, Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class metric_testcase extends \advanced_testcase {
+abstract class metric_testcase extends testcase {
 
     /**
      * Returns a test stub for a metric that gives items, cycling through
